@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>МузCRM — Новый лид</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="brand">♪ МузCRM</div>
+            <div class="brand-sub">Менеджер по продажам</div>
+            <nav class="nav">
+                <a href="/" class="nav-item">Главный экран</a>
+                <a href="/lead-new.html" class="nav-item active">Лиды</a>
+                <a href="#" class="nav-item">Воронка</a>
+                <a href="#" class="nav-item">Договоры</a>
+                <a href="#" class="nav-item">Источники обращений</a>
+                <a href="#" class="nav-item">Профиль</a>
+            </nav>
+        </aside>
+
+        <main class="content">
+            <header class="page-header">
+                <h1>Новый лид</h1>
+                <div class="breadcrumb">Лиды / Создание</div>
+            </header>
+
+            <form id="lead-form" class="form-card">
+
+                <section class="form-section">
+                    <h3 class="section-title">КОНТАКТ</h3>
+                    <div class="grid-2">
+                        <div class="field">
+                            <label for="contact_full_name">ФИО клиента <span class="req">*</span></label>
+                            <input type="text" id="contact_full_name" name="contact_full_name"
+                                   placeholder="Например, Петрова Анна Михайловна" required maxlength="200">
+                        </div>
+                        <div class="field">
+                            <label for="contact_type">Тип контакта</label>
+                            <select id="contact_type" name="contact_type">
+                                <option value="parent">Родитель</option>
+                                <option value="student">Сам ученик</option>
+                                <option value="other">Другое</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="email">Email <span class="req">*</span></label>
+                            <input type="email" id="email" name="email"
+                                   placeholder="email@example.com" required maxlength="200">
+                        </div>
+                        <div class="field">
+                            <label for="telegram">Telegram / мессенджер</label>
+                            <input type="text" id="telegram" name="telegram"
+                                   placeholder="@nickname" maxlength="100">
+                        </div>
+                        <div class="field full">
+                            <label for="phone">Телефон</label>
+                            <input type="tel" id="phone" name="phone"
+                                   placeholder="+7 (___) ___-__-__" maxlength="50">
+                        </div>
+                    </div>
+                </section>
+
+                <section class="form-section">
+                    <h3 class="section-title">ОБ УЧЕНИКЕ</h3>
+                    <div class="grid-2">
+                        <div class="field">
+                            <label for="student_full_name">ФИО ученика</label>
+                            <input type="text" id="student_full_name" name="student_full_name"
+                                   placeholder="Если отличается от контакта" maxlength="200">
+                        </div>
+                        <div class="field">
+                            <label for="student_age">Возраст</label>
+                            <input type="number" id="student_age" name="student_age"
+                                   placeholder="лет" min="3" max="99">
+                        </div>
+                        <div class="field">
+                            <label for="discipline">Интересующая дисциплина <span class="req">*</span></label>
+                            <select id="discipline" name="discipline" required>
+                                <option value="piano">Фортепиано</option>
+                                <option value="guitar">Гитара</option>
+                                <option value="vocals">Вокал</option>
+                                <option value="violin">Скрипка</option>
+                                <option value="drums">Барабаны</option>
+                                <option value="other">Другое</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="level">Уровень</label>
+                            <select id="level" name="level">
+                                <option value="">—</option>
+                                <option value="beginner">Начинающий</option>
+                                <option value="intermediate">Средний</option>
+                                <option value="advanced">Продвинутый</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="lesson_format">Формат занятий</label>
+                            <select id="lesson_format" name="lesson_format">
+                                <option value="">—</option>
+                                <option value="individual">Индивидуальные</option>
+                                <option value="group">Групповые</option>
+                                <option value="online">Онлайн</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="preferred_branch">Предпочтительный филиал</label>
+                            <input type="text" id="preferred_branch" name="preferred_branch"
+                                   placeholder="Например, Москва" maxlength="100">
+                        </div>
+                    </div>
+                </section>
+
+                <section class="form-section">
+                    <h3 class="section-title">ИСТОЧНИК ОБРАЩЕНИЯ</h3>
+                    <div class="grid-2">
+                        <div class="field">
+                            <label for="channel">Канал <span class="req">*</span></label>
+                            <select id="channel" name="channel" required>
+                                <option value="website">Сайт</option>
+                                <option value="phone">Звонок</option>
+                                <option value="social">Соцсети</option>
+                                <option value="referral">Сарафан</option>
+                                <option value="advertising">Реклама</option>
+                                <option value="other">Другое</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="utm_campaign">UTM / кампания</label>
+                            <input type="text" id="utm_campaign" name="utm_campaign"
+                                   placeholder="spring_promo_2026" maxlength="200">
+                        </div>
+                    </div>
+                </section>
+
+                <section class="form-section">
+                    <h3 class="section-title">ЗАМЕТКА МЕНЕДЖЕРА</h3>
+                    <div class="field">
+                        <label for="manager_comment">Комментарий</label>
+                        <textarea id="manager_comment" name="manager_comment" rows="4"
+                                  placeholder="Что важно знать о клиенте: уровень интереса, особые условия, ожидания"></textarea>
+                    </div>
+                </section>
+
+                <div id="message" class="message hidden"></div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn-ghost" onclick="window.location.href='/'">Отмена</button>
+                    <button type="submit" class="btn-primary">Сохранить и назначить пробный →</button>
+                </div>
+            </form>
+        </main>
+    </div>
+
+    <script src="/lead-new.js"></script>
+</body>
+</html>

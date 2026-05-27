@@ -4,7 +4,7 @@ FROM python:3.12-slim
 # Настройка работы импортов 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PYTHONPATH=/app
+    PYTHONPATH=/app/backend
 
 # Posgresql клиент пакеты , нужные для psycopg2 и сборки asyncpg
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -35,4 +35,5 @@ EXPOSE 8000
 # команда запуска: переход в папку backend и запуск uvicorn
 # --reload включаем для разработки (автоперезапуск при изменении кода)
 WORKDIR /app/backend
+ENV PYTHONPATH=/app/backend
 CMD ["uv", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
