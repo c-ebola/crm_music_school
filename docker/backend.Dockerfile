@@ -11,8 +11,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         build-essential \
         libpq-dev \
         curl \
+        postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
+    
 # Устанавливка uv в контейнер
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
@@ -29,11 +31,12 @@ RUN uv sync --frozen --no-install-project --no-dev
 COPY backend/ ./backend/
 COPY .env* ./
 
-# Порт FastAPI
+
+# Копируем entrypoint-скрипт
+COPY docker/backend-entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 EXPOSE 8000
 
-# команда запуска: переход в папку backend и запуск uvicorn
-# --reload включаем для разработки (автоперезапуск при изменении кода)
-WORKDIR /app/backend
-ENV PYTHONPATH=/app/backend
-CMD ["uv", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+# При старте контейнера: ждём БД → миграции → запуск
+ENTRYPOINT ["/entrypoint.sh"]
