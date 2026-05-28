@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>МузCRM — Новый сотрудник</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="brand">♪ МузCRM</div>
+            <div class="brand-sub">Менеджер по продажам</div>
+            <nav class="nav">
+                <a href="/" class="nav-item">Главный экран</a>
+                <a href="/lead-new.html" class="nav-item">Лиды</a>
+                <a href="#" class="nav-item">Воронка</a>
+                <a href="#" class="nav-item">Договоры</a>
+                <a href="/employee-new.html" class="nav-item active">Сотрудники</a>
+                <a href="#" class="nav-item">Источники обращений</a>
+                <a href="#" class="nav-item">Профиль</a>
+            </nav>
+        </aside>
+
+        <main class="content">
+            <header class="page-header">
+                <h1>Новый сотрудник</h1>
+                <div class="breadcrumb">Сотрудники / Создание</div>
+            </header>
+
+            <form id="employee-form" class="form-card">
+
+                <section class="form-section">
+                    <h3 class="section-title">ЛИЧНЫЕ ДАННЫЕ</h3>
+                    <div class="grid-2">
+                        <div class="field">
+                            <label for="last_name">Фамилия <span class="req">*</span></label>
+                            <input type="text" id="last_name" name="last_name"
+                                   placeholder="Иванов" required maxlength="100">
+                        </div>
+                        <div class="field">
+                            <label for="first_name">Имя <span class="req">*</span></label>
+                            <input type="text" id="first_name" name="first_name"
+                                   placeholder="Иван" required maxlength="100">
+                        </div>
+                        <div class="field">
+                            <label for="middle_name">Отчество</label>
+                            <input type="text" id="middle_name" name="middle_name"
+                                   placeholder="Иванович" maxlength="100">
+                        </div>
+                        <div class="field">
+                            <label for="birth_date">Дата рождения</label>
+                            <input type="date" id="birth_date" name="birth_date">
+                        </div>
+                        <div class="field">
+                            <label for="gender">Пол</label>
+                            <select id="gender" name="gender">
+                                <option value="">—</option>
+                                <option value="male">Мужской</option>
+                                <option value="female">Женский</option>
+                                <option value="other">Другое</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="form-section">
+                    <h3 class="section-title">КОНТАКТЫ</h3>
+                    <div class="grid-2">
+                        <div class="field">
+                            <label for="email">Email <span class="req">*</span></label>
+                            <input type="email" id="email" name="email"
+                                   placeholder="employee@example.com" required maxlength="200">
+                        </div>
+                        <div class="field">
+                            <label for="phone">Телефон</label>
+                            <input type="tel" id="phone" name="phone"
+                                   placeholder="+7 (___) ___-__-__" maxlength="50">
+                        </div>
+                        <div class="field full">
+                            <label for="telegram">Telegram</label>
+                            <input type="text" id="telegram" name="telegram"
+                                   placeholder="@nickname" maxlength="100">
+                        </div>
+                    </div>
+                </section>
+
+                <section class="form-section">
+                    <h3 class="section-title">ДОЛЖНОСТНЫЕ ДАННЫЕ</h3>
+                    <div class="grid-2">
+                        <div class="field">
+                            <label for="role_id">Роль <span class="req">*</span></label>
+                            <select id="role_id" name="role_id" required>
+                                <option value="">Загрузка...</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="branch">Филиал</label>
+                            <input type="text" id="branch" name="branch"
+                                   placeholder="Например, Москва" maxlength="100">
+                        </div>
+                        <div class="field">
+                            <label for="hire_date">Дата приёма <span class="req">*</span></label>
+                            <input type="date" id="hire_date" name="hire_date" required>
+                        </div>
+                        <div class="field">
+                            <label for="disciplines">Преподаваемые дисциплины</label>
+                            <input type="text" id="disciplines" name="disciplines"
+                                   placeholder="Фортепиано, Вокал" maxlength="300">
+                        </div>
+                    </div>
+                </section>
+
+                <section class="form-section">
+                    <h3 class="section-title">ПРИМЕЧАНИЯ</h3>
+                    <div class="field">
+                        <label for="notes">Заметки</label>
+                        <textarea id="notes" name="notes" rows="4"
+                                  placeholder="Особенности, опыт работы, рекомендации"></textarea>
+                    </div>
+                </section>
+
+                <div id="message" class="message hidden"></div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn-ghost" onclick="window.location.href='/'">Отмена</button>
+                    <button type="submit" class="btn-primary">Сохранить →</button>
+                </div>
+            </form>
+        </main>
+    </div>
+
+    <script src="/employee-new.js"></script>
+</body>
+</html>
