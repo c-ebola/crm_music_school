@@ -1,0 +1,36 @@
+from datetime import datetime, timedelta, timezone
+
+import bcrypt
+from jose import JWTError, jwt
+
+from app.core.config import settings
+
+
+def hash_password(password: str) -> str:
+    """Хешировать пароль (bcrypt, лимит 72 байта)."""
+    pwd = password.encode("utf-8")[:72]
+    return bcrypt.hashpw(pwd, bcrypt.gensalt()).decode("utf-8")
+
+
+def verify_password(plain: str, hashed: str) -> bool:
+    """Проверить пароль против хеша."""
+    return bcrypt.checkpw(plain.encode("utf-8")[:72], hashed.encode("utf-8"))
+
+
+def create_access_token(subject: str | int, extra: dict | None = None) -> str:
+    """Создать JWT-токен. subject обычно id пользователя."""
+    expire = datetime.now(timezone.utc) + timedelta(minutes=settings.jwt_expire_minutes)
+    payload = {"sub": str(subject), "exp": expire}
+    if extra:
+        payload.update(extra)
+    return jwt.encode(payload, settings.jwt_secret_key, algorithm=settings.jwt_algorithm)
+
+
+def decode_token(token: str) -> dict | None:
+    """Расшифровать и проверить JWT. None при невалидном токене."""
+    try:
+        return jwt.decode(
+            token, settings.jwt_secret_key, algorithms=[settings.jwt_algorithm]
+        )
+    except JWTError:
+        return None
