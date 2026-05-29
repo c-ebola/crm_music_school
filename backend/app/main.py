@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
-from app.api import roles, leads, employees
+from app.api import roles, leads, auth, users
 from app.core.config import settings
 from app.db.session import engine
 
@@ -35,7 +35,8 @@ app.add_middleware(
 # Подключаем роутеры API
 app.include_router(roles.router)
 app.include_router(leads.router)
-app.include_router(employees.router)
+app.include_router(auth.router)
+app.include_router(users.router)
 
 @app.get("/")
 async def root():

@@ -12,5 +12,8 @@ echo "[entrypoint] БД готова. Применяем миграции Alembi
 cd /app/backend
 uv run alembic upgrade head
 
-echo "[entrypoint] Миграции применены. Запускаем приложение..."
+echo "[entrypoint] Создаём первого администратора (если нужно)..."
+uv run python -m app.initial_data
+
+echo "[entrypoint] Запускаем приложение..."
 exec uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload

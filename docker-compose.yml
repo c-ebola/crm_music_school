@@ -31,6 +31,8 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
       DEBUG: ${DEBUG}
+      FIRST_ADMIN_EMAIL: ${FIRST_ADMIN_EMAIL}
+      FIRST_ADMIN_PASSWORD: ${FIRST_ADMIN_PASSWORD}
     ports:
       # Прокидываем порт наружу для прямого доступа к Swagger UI и отладки
       - "8000:8000"
