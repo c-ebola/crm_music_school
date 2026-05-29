@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>МузCRM — Пользователи</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="brand">♪ МузCRM</div>
+            <div class="brand-sub" id="current-user">…</div>
+            <nav class="nav">
+                <a href="/" class="nav-item">Главный экран</a>
+                <a href="/lead-new.html" class="nav-item">Лиды</a>
+                <a href="/users.html" class="nav-item active">Пользователи</a>
+            </nav>
+            <button id="logout-btn" class="btn-ghost" style="margin-top:24px;width:100%;">Выйти</button>
+        </aside>
+
+        <main class="content">
+            <header class="page-header">
+                <h1>Пользователи</h1>
+                <div class="breadcrumb">Управление сотрудниками и правами</div>
+            </header>
+
+            <form id="user-form" class="form-card">
+                <section class="form-section">
+                    <h3 class="section-title">НОВЫЙ ПОЛЬЗОВАТЕЛЬ</h3>
+                    <div class="grid-2">
+                        <div class="field">
+                            <label for="last_name">Фамилия <span class="req">*</span></label>
+                            <input type="text" id="last_name" name="last_name" required maxlength="100">
+                        </div>
+                        <div class="field">
+                            <label for="first_name">Имя <span class="req">*</span></label>
+                            <input type="text" id="first_name" name="first_name" required maxlength="100">
+                        </div>
+                        <div class="field">
+                            <label for="middle_name">Отчество</label>
+                            <input type="text" id="middle_name" name="middle_name" maxlength="100">
+                        </div>
+                        <div class="field">
+                            <label for="phone">Телефон</label>
+                            <input type="tel" id="phone" name="phone" maxlength="50">
+                        </div>
+                        <div class="field">
+                            <label for="email">Email (логин) <span class="req">*</span></label>
+                            <input type="email" id="email" name="email" required maxlength="200">
+                        </div>
+                        <div class="field">
+                            <label for="password">Пароль <span class="req">*</span></label>
+                            <input type="password" id="password" name="password" required minlength="8">
+                        </div>
+                    </div>
+                </section>
+
+                <section class="form-section">
+                    <h3 class="section-title">ПРАВА ДОСТУПА</h3>
+                    <div class="grid-2">
+                        <div class="field">
+                            <label for="role_id">Роль <span class="req">*</span></label>
+                            <select id="role_id" name="role_id" required>
+                                <option value="">Загрузка...</option>
+                            </select>
+                        </div>
+                        <div class="field" style="justify-content:flex-end;">
+                            <label style="font-weight:400;display:flex;align-items:center;gap:8px;">
+                                <input type="checkbox" id="is_active" checked style="width:auto;">
+                                Активен (может входить)
+                            </label>
+                            <label style="font-weight:400;display:flex;align-items:center;gap:8px;margin-top:8px;">
+                                <input type="checkbox" id="is_superuser" style="width:auto;">
+                                Суперпользователь (полные права)
+                            </label>
+                        </div>
+                    </div>
+                </section>
+
+                <div id="message" class="message hidden"></div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Создать пользователя →</button>
+                </div>
+            </form>
+
+            <section class="card" style="margin-top:16px;">
+                <h2 style="font-size:18px;margin-bottom:16px;">Список пользователей</h2>
+                <table>
+                    <thead>
+                        <tr><th>ID</th><th>ФИО</th><th>Email</th><th>Роль</th><th>Статус</th></tr>
+                    </thead>
+                    <tbody id="users-tbody">
+                        <tr><td colspan="5" class="empty">Загрузка...</td></tr>
+                    </tbody>
+                </table>
+            </section>
+        </main>
+    </div>
+    <script src="/users.js"></script>
+</body>
+</html>

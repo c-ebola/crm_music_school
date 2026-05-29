@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>МузCRM — Вход</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <div style="max-width:380px;margin:80px auto;padding:0 16px;">
+        <div class="brand" style="font-size:22px;text-align:center;">♪ МузCRM</div>
+        <div class="brand-sub" style="text-align:center;margin-bottom:24px;">Вход в систему</div>
+        <form id="login-form" class="form-card">
+            <div class="field">
+                <label for="email">Email</label>
+                <input type="email" id="email" required placeholder="admin@crm.local">
+            </div>
+            <div class="field" style="margin-top:12px;">
+                <label for="password">Пароль</label>
+                <input type="password" id="password" required>
+            </div>
+            <div id="message" class="message hidden"></div>
+            <button type="submit" class="btn-primary" style="width:100%;margin-top:16px;">Войти</button>
+        </form>
+    </div>
+    <script src="/login.js"></script>
+</body>
+</html>
