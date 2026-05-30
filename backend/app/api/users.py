@@ -28,3 +28,15 @@ async def create_user(data: UserCreate, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=400, detail=str(e))
     except user_service.EmailAlreadyExistsError as e:
         raise HTTPException(status_code=409, detail=str(e))
+
+
+@router.get("/teachers", response_model=list[UserRead], dependencies=[])
+async def get_teachers(db: AsyncSession = Depends(get_db)):
+    """Список преподавателей для выпадающих списков."""
+    from sqlalchemy import select
+    from app.models.user import User
+    from app.models.role import Role
+    result = await db.execute(
+        select(User).join(Role).where(Role.code == "teacher")
+    )
+    return list(result.scalars().all())
