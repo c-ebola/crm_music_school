@@ -31,3 +31,7 @@ async def page_users():
 @router.get("/leads", summary="Создание лида")
 async def page_leads():
     return _html("lead-new.html")
+
+@router.get("/convert", summary="Конверсия лида в ученика")
+async def page_convert():
+    return _html("convert.html")

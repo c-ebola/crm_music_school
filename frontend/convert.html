@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>МузCRM — Конверсия лида</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        .lead-info { background:#f5f5f7; border-radius:10px; padding:16px; margin-bottom:20px; }
+        .lead-info h3 { font-size:15px; margin-bottom:10px; }
+        .lead-info .row { display:flex; justify-content:space-between; padding:4px 0; font-size:14px; }
+        .lead-info .row span:first-child { color:#86868b; }
+        .hint { font-size:13px; color:#86868b; margin-top:4px; }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="brand">♪ МузCRM</div>
+            <div class="brand-sub">CRM</div>
+            <nav class="nav">
+                <a href="/" class="nav-item">Главный экран</a>
+                <a href="/leads" class="nav-item">Новый лид</a>
+                <a href="/convert" class="nav-item active">Конверсия</a>
+                <a href="/students-list" class="nav-item">Ученики</a>
+                <a href="/users" class="nav-item">Пользователи</a>
+            </nav>
+        </aside>
+
+        <main class="content">
+            <header class="page-header">
+                <h1>Конверсия лида в ученика</h1>
+                <div class="breadcrumb">Зачисление заявки на обучение</div>
+            </header>
+
+            <section class="card">
+                <div class="field">
+                    <label for="lead-id-input">ID лида</label>
+                    <div style="display:flex; gap:8px;">
+                        <input type="number" id="lead-id-input" placeholder="Введите id лида" style="flex:1;">
+                        <button type="button" class="btn-ghost" id="load-btn">Загрузить</button>
+                    </div>
+                    <div class="hint">Можно открыть сразу: /convert?lead_id=2</div>
+                </div>
+
+                <div id="lead-info" class="lead-info hidden"></div>
+
+                <form id="convert-form" class="hidden">
+                    <div class="grid-2">
+                        <div class="field">
+                            <label for="f_full_name">ФИО ученика *</label>
+                            <input type="text" id="f_full_name" required>
+                            <div class="hint">Подставлено из заявки, можно изменить</div>
+                        </div>
+                        <div class="field">
+                            <label for="f_teacher">Преподаватель</label>
+                            <select id="f_teacher"><option value="">— не назначен —</option></select>
+                        </div>
+                        <div class="field">
+                            <label for="f_branch">Филиал</label>
+                            <input type="text" id="f_branch">
+                        </div>
+                        <div class="field">
+                            <label for="f_enrollment">Дата зачисления *</label>
+                            <input type="date" id="f_enrollment" required>
+                        </div>
+                    </div>
+
+                    <div id="message" class="message hidden"></div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">Зачислить ученика</button>
+                    </div>
+                </form>
+            </section>
+        </main>
+    </div>
+    <script src="/convert.js"></script>
+</body>
+</html>
