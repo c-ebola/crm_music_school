@@ -86,7 +86,7 @@ form.addEventListener('submit', async (e) => {
         });
         const data = await r.json();
         if (r.ok) {
-            message.innerHTML = `Ученик зачислен (№${data.id}: ${esc(data.full_name)}). ` +
+            message.innerHTML = `Ученик зачислен (№${data.id}: ${esc(data.student_full_name)}). ` +
                 `<a href="/students-list">Перейти к списку учеников</a>`;
             message.className = 'message success';
             form.classList.add('hidden');

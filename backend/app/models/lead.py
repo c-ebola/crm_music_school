@@ -1,7 +1,8 @@
 import enum
-from datetime import datetime
-from sqlalchemy import String, Integer, Text, DateTime, Enum, func
-from sqlalchemy.orm import Mapped, mapped_column
+from datetime import date, datetime
+from sqlalchemy import Boolean, Date, DateTime, Enum, ForeignKey, Integer, String, Text, func
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 
 from app.db.base import Base
 
@@ -56,6 +57,13 @@ class LeadStatus(str, enum.Enum):
     rejected = "rejected"             # отказ
 
 
+class StudentStatus(str, enum.Enum):
+    active = "active"
+    paused = "paused"
+    finished = "finished"
+    dropped = "dropped"
+
+
 class Lead(Base):
     __tablename__ = "leads"
 
@@ -100,6 +108,15 @@ class Lead(Base):
         default=LeadStatus.new,
     )
 
+    is_student: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    teacher_id: Mapped[int | None] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL")
+    )
+    enrollment_date: Mapped[date | None] = mapped_column(Date)
+    student_status: Mapped[StudentStatus | None] = mapped_column(
+        Enum(StudentStatus, name="student_status")
+    )
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),
@@ -114,3 +131,5 @@ class Lead(Base):
 
     def __repr__(self) -> str:
         return f"<Lead(id={self.id}, name={self.contact_full_name!r})>"
+    
+    teacher: Mapped["User | None"] = relationship("User", lazy="joined")  # noqa: F821
