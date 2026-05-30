@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import text
 
-from app.api import roles, leads, auth, users, pages
+from app.api import auth, leads, pages, roles, users
 from app.core.config import settings
 from app.db.session import engine
 
@@ -19,7 +19,11 @@ async def lifespan(app: FastAPI):
     await engine.dispose()
 
 
-app = FastAPI(title=settings.app_name, debug=settings.debug, lifespan=lifespan)
+app = FastAPI(
+    title=settings.app_name,
+    debug=settings.debug,
+    lifespan=lifespan,
+)
 
 app.add_middleware(
     CORSMiddleware,
@@ -47,10 +51,16 @@ async def health_check():
         return {"status": "error", "database": "disconnected", "error": str(e)}
 
 
-# --- Веб-маршруты страниц (чистые URL: /login, /users, /leads) ---
+# --- Веб-маршруты (чистые URL без .html) ---
+# Регистрируются ДО монтирования статики, чтобы имели приоритет
 app.include_router(pages.router)
 
-# --- Статика фронта (CSS, JS, .html). Монтируется ПОСЛЕДНЕЙ как catch-all ---
+# --- Статика фронта (CSS, JS, .html файлы) ---
+# Монтируется ПОСЛЕДНЕЙ как catch-all
 FRONTEND_DIR = Path(__file__).resolve().parents[2] / "frontend"
 if FRONTEND_DIR.exists():
-    app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")
+    app.mount(
+        "/",
+        StaticFiles(directory=FRONTEND_DIR, html=True),
+        name="frontend",
+    )

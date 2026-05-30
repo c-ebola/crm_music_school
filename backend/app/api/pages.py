@@ -13,19 +13,21 @@ def _html(filename: str) -> FileResponse:
     return FileResponse(FRONTEND_DIR / filename, media_type="text/html")
 
 
-@router.get("/login")
+@router.get("/", summary="Главная страница")
+async def page_index():
+    return _html("index.html")
+
+
+@router.get("/login", summary="Страница входа")
 async def page_login():
-    """Веб-страница входа."""
     return _html("login.html")
 
 
-@router.get("/users")
+@router.get("/users", summary="Управление пользователями")
 async def page_users():
-    """Веб-страница управления пользователями."""
     return _html("users.html")
 
 
-@router.get("/leads")
+@router.get("/leads", summary="Создание лида")
 async def page_leads():
-    """Веб-страница создания лида."""
     return _html("lead-new.html")
