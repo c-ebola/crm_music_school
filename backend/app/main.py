@@ -1,10 +1,12 @@
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy import text
 
-from app.api import roles, leads, auth, users
+from app.api import roles, leads, auth, users, pages
 from app.core.config import settings
 from app.db.session import engine
 
@@ -17,13 +19,8 @@ async def lifespan(app: FastAPI):
     await engine.dispose()
 
 
-app = FastAPI(
-    title=settings.app_name,
-    debug=settings.debug,
-    lifespan=lifespan,
-)
+app = FastAPI(title=settings.app_name, debug=settings.debug, lifespan=lifespan)
 
-# CORS — на всякий случай оставляем (для разработки)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -32,20 +29,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Подключаем роутеры API
+# --- API-маршруты ---
 app.include_router(roles.router)
 app.include_router(leads.router)
 app.include_router(auth.router)
 app.include_router(users.router)
 
-@app.get("/")
-async def root():
-    return {"message": "CRM Music School API", "docs": "/docs"}
 
-
-@app.get("/health")
+@app.get("/health", tags=["system"])
 async def health_check():
-    """Проверка работоспособности: пингуем БД."""
     try:
         async with engine.connect() as conn:
             result = await conn.execute(text("SELECT 1"))
@@ -53,3 +45,12 @@ async def health_check():
         return {"status": "ok", "database": "connected", "test_query": row}
     except Exception as e:
         return {"status": "error", "database": "disconnected", "error": str(e)}
+
+
+# --- Веб-маршруты страниц (чистые URL: /login, /users, /leads) ---
+app.include_router(pages.router)
+
+# --- Статика фронта (CSS, JS, .html). Монтируется ПОСЛЕДНЕЙ как catch-all ---
+FRONTEND_DIR = Path(__file__).resolve().parents[2] / "frontend"
+if FRONTEND_DIR.exists():
+    app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")

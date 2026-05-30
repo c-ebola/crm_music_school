@@ -9,36 +9,53 @@ from app.db.session import AsyncSessionLocal
 from app.models.role import Role
 from app.models.user import User
 
+# (email, пароль, фамилия, имя, код_роли, суперпользователь)
+SEED_USERS = [
+    (settings.first_admin_email, settings.first_admin_password,
+     "Администратор", "Системный", "admin", True),
+    ("manager1@crm.local", "password123", "Соколова", "Мария", "manager", False),
+    ("manager2@crm.local", "password123", "Орлов", "Игорь", "manager", False),
+    ("teacher1@crm.local", "password123", "Петров", "Андрей", "teacher", False),
+    ("teacher2@crm.local", "password123", "Кузнецова", "Елена", "teacher", False),
+    ("methodist1@crm.local", "password123", "Васильева", "Ольга", "methodist", False),
+]
+
 
 async def main() -> None:
     try:
         async with AsyncSessionLocal() as db:
-            existing = await db.execute(select(User).limit(1))
-            if existing.scalar_one_or_none() is not None:
-                print("[seed] Пользователи уже есть, создание админа пропущено")
-                return
+            roles = (await db.execute(select(Role))).scalars().all()
+            role_by_code = {r.code: r for r in roles}
 
-            role_res = await db.execute(select(Role).where(Role.code == "admin"))
-            admin_role = role_res.scalar_one_or_none()
-            if admin_role is None:
-                print("[seed] Роль 'admin' не найдена — пропуск")
-                return
+            created = 0
+            for email, pwd, last, first, role_code, is_super in SEED_USERS:
+                role = role_by_code.get(role_code)
+                if role is None:
+                    print(f"[seed] роль '{role_code}' не найдена, пропуск {email}")
+                    continue
 
-            admin = User(
-                email=settings.first_admin_email,
-                hashed_password=hash_password(settings.first_admin_password),
-                last_name="Администратор",
-                first_name="Системный",
-                role_id=admin_role.id,
-                is_active=True,
-                is_superuser=True,
-            )
-            db.add(admin)
-            await db.commit()
-            print(f"[seed] Создан администратор: {settings.first_admin_email}")
+                exists = await db.execute(select(User).where(User.email == email))
+                if exists.scalar_one_or_none() is not None:
+                    continue
+
+                db.add(User(
+                    email=email,
+                    hashed_password=hash_password(pwd),
+                    last_name=last,
+                    first_name=first,
+                    role_id=role.id,
+                    is_active=True,
+                    is_superuser=is_super,
+                ))
+                created += 1
+
+            if created:
+                await db.commit()
+                print(f"[seed] создано пользователей: {created}")
+            else:
+                print("[seed] пользователи уже есть, пропуск")
     except SQLAlchemyError as e:
-        # Таблицы users ещё нет (миграция не применена) — не валим запуск
-        print(f"[seed] Пропуск создания админа (БД не готова): {e}")
+        print(f"[seed] пропуск создания пользователей (БД не готова): {e}")
 
 
 if __name__ == "__main__":

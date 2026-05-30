@@ -29,6 +29,7 @@ RUN uv sync --frozen --no-install-project --no-dev
 
 # копируем сам код приложения
 COPY backend/ ./backend/
+COPY frontend/ ./frontend/
 COPY .env* ./
 
 
