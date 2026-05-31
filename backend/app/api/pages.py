@@ -45,3 +45,7 @@ async def page_plans():
 @router.get("/subscription-new", summary="Оформление абонемента")
 async def page_subscription_new():
     return _html("subscription-new.html")
+
+@router.get("/payment-new", summary="Фиксация оплаты")
+async def page_payment_new():
+    return _html("payment-new.html")
