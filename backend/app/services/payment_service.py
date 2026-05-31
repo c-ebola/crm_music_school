@@ -1,9 +1,9 @@
-from datetime import date
+from datetime import date, datetime, timezone
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.payment import Payment
+from app.models.payment import Payment, PaymentStatus
 from app.models.subscription import Subscription
 from app.schemas.payment import PaymentCreate, PaymentUpdate
 
@@ -46,14 +46,16 @@ async def list_payments(
     db: AsyncSession,
     subscription_id: int | None = None,
     student_id: int | None = None,
+    status: PaymentStatus | None = None,
 ) -> list[dict]:
     query = select(Payment)
     if subscription_id is not None:
         query = query.where(Payment.subscription_id == subscription_id)
     if student_id is not None:
-        # все абонементы ученика → их платежи
         sub_ids = select(Subscription.id).where(Subscription.student_id == student_id)
         query = query.where(Payment.subscription_id.in_(sub_ids))
+    if status is not None:
+        query = query.where(Payment.status == status)
     query = query.order_by(Payment.created_at.desc())
     result = await db.execute(query)
     return [_to_read_dict(p) for p in result.scalars().all()]
@@ -90,6 +92,32 @@ async def update_payment(db: AsyncSession, payment_id: int, data: PaymentUpdate)
         return None
     for field, value in data.model_dump(exclude_unset=True).items():
         setattr(payment, field, value)
+    await db.commit()
+    await db.refresh(payment)
+    return _to_read_dict(payment)
+
+
+async def confirm_payment(db: AsyncSession, payment_id: int, admin_id: int) -> dict | None:
+    result = await db.execute(select(Payment).where(Payment.id == payment_id))
+    payment = result.scalar_one_or_none()
+    if payment is None:
+        return None
+    payment.status = PaymentStatus.confirmed
+    payment.confirmed_by = admin_id
+    payment.confirmed_at = datetime.now(timezone.utc)
+    await db.commit()
+    await db.refresh(payment)
+    return _to_read_dict(payment)
+
+
+async def reject_payment(db: AsyncSession, payment_id: int, admin_id: int) -> dict | None:
+    result = await db.execute(select(Payment).where(Payment.id == payment_id))
+    payment = result.scalar_one_or_none()
+    if payment is None:
+        return None
+    payment.status = PaymentStatus.rejected
+    payment.confirmed_by = admin_id
+    payment.confirmed_at = datetime.now(timezone.utc)
     await db.commit()
     await db.refresh(payment)
     return _to_read_dict(payment)

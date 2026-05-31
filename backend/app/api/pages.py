@@ -56,3 +56,8 @@ async def page_payment_new():
 @router.get("/student-finance", summary="Абонементы и оплаты ученика")
 async def page_student_finance():
     return _html("student-finance.html")
+
+
+@router.get("/confirm-payments", summary="Подтверждение оплат")
+async def page_confirm_payments():
+    return _html("confirm-payments.html")
