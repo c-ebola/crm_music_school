@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>МузCRM — Оформление абонемента</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        .plan-preview { background:#f5f5f7; border-radius:10px; padding:16px; margin:12px 0; display:none; }
+        .plan-preview.show { display:block; }
+        .plan-preview .row { display:flex; justify-content:space-between; padding:4px 0; font-size:14px; }
+        .plan-preview .row span:first-child { color:#86868b; }
+        .plan-preview .price { font-weight:600; font-size:18px; }
+        .result { background:#d1f4d1; border-radius:10px; padding:16px; margin-top:16px; display:none; }
+        .result.show { display:block; }
+        .result .row { display:flex; justify-content:space-between; padding:3px 0; font-size:14px; }
+        .big { font-size:22px; font-weight:700; color:#1d6e1d; }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="brand">♪ МузCRM</div>
+            <div class="brand-sub">CRM</div>
+            <nav class="nav">
+                <a href="/" class="nav-item">Главный экран</a>
+                <a href="/convert" class="nav-item">Конверсия</a>
+                <a href="/plans" class="nav-item">Абонементы</a>
+                <a href="/subscription-new" class="nav-item active">Оформить абонемент</a>
+                <a href="/users" class="nav-item">Пользователи</a>
+            </nav>
+        </aside>
+
+        <main class="content">
+            <header class="page-header">
+                <h1>Оформление абонемента</h1>
+                <div class="breadcrumb">Привязка тарифа к ученику</div>
+            </header>
+
+            <section class="card">
+                <form id="sub-form">
+                    <div class="field">
+                        <label for="f_student">Ученик *</label>
+                        <select id="f_student" required>
+                            <option value="">— выберите ученика —</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="f_plan">Тариф (абонемент) *</label>
+                        <select id="f_plan" required>
+                            <option value="">— выберите тариф —</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="f_start">Дата начала</label>
+                        <input type="date" id="f_start">
+                        <div style="font-size:13px; color:#86868b; margin-top:4px;">Если пусто — сегодня. Дата окончания посчитается автоматически.</div>
+                    </div>
+
+                    <div class="plan-preview" id="plan-preview"></div>
+
+                    <div id="message" class="message hidden"></div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">Оформить абонемент</button>
+                    </div>
+                </form>
+
+                <div class="result" id="result"></div>
+            </section>
+        </main>
+    </div>
+    <script src="/subscription-new.js"></script>
+</body>
+</html>

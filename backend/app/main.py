@@ -6,7 +6,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import text
 
-from app.api import auth, leads, pages, roles, users, subscription_plans
+from app.api import (auth, leads, 
+pages, roles, users, subscription_plans, subscriptions)
 from app.core.config import settings
 from app.db.session import engine
 
@@ -39,7 +40,7 @@ app.include_router(leads.router)
 app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(subscription_plans.router)
-
+app.include_router(subscriptions.router)
 
 
 @app.get("/health", tags=["system"])

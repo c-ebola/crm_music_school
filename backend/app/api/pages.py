@@ -41,3 +41,7 @@ async def page_convert():
 @router.get("/plans", summary="Каталог абонементов")
 async def page_plans():
     return _html("plans.html")
+
+@router.get("/subscription-new", summary="Оформление абонемента")
+async def page_subscription_new():
+    return _html("subscription-new.html")
