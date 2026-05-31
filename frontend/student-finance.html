@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>МузCRM — Абонементы и оплаты ученика</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        .summary { display:flex; gap:14px; flex-wrap:wrap; margin:16px 0; }
+        .stat { background:#f5f5f7; border-radius:10px; padding:14px 18px; min-width:150px; }
+        .stat .label { font-size:12px; color:#86868b; }
+        .stat .value { font-size:20px; font-weight:700; margin-top:4px; }
+        .stat.green .value { color:#1d6e1d; }
+        .stat.amber .value { color:#8a6400; }
+        .section-title { font-size:16px; font-weight:600; margin:20px 0 10px; }
+        .badge { display:inline-block; padding:2px 10px; border-radius:12px; font-size:12px; }
+        .b-active,.b-confirmed { background:#d1f4d1; color:#1d6e1d; }
+        .b-pending { background:#fff3d1; color:#8a6400; }
+        .b-rejected,.b-cancelled,.b-expired { background:#fadcdc; color:#8c1f1f; }
+        .b-used_up { background:#eee; color:#666; }
+        .muted { color:#86868b; }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="brand">♪ МузCRM</div>
+            <div class="brand-sub">CRM</div>
+            <nav class="nav">
+                <a href="/" class="nav-item">Главный экран</a>
+                <a href="/subscription-new" class="nav-item">Оформить абонемент</a>
+                <a href="/payment-new" class="nav-item">Фиксация оплаты</a>
+                <a href="/student-finance" class="nav-item active">Финансы ученика</a>
+                <a href="/users" class="nav-item">Пользователи</a>
+            </nav>
+        </aside>
+
+        <main class="content">
+            <header class="page-header">
+                <h1>Абонементы и оплаты ученика</h1>
+                <div class="breadcrumb">Финансовый обзор по ученику</div>
+            </header>
+
+            <section class="card">
+                <div class="field">
+                    <label for="f_student">Ученик</label>
+                    <select id="f_student">
+                        <option value="">— выберите ученика —</option>
+                    </select>
+                </div>
+            </section>
+
+            <div id="content" class="hidden">
+                <div class="summary" id="summary"></div>
+
+                <section class="card">
+                    <div class="section-title">Абонементы</div>
+                    <table>
+                        <thead>
+                            <tr><th>№</th><th>Тариф</th><th>Занятия</th><th>Оплачено</th><th>Период</th><th>Статус</th></tr>
+                        </thead>
+                        <tbody id="subs-tbody"></tbody>
+                    </table>
+                </section>
+
+                <section class="card" style="margin-top:16px;">
+                    <div class="section-title">Оплаты</div>
+                    <table>
+                        <thead>
+                            <tr><th>№</th><th>Дата</th><th>Сумма</th><th>Способ</th><th>Тариф</th><th>Статус</th></tr>
+                        </thead>
+                        <tbody id="pays-tbody"></tbody>
+                    </table>
+                </section>
+            </div>
+        </main>
+    </div>
+    <script src="/student-finance.js"></script>
+</body>
+</html>

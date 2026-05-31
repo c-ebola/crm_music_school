@@ -42,10 +42,17 @@ async def page_convert():
 async def page_plans():
     return _html("plans.html")
 
+
 @router.get("/subscription-new", summary="Оформление абонемента")
 async def page_subscription_new():
     return _html("subscription-new.html")
 
+
 @router.get("/payment-new", summary="Фиксация оплаты")
 async def page_payment_new():
     return _html("payment-new.html")
+
+
+@router.get("/student-finance", summary="Абонементы и оплаты ученика")
+async def page_student_finance():
+    return _html("student-finance.html")
