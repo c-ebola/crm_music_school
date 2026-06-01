@@ -5,59 +5,53 @@ from fastapi.responses import FileResponse
 
 router = APIRouter(tags=["pages"])
 
-# В контейнере фронт лежит в /app/frontend
 FRONTEND_DIR = Path(__file__).resolve().parents[3] / "frontend"
 
 
-def _html(filename: str) -> FileResponse:
-    return FileResponse(FRONTEND_DIR / filename, media_type="text/html")
+def _html(rel_path: str) -> FileResponse:
+    return FileResponse(FRONTEND_DIR / rel_path, media_type="text/html")
 
 
-@router.get("/", summary="Главная страница")
-async def page_index():
-    return _html("index.html")
-
-
-@router.get("/login", summary="Страница входа")
+@router.get("/login", summary="Вход")
 async def page_login():
-    return _html("login.html")
+    return _html("pages/login/login.html")
 
 
-@router.get("/users", summary="Управление пользователями")
+@router.get("/users", summary="Пользователи")
 async def page_users():
-    return _html("users.html")
+    return _html("pages/users/users.html")
 
 
-@router.get("/leads", summary="Создание лида")
+@router.get("/leads", summary="Новый лид")
 async def page_leads():
-    return _html("lead-new.html")
+    return _html("pages/lead-new/lead-new.html")
 
 
 @router.get("/convert", summary="Конверсия лида в ученика")
 async def page_convert():
-    return _html("convert.html")
+    return _html("pages/convert/convert.html")
 
 
 @router.get("/plans", summary="Каталог абонементов")
 async def page_plans():
-    return _html("plans.html")
+    return _html("pages/plans/plans.html")
 
 
 @router.get("/subscription-new", summary="Оформление абонемента")
 async def page_subscription_new():
-    return _html("subscription-new.html")
+    return _html("pages/subscription-new/subscription-new.html")
 
 
 @router.get("/payment-new", summary="Фиксация оплаты")
 async def page_payment_new():
-    return _html("payment-new.html")
+    return _html("pages/payment-new/payment-new.html")
 
 
 @router.get("/student-finance", summary="Абонементы и оплаты ученика")
 async def page_student_finance():
-    return _html("student-finance.html")
+    return _html("pages/student-finance/student-finance.html")
 
 
 @router.get("/confirm-payments", summary="Подтверждение оплат")
 async def page_confirm_payments():
-    return _html("confirm-payments.html")
+    return _html("pages/confirm-payments/confirm-payments.html")

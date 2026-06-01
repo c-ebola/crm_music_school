@@ -1,5 +1,5 @@
 const token = localStorage.getItem('token');
-if (!token) window.location.href = '/login.html';
+if (!token) window.location.href = '/login';
 
 const authHeaders = { 'Authorization': 'Bearer ' + token };
 
@@ -22,7 +22,7 @@ function escapeHtml(s) {
 
 function logout() {
     localStorage.removeItem('token');
-    window.location.href = '/login.html';
+    window.location.href = '/login';
 }
 document.getElementById('logout-btn').addEventListener('click', logout);
 

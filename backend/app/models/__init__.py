@@ -5,7 +5,9 @@ from app.models.lead import (
 )
 from app.models.user import User
 from app.models.subscription import Subscription, SubscriptionStatus
-from app.models import role, lead, user, subscription_plan, subscription   # noqa: F401
+from app.models.payment import Payment, PaymentMethod, PaymentStatus
+from app.models import (role, lead, user, subscription_plan, 
+                        subscription, payment)  # noqa: F401
 
 
 __all__ = [
@@ -14,4 +16,6 @@ __all__ = [
     "LessonFormat", "LeadChannel", "LeadStatus",
     "User",
     "SubscriptionPlan",
+    "Subscription",
+    "Payment",
 ]
