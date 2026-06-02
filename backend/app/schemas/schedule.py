@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -27,3 +27,10 @@ class ScheduleRead(BaseModel):
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+class ScheduleAddSession(BaseModel):
+    """Добавить занятие в квант расписания (создаёт сессию + запись)."""
+    day: date
+    quant: int = Field(..., ge=1)
+    lesson_id: int
+    room_id: int | None = None

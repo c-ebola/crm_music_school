@@ -4,11 +4,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.discipline import Discipline
 from app.models.lesson import Lesson
 from app.schemas.lesson import LessonCreate, LessonUpdate
-
+from app.models.role import Role
+from app.models.user import User
 
 class LessonError(Exception):
     pass
 
+class NotATeacherError(LessonError):
+    pass
 
 class DisciplineNotFoundError(LessonError):
     pass
@@ -34,10 +37,22 @@ async def get_lesson(db: AsyncSession, lesson_id: int) -> Lesson | None:
     return result.scalar_one_or_none()
 
 
+async def _ensure_teacher(db: AsyncSession, teacher_id: int | None) -> None:
+    """teacher_id (если задан) должен быть пользователем с ролью 'teacher'."""
+    if teacher_id is None:
+        return
+    result = await db.execute(
+        select(User).join(Role).where(User.id == teacher_id, Role.code == "teacher")
+    )
+    if result.scalar_one_or_none() is None:
+        raise NotATeacherError("Преподавателем занятия может быть только пользователь с ролью 'teacher'")
+
+
 async def create_lesson(db: AsyncSession, data: LessonCreate) -> Lesson:
     discipline = await db.get(Discipline, data.discipline_id)
     if discipline is None:
         raise DisciplineNotFoundError("Дисциплина не найдена")
+    await _ensure_teacher(db, data.teacher_id)
     lesson = Lesson(**data.model_dump())
     db.add(lesson)
     await db.commit()
@@ -49,7 +64,10 @@ async def update_lesson(db: AsyncSession, lesson_id: int, data: LessonUpdate) ->
     lesson = await get_lesson(db, lesson_id)
     if lesson is None:
         return None
-    for field, value in data.model_dump(exclude_unset=True).items():
+    update_data = data.model_dump(exclude_unset=True)
+    if "teacher_id" in update_data:
+        await _ensure_teacher(db, update_data["teacher_id"])
+    for field, value in update_data.items():
         setattr(lesson, field, value)
     await db.commit()
     await db.refresh(lesson)

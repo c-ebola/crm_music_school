@@ -1,8 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
+from datetime import date
+
 
 from app.db.session import get_db
-from app.schemas.schedule import ScheduleCreate, ScheduleRead, ScheduleUpdate
+from app.schemas.schedule import ScheduleCreate, ScheduleRead, ScheduleUpdate, ScheduleAddSession
 from app.services import schedule_service
 
 router = APIRouter(prefix="/api/schedule", tags=["schedule"])
@@ -12,9 +14,10 @@ router = APIRouter(prefix="/api/schedule", tags=["schedule"])
 async def get_schedule(
     quant: int | None = None,
     entity_type: str | None = None,
+    day: date | None = None,
     db: AsyncSession = Depends(get_db),
 ):
-    return await schedule_service.list_schedule(db, quant=quant, entity_type=entity_type)
+    return await schedule_service.list_schedule(db, quant=quant, entity_type=entity_type, day=day)
 
 
 @router.get("/{schedule_id}", response_model=ScheduleRead)
@@ -29,6 +32,16 @@ async def get_schedule_by_id(schedule_id: int, db: AsyncSession = Depends(get_db
 async def add_schedule(data: ScheduleCreate, db: AsyncSession = Depends(get_db)):
     try:
         return await schedule_service.create_schedule(db, data)
+    except schedule_service.EntityNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except schedule_service.ScheduleError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post("/add-session", response_model=ScheduleRead, status_code=status.HTTP_201_CREATED)
+async def add_session_to_schedule(data: ScheduleAddSession, db: AsyncSession = Depends(get_db)):
+    try:
+        return await schedule_service.add_session_to_schedule(db, data)
     except schedule_service.EntityNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except schedule_service.ScheduleError as e:

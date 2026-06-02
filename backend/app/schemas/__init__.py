@@ -15,6 +15,7 @@ from app.schemas.discipline import (
 )
 from app.schemas.lesson import LessonBase, LessonCreate, LessonUpdate, LessonRead
 from app.schemas.session import SessionBase, SessionCreate, SessionUpdate, SessionRead
+from app.schemas.schedule import ScheduleCreate, ScheduleUpdate, ScheduleRead, ScheduleAddSession
 
 
 __all__ = [
@@ -26,5 +27,8 @@ __all__ = [
     "SubscriptionCreate", "SubscriptionUpdate", "SubscriptionRead", 
     "DisciplineBase", "DisciplineCreate", "DisciplineUpdate", "DisciplineRead",
     "RoomBase", "RoomCreate", "RoomUpdate", "RoomRead",
-    "LessonBase", "LessonCreate", "LessonUpdate", "LessonRead"
+    "LessonBase", "LessonCreate", "LessonUpdate", "LessonRead",
+    "SessionBase", "SessionCreate", "SessionUpdate", "SessionRead",
+    "ScheduleCreate", "ScheduleUpdate", "ScheduleRead", "ScheduleAddSession", 
+
 ]

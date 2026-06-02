@@ -31,13 +31,18 @@ async def add_lesson(data: LessonCreate, db: AsyncSession = Depends(get_db)):
         return await lesson_service.create_lesson(db, data)
     except lesson_service.DisciplineNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
+    except lesson_service.NotATeacherError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except lesson_service.LessonError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
 @router.patch("/{lesson_id}", response_model=LessonRead)
 async def edit_lesson(lesson_id: int, data: LessonUpdate, db: AsyncSession = Depends(get_db)):
-    lesson = await lesson_service.update_lesson(db, lesson_id, data)
+    try:
+        lesson = await lesson_service.update_lesson(db, lesson_id, data)
+    except lesson_service.NotATeacherError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     if lesson is None:
         raise HTTPException(status_code=404, detail="Занятие не найдено")
     return lesson
