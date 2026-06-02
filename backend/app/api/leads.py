@@ -4,14 +4,22 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.session import get_db
 from app.schemas.lead import ConvertLeadRequest, LeadCreate, LeadRead
 from app.services import lead_service
+from app.models.lead import Level
 
 router = APIRouter(prefix="/api/leads", tags=["leads"])
 
 
 @router.get("", response_model=list[LeadRead])
-async def get_leads(is_student: bool | None = None, db: AsyncSession = Depends(get_db)):
-    """Список. ?is_student=true → ученики, ?is_student=false → заявки, без параметра → все."""
-    return await lead_service.list_leads(db, is_student=is_student)
+async def get_leads(
+    is_student: bool | None = None,
+    discipline_id: int | None = None,
+    branch: str | None = None,
+    level: Level | None = None,
+    db: AsyncSession = Depends(get_db),
+):
+    return await lead_service.list_leads(
+        db, is_student=is_student, discipline_id=discipline_id, branch=branch, level=level
+    )
 
 
 @router.get("/{lead_id}", response_model=LeadRead)

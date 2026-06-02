@@ -33,6 +33,10 @@ async def get_session_student_by_id(ss_id: int, db: AsyncSession = Depends(get_d
 async def enroll_student(data: SessionStudentCreate, db: AsyncSession = Depends(get_db)):
     try:
         return await session_student_service.enroll(db, data)
+    except session_student_service.DisciplineMismatchError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except session_student_service.BranchMismatchError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except session_student_service.SessionNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except session_student_service.StudentNotFoundError as e:
@@ -42,6 +46,8 @@ async def enroll_student(data: SessionStudentCreate, db: AsyncSession = Depends(
     except session_student_service.AlreadyEnrolledError as e:
         raise HTTPException(status_code=409, detail=str(e))
     except session_student_service.SessionStudentError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except session_student_service.LevelMismatchError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 

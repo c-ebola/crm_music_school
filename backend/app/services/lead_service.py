@@ -1,7 +1,8 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.lead import ContactType, Lead, LeadStatus, StudentStatus
+
+from app.models.lead import ContactType, Lead, LeadStatus, Level, StudentStatus
 from app.schemas.lead import ConvertLeadRequest, LeadCreate
 
 
@@ -17,15 +18,25 @@ class AlreadyConvertedError(LeadServiceError):
     pass
 
 
-async def list_leads(db: AsyncSession, is_student: bool | None = None) -> list[Lead]:
-    """Список записей. is_student=True → ученики, False → активные лиды, None → все."""
+async def list_leads(
+    db: AsyncSession,
+    is_student: bool | None = None,
+    discipline_id: int | None = None,
+    branch: str | None = None,
+    level: Level | None = None,
+) -> list[Lead]:
     query = select(Lead)
     if is_student is not None:
         query = query.where(Lead.is_student == is_student)
+    if discipline_id is not None:
+        query = query.where(Lead.discipline_id == discipline_id)
+    if branch is not None:
+        query = query.where(Lead.preferred_branch == branch)
+    if level is not None:
+        query = query.where(Lead.level == level)
     query = query.order_by(Lead.created_at.desc())
     result = await db.execute(query)
     return list(result.scalars().all())
-
 
 async def get_lead(db: AsyncSession, lead_id: int) -> Lead | None:
     result = await db.execute(select(Lead).where(Lead.id == lead_id))

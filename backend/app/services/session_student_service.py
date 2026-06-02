@@ -1,6 +1,7 @@
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.models.room import Room
 from app.models.lead import Lead
 from app.models.lesson import Lesson
 from app.models.session import Session
@@ -28,6 +29,16 @@ class CapacityExceededError(SessionStudentError):
 class AlreadyEnrolledError(SessionStudentError):
     pass
 
+
+class DisciplineMismatchError(SessionStudentError):
+    pass
+
+
+class BranchMismatchError(SessionStudentError):
+    pass
+
+class LevelMismatchError(SessionStudentError):
+    pass
 
 def _to_read(ss: SessionStudent) -> dict:
     student_name = None
@@ -66,29 +77,39 @@ async def get_session_student(db: AsyncSession, ss_id: int) -> dict | None:
 
 
 async def enroll(db: AsyncSession, data: SessionStudentCreate) -> dict:
-    # сессия
     session = await db.get(Session, data.session_id)
     if session is None:
         raise SessionNotFoundError("Занятие (session) не найдено")
 
-    # ученик
     student = await db.get(Lead, data.student_id)
     if student is None or not student.is_student:
         raise StudentNotFoundError("Ученик не найден (или это ещё не ученик)")
 
-    # проверка вместимости: не больше, чем max_students у типа занятия
     lesson = await db.get(Lesson, session.lesson_id)
-    max_students = lesson.max_students if lesson else None
-    if max_students is not None:
+
+    # дисциплина ученика должна совпадать с дисциплиной занятия
+    if lesson is not None and student.discipline_id != lesson.discipline_id:
+        raise DisciplineMismatchError("Дисциплина ученика не совпадает с дисциплиной занятия")
+
+    if lesson is not None and lesson.level is not None and student.level != lesson.level:
+        raise LevelMismatchError("Уровень ученика не совпадает с уровнем занятия")
+    
+    # филиал: если у кабинета задан филиал — ученик должен быть из того же
+    if session.room_id is not None:
+        room = await db.get(Room, session.room_id)
+        if room is not None and room.branch and student.preferred_branch and room.branch != student.preferred_branch:
+            raise BranchMismatchError(f"Ученик из другого филиала (занятие в филиале «{room.branch}»)")
+
+    # вместимость по типу занятия
+    if lesson is not None and lesson.max_students is not None:
         count = await db.execute(
             select(func.count()).select_from(SessionStudent).where(
                 SessionStudent.session_id == data.session_id
             )
         )
-        current = count.scalar() or 0
-        if current >= max_students:
+        if (count.scalar() or 0) >= lesson.max_students:
             raise CapacityExceededError(
-                f"Превышена вместимость занятия: уже записано {current} из {max_students}"
+                f"Превышена вместимость занятия (максимум {lesson.max_students})"
             )
 
     # запрет дубля
@@ -101,7 +122,7 @@ async def enroll(db: AsyncSession, data: SessionStudentCreate) -> dict:
     if dup.scalar_one_or_none() is not None:
         raise AlreadyEnrolledError("Ученик уже записан на это занятие")
 
-    # абонемент (если указан) должен принадлежать этому ученику
+    # абонемент (если указан) — принадлежит этому ученику
     if data.subscription_id is not None:
         sub = await db.get(Subscription, data.subscription_id)
         if sub is None:
@@ -118,7 +139,6 @@ async def enroll(db: AsyncSession, data: SessionStudentCreate) -> dict:
     await db.commit()
     await db.refresh(ss)
     return _to_read(ss)
-
 
 async def update_session_student(db: AsyncSession, ss_id: int, data: SessionStudentUpdate) -> dict | None:
     result = await db.execute(select(SessionStudent).where(SessionStudent.id == ss_id))

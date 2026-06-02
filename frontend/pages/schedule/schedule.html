@@ -79,7 +79,28 @@
             </div>
         </div>
     </div>
-
+    <div class="overlay" id="students-overlay">
+            <div class="modal" style="width:480px;">
+                <h2 id="st-title">Ученики занятия</h2>
+                <div id="st-info" style="color:#86868b; font-size:13px; margin-bottom:8px;"></div>
+                <div id="st-capacity" style="font-weight:600; margin-bottom:10px;"></div>
+                <div id="st-list"></div>
+                <div class="field" style="margin-top:14px;">
+                    <label>Записать ученика</label>
+                    <div style="display:flex; gap:8px;">
+                        <select id="st-eligible" style="flex:1;"></select>
+                        <button type="button" class="btn-primary" id="st-enroll">Записать</button>
+                    </div>
+                    <div style="font-size:13px; color:#86868b; margin-top:4px;">
+                        Список отфильтрован по дисциплине и филиалу занятия
+                    </div>
+                </div>
+                <div id="st-message" class="message hidden"></div>
+                <div class="form-actions">
+                    <button type="button" class="btn-ghost" id="st-close">Закрыть</button>
+                </div>
+            </div>
+    </div>
     <script src="/pages/schedule/schedule.js"></script>
 </body>
 </html>

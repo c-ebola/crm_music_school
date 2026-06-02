@@ -2,6 +2,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from app.models.lead import Level
 from app.schemas.discipline import DisciplineRead
 from app.schemas.user import UserRead
 
@@ -11,6 +12,7 @@ class LessonBase(BaseModel):
     teacher_id: int | None = None
     lesson_type: str | None = Field(None, max_length=50)
     max_students: int = Field(1, ge=1)
+    level: Level | None = None
 
 
 class LessonCreate(LessonBase):
@@ -22,6 +24,7 @@ class LessonUpdate(BaseModel):
     teacher_id: int | None = None
     lesson_type: str | None = Field(None, max_length=50)
     max_students: int | None = Field(None, ge=1)
+    level: Level | None = None
 
 
 class LessonRead(LessonBase):
