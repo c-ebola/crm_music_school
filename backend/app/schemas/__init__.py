@@ -16,6 +16,9 @@ from app.schemas.discipline import (
 from app.schemas.lesson import LessonBase, LessonCreate, LessonUpdate, LessonRead
 from app.schemas.session import SessionBase, SessionCreate, SessionUpdate, SessionRead
 from app.schemas.schedule import ScheduleCreate, ScheduleUpdate, ScheduleRead, ScheduleAddSession
+from app.schemas.session_student import (
+    SessionStudentCreate, SessionStudentUpdate, SessionStudentRead,
+)
 
 
 __all__ = [
@@ -29,6 +32,7 @@ __all__ = [
     "RoomBase", "RoomCreate", "RoomUpdate", "RoomRead",
     "LessonBase", "LessonCreate", "LessonUpdate", "LessonRead",
     "SessionBase", "SessionCreate", "SessionUpdate", "SessionRead",
-    "ScheduleCreate", "ScheduleUpdate", "ScheduleRead", "ScheduleAddSession", 
-
+    "ScheduleCreate", "ScheduleUpdate", "ScheduleRead", "ScheduleAddSession",
+    "SessionStudentCreate", "SessionStudentUpdate", "SessionStudentRead",
+    "PaymentCreate", "PaymentUpdate", "PaymentRead", 
 ]

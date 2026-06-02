@@ -8,7 +8,8 @@ from sqlalchemy import text
 
 from app.api import (auth, leads, 
 pages, roles, users, subscription_plans, subscriptions, 
-payments, disciplines, rooms, lessons, sessions, schedule
+payments, disciplines, rooms, lessons, sessions, schedule,
+session_students
 )
 from app.core.config import settings
 from app.db.session import engine
@@ -50,6 +51,7 @@ app.include_router(pages.router)
 app.include_router(lessons.router)
 app.include_router(sessions.router)
 app.include_router(schedule.router)
+app.include_router(session_students.router)
 
 @app.get("/health", tags=["system"])
 async def health_check():

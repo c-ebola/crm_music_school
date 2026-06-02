@@ -12,9 +12,10 @@ from app.models.subscription_plan import SubscriptionPlan
 from app.models.lesson import Lesson
 from app.models.schedule import Schedule
 from app.models.session import Session, SessionStatus
+from app.models.session_student import SessionStudent
 from app.models import (role, lead, user, subscription_plan, 
                         subscription, payment, discipline, room,
-                        lesson, session, schedule
+                        lesson, session, schedule, session_student
                         )  # noqa: F401
 
 
@@ -32,4 +33,5 @@ __all__ = [
     "Room",
     "Schedule",
     "Session", "SessionStatus",
+    "SessionStudent",
 ]
