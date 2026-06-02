@@ -6,8 +6,9 @@ from app.models.lead import (
 from app.models.user import User
 from app.models.subscription import Subscription, SubscriptionStatus
 from app.models.payment import Payment, PaymentMethod, PaymentStatus
+from app.models.discipline import Discipline
 from app.models import (role, lead, user, subscription_plan, 
-                        subscription, payment)  # noqa: F401
+                        subscription, payment, discipline)  # noqa: F401
 
 
 __all__ = [
@@ -18,4 +19,6 @@ __all__ = [
     "SubscriptionPlan",
     "Subscription",
     "Payment",
+    "PaymentMethod", "PaymentStatus",
+    "Discipline",
 ]

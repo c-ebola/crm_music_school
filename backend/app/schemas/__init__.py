@@ -9,6 +9,9 @@ from app.schemas.subscription import (
     SubscriptionCreate, SubscriptionUpdate, SubscriptionRead,
 )
 from app.schemas.payment import PaymentCreate, PaymentUpdate, PaymentRead
+from app.schemas.discipline import (
+    DisciplineBase, DisciplineCreate, DisciplineUpdate, DisciplineRead,
+)
 
 
 __all__ = [
