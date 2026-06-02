@@ -17,8 +17,9 @@ from app.db.base import Base  # берет базовый класс
 
 # Здесь импортируем модели, для Alembic
 from app.models import (
-role, lead, user, subscription_plan, subscription,
-payment)  # noqa: F401
+    role, lead, user, 
+    subscription_plan, subscription,
+    payment, discipline, room)  # noqa: F401
 # from app.models import school, ...  
 
 config = context.config

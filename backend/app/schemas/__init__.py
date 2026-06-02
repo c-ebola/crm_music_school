@@ -1,6 +1,7 @@
 from app.schemas.role import RoleBase, RoleCreate, RoleRead
 from app.schemas.lead import LeadBase, LeadCreate, LeadRead
 from app.schemas.user import UserBase, UserCreate, UserRead, Token
+from app.schemas.room import RoomBase, RoomCreate, RoomUpdate, RoomRead
 from app.schemas.subscription_plan import (
     SubscriptionPlanBase, SubscriptionPlanCreate,
     SubscriptionPlanUpdate, SubscriptionPlanRead,
@@ -20,5 +21,7 @@ __all__ = [
     "UserBase", "UserCreate", "UserRead", "Token",
     "StudentBase", "StudentCreate", "StudentUpdate", "StudentRead", "ConvertLeadRequest",
     "SubscriptionPlanBase", "SubscriptionPlanCreate", "SubscriptionPlanUpdate", "SubscriptionPlanRead",
-    "SubscriptionCreate", "SubscriptionUpdate", "SubscriptionRead",
+    "SubscriptionCreate", "SubscriptionUpdate", "SubscriptionRead", 
+    "DisciplineBase", "DisciplineCreate", "DisciplineUpdate", "DisciplineRead",
+    "RoomBase", "RoomCreate", "RoomUpdate", "RoomRead",
 ]

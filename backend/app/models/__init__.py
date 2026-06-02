@@ -7,8 +7,10 @@ from app.models.user import User
 from app.models.subscription import Subscription, SubscriptionStatus
 from app.models.payment import Payment, PaymentMethod, PaymentStatus
 from app.models.discipline import Discipline
+from app.models.room import Room
+from app.models.subscription_plan import SubscriptionPlan
 from app.models import (role, lead, user, subscription_plan, 
-                        subscription, payment, discipline)  # noqa: F401
+                        subscription, payment, discipline, room)  # noqa: F401
 
 
 __all__ = [
