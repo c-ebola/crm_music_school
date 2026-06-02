@@ -13,6 +13,8 @@ from app.schemas.payment import PaymentCreate, PaymentUpdate, PaymentRead
 from app.schemas.discipline import (
     DisciplineBase, DisciplineCreate, DisciplineUpdate, DisciplineRead,
 )
+from app.schemas.lesson import LessonBase, LessonCreate, LessonUpdate, LessonRead
+from app.schemas.session import SessionBase, SessionCreate, SessionUpdate, SessionRead
 
 
 __all__ = [
@@ -24,4 +26,5 @@ __all__ = [
     "SubscriptionCreate", "SubscriptionUpdate", "SubscriptionRead", 
     "DisciplineBase", "DisciplineCreate", "DisciplineUpdate", "DisciplineRead",
     "RoomBase", "RoomCreate", "RoomUpdate", "RoomRead",
+    "LessonBase", "LessonCreate", "LessonUpdate", "LessonRead"
 ]
