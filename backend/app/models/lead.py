@@ -2,7 +2,7 @@ import enum
 from datetime import date, datetime
 from sqlalchemy import Boolean, Date, DateTime, Enum, ForeignKey, Integer, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-
+from app.models.discipline import Discipline
 
 from app.db.base import Base
 
@@ -13,15 +13,6 @@ class ContactType(str, enum.Enum):
     student = "student"         # сам ученик 
     other = "other"             # другое
 
-
-class Discipline(str, enum.Enum):
-    """Музыкальная дисциплина."""
-    piano = "piano"
-    guitar = "guitar"
-    vocals = "vocals"
-    violin = "violin"
-    drums = "drums"
-    other = "other"
 
 
 class Level(str, enum.Enum):
@@ -83,9 +74,8 @@ class Lead(Base):
     # Об ученике
     student_full_name: Mapped[str | None] = mapped_column(String(200))
     student_age: Mapped[int | None] = mapped_column(Integer)
-    discipline: Mapped[Discipline] = mapped_column(
-        Enum(Discipline, name="discipline"),
-        nullable=False,
+    discipline_id: Mapped[int] = mapped_column(
+        ForeignKey("disciplines.id"), nullable=False
     )
     level: Mapped[Level | None] = mapped_column(Enum(Level, name="level"))
     lesson_format: Mapped[LessonFormat | None] = mapped_column(
@@ -133,3 +123,4 @@ class Lead(Base):
         return f"<Lead(id={self.id}, name={self.contact_full_name!r})>"
     
     teacher: Mapped["User | None"] = relationship("User", lazy="joined")  # noqa: F821
+    discipline: Mapped["Discipline"] = relationship("Discipline", lazy="joined")

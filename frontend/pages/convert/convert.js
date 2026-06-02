@@ -36,7 +36,7 @@ async function loadLead(id) {
             <h3>Заявка №${l.id}</h3>
             <div class="row"><span>Контакт</span><span>${esc(l.contact_full_name)} (${esc(CONTACT[l.contact_type]||l.contact_type)})</span></div>
             <div class="row"><span>ФИО ученика</span><span>${esc(l.student_full_name || '—')}</span></div>
-            <div class="row"><span>Инструмент</span><span>${esc(DISCIPLINE[l.discipline]||l.discipline)}</span></div>
+<div class="row"><span>Инструмент</span><span>${esc(l.discipline ? l.discipline.name : '—')}</span></div>
             <div class="row"><span>Филиал</span><span>${esc(l.preferred_branch || '—')}</span></div>
             <div class="row"><span>Статус</span><span>${esc(l.status)}</span></div>
         `;

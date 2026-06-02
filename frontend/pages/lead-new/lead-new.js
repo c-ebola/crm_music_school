@@ -7,6 +7,20 @@ function showMessage(text, type = 'success') {
     messageEl.classList.remove('hidden');
 }
 
+async function loadDisciplines() {
+    const sel = document.getElementById('discipline_id');
+    try {
+        const r = await fetch('/api/disciplines?only_active=true');
+        const list = await r.json();
+        sel.innerHTML = '<option value="">— выберите —</option>' +
+            list.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
+    } catch (e) {
+        sel.innerHTML = '<option value="">Ошибка загрузки дисциплин</option>';
+    }
+}
+
+loadDisciplines();
+
 function collectFormData() {
     const fd = new FormData(form);
     const data = {};
@@ -20,6 +34,11 @@ function collectFormData() {
     if (data.student_age) {
         data.student_age = parseInt(data.student_age, 10);
     }
+    // discipline_id — число
+    if (data.discipline_id) {
+        data.discipline_id = parseInt(data.discipline_id, 10);
+    }
+    return data;
     return data;
 }
 

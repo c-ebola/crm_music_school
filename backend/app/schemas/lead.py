@@ -3,9 +3,9 @@ from datetime import date, datetime
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 from app.models.lead import (
-    ContactType, Discipline, LeadChannel, LeadStatus,
-    LessonFormat, Level, StudentStatus,
+    ContactType, LeadChannel, LeadStatus, LessonFormat, Level, StudentStatus,
 )
+from app.schemas.discipline import DisciplineRead
 from app.schemas.user import UserRead
 
 
@@ -17,7 +17,7 @@ class LeadBase(BaseModel):
     phone: str | None = Field(None, max_length=50)
     student_full_name: str | None = Field(None, max_length=200)
     student_age: int | None = Field(None, ge=3, le=99)
-    discipline: Discipline
+    discipline_id: int
     level: Level | None = None
     lesson_format: LessonFormat | None = None
     preferred_branch: str | None = Field(None, max_length=100)
@@ -38,6 +38,7 @@ class LeadRead(LeadBase):
     enrollment_date: date | None
     student_status: StudentStatus | None
     teacher: UserRead | None
+    discipline: DisciplineRead | None
     created_at: datetime
     updated_at: datetime
 
@@ -45,8 +46,7 @@ class LeadRead(LeadBase):
 
 
 class ConvertLeadRequest(BaseModel):
-    """Данные для конверсии лида в ученика."""
     teacher_id: int | None = None
     enrollment_date: date
-    full_name: str | None = None   # ФИО ученика; если None — берём из лида
+    full_name: str | None = None
     branch: str | None = None
