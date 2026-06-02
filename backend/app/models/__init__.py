@@ -9,8 +9,13 @@ from app.models.payment import Payment, PaymentMethod, PaymentStatus
 from app.models.discipline import Discipline
 from app.models.room import Room
 from app.models.subscription_plan import SubscriptionPlan
+from app.models.lesson import Lesson
+from app.models.schedule import Schedule
+from app.models.session import Session, SessionStatus
 from app.models import (role, lead, user, subscription_plan, 
-                        subscription, payment, discipline, room)  # noqa: F401
+                        subscription, payment, discipline, room,
+                        lesson, session, schedule
+                        )  # noqa: F401
 
 
 __all__ = [
@@ -23,4 +28,8 @@ __all__ = [
     "Payment",
     "PaymentMethod", "PaymentStatus",
     "Discipline",
+    "Lesson",
+    "Room",
+    "Schedule",
+    "Session", "SessionStatus",
 ]
