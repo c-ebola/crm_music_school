@@ -19,12 +19,16 @@ class Lesson(Base):
     teacher_id: Mapped[int | None] = mapped_column(
         ForeignKey("users.id", ondelete="SET NULL")
     )
-    lesson_type: Mapped[str | None] = mapped_column(String(50))  # individual / group / online
+    lesson_type: Mapped[str | None] = mapped_column(String(50))
+    
     max_students: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+    
+    level: Mapped[Level | None] = mapped_column(Enum(Level, name="level"))   # ← добавить
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
+
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
     )

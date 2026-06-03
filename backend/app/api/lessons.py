@@ -46,3 +46,13 @@ async def edit_lesson(lesson_id: int, data: LessonUpdate, db: AsyncSession = Dep
     if lesson is None:
         raise HTTPException(status_code=404, detail="Занятие не найдено")
     return lesson
+
+@router.delete("/{lesson_id}")
+async def remove_lesson(lesson_id: int, db: AsyncSession = Depends(get_db)):
+    try:
+        ok = await lesson_service.delete_lesson(db, lesson_id)
+    except lesson_service.LessonInUseError as e:
+        raise HTTPException(status_code=409, detail=str(e))
+    if not ok:
+        raise HTTPException(status_code=404, detail="Занятие не найдено")
+    return {"deleted": True}

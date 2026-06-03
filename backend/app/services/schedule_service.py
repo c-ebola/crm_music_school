@@ -1,11 +1,11 @@
-from datetime import date
+from datetime import date, datetime, time, timedelta
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.lesson import Lesson
 from app.models.schedule import Schedule
-from app.models.session import Session, SessionStatus
+from app.models.session import Session, SessionStatus     # ← эта строка обязательна
 from app.schemas.schedule import ScheduleAddSession, ScheduleCreate, ScheduleUpdate
 from app.services import session_service
 
@@ -39,15 +39,29 @@ async def _resolve(db: AsyncSession, sch: Schedule) -> dict:
         "updated_at": sch.updated_at,
     }
 
+async def list_week_schedule(
+    db: AsyncSession,
+    week_start: date,
+    teacher_id: int | None = None,
+) -> list[dict]:
+    end = week_start + timedelta(days=7)
 
-async def _validate_entity(db: AsyncSession, entity_type: str, entity_id: int) -> None:
-    if entity_type not in ALLOWED_TYPES:
-        raise ScheduleError("entity_type должен быть 'session' или 'event'")
-    if entity_type == "session":
-        if await session_service.get_session(db, entity_id) is None:
-            raise EntityNotFoundError("Занятие (session) не найдено")
-    elif entity_type == "event":
-        raise UnsupportedEntityError("Мероприятия (events) ещё не реализованы")
+    query = select(Schedule).where(
+        Schedule.entity_type == "session",
+        Schedule.date >= week_start,
+        Schedule.date < end,
+    )
+    if teacher_id is not None:
+        sess_ids = (
+            select(Session.id)
+            .join(Lesson, Session.lesson_id == Lesson.id)
+            .where(Lesson.teacher_id == teacher_id)
+        )
+        query = query.where(Schedule.entity_id.in_(sess_ids))
+
+    query = query.order_by(Schedule.date.asc(), Schedule.quant.asc())
+    result = await db.execute(query)
+    return [await _resolve(db, r) for r in result.scalars().all()]
 
 
 async def list_schedule(

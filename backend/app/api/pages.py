@@ -59,3 +59,11 @@ async def page_confirm_payments():
 @router.get("/schedule", summary="Расписание")
 async def page_schedule():
     return _html("pages/schedule/schedule.html")
+
+@router.get("/my-schedule", summary="Моё расписание (неделя)")
+async def page_my_schedule():
+    return _html("pages/my-schedule/my-schedule.html")
+
+@router.get("/lessons", summary="Уроки: каталог и создание")
+async def page_lessons():
+    return _html("pages/lessons/lessons.html")

@@ -25,6 +25,7 @@ class Session(Base):
     room_id: Mapped[int | None] = mapped_column(
         ForeignKey("rooms.id", ondelete="SET NULL")
     )
+    
 
     status: Mapped[SessionStatus] = mapped_column(
         Enum(SessionStatus, name="session_status"),
@@ -42,4 +43,4 @@ class Session(Base):
     room: Mapped["Room | None"] = relationship("Room", lazy="joined")  # noqa: F821
 
     def __repr__(self) -> str:
-        return f"<Session(id={self.id}, lesson_id={self.lesson_id}, date={self.session_date})>"
+        return f"<Session(id={self.id}, lesson_id={self.lesson_id})>"

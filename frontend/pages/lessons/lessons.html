@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>МузCRM — Уроки</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        .lessons-layout { display:grid; grid-template-columns:340px 1fr; gap:24px; align-items:start; }
+        @media (max-width:900px){ .lessons-layout{ grid-template-columns:1fr; } }
+
+        .panel { background:#fff; border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,.05); }
+        .panel-create { padding:24px; position:sticky; top:24px; }
+        .panel h2 { font-size:16px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:baseline; }
+        .count { color:#86868b; font-size:13px; font-weight:400; }
+
+        .create-field { margin-bottom:14px; display:flex; flex-direction:column; }
+        .create-field label { font-size:13px; font-weight:500; margin-bottom:5px; }
+        .create-actions { margin-top:6px; }
+        .create-actions .btn-primary { width:100%; }
+
+        .filters { display:flex; gap:10px; flex-wrap:wrap; padding:18px 20px; border-bottom:1px solid #e8e8ed; }
+        .filters .grow { flex:1; min-width:150px; }
+        .filters .btn-ghost { padding:9px 14px; }
+
+        .list-body { padding:20px; }
+        .cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:14px; }
+
+        .lesson-card {
+            border:1px solid #e8e8ed; border-left:3px solid #c7c7cc; border-radius:10px;
+            padding:14px; background:#fff; transition:box-shadow .15s, transform .15s;
+        }
+        .lesson-card:hover { box-shadow:0 4px 14px rgba(0,0,0,.08); transform:translateY(-1px); }
+        .lesson-card[data-fmt="individual"]{ border-left-color:#4a73e8; }
+        .lesson-card[data-fmt="group"]{ border-left-color:#8a5cf6; }
+        .lesson-card[data-fmt="online"]{ border-left-color:#0fa3a3; }
+
+        .lc-top { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; }
+        .lc-disc { font-weight:600; font-size:15px; }
+        .lc-teacher { font-size:13px; margin-top:8px; }
+        .lc-teacher.none { color:#a1a1a6; }
+        .lc-meta { color:#86868b; font-size:12px; margin-top:6px; display:flex; gap:10px; flex-wrap:wrap; }
+        .lc-foot { display:flex; justify-content:space-between; align-items:center; margin-top:12px; padding-top:10px; border-top:1px solid #f0f0f3; }
+        .lc-id { color:#a1a1a6; font-size:11px; }
+        .lc-err { color:#c0392b; font-size:12px; margin-top:8px; }
+
+        .badge { display:inline-block; padding:2px 8px; border-radius:999px; font-size:11px; font-weight:600; white-space:nowrap; }
+        .badge.fmt-individual { background:#eaf0ff; color:#2c4fc0; }
+        .badge.fmt-group { background:#f1eaff; color:#6a3fd0; }
+        .badge.fmt-online { background:#e3f6f6; color:#0b7e7e; }
+        .badge.lvl { background:#f0f0f3; color:#555; }
+
+        .btn-del { border:1px solid #e8c4c4; background:#fff; color:#c0392b; border-radius:8px; padding:5px 10px; font-size:12px; cursor:pointer; }
+        .btn-del:hover { background:#fdeeee; }
+        .confirm-row { display:flex; gap:6px; }
+        .btn-confirm { background:#c0392b; color:#fff; border:none; border-radius:8px; padding:5px 10px; font-size:12px; cursor:pointer; }
+        .btn-cancel { background:#f0f0f3; border:none; border-radius:8px; padding:5px 10px; font-size:12px; cursor:pointer; }
+
+        .empty, .loading { color:#86868b; padding:30px 4px; text-align:center; }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="brand">♪ МузCRM</div>
+            <div class="brand-sub">Расписание и занятия</div>
+            <nav class="nav">
+                <a href="/" class="nav-item">Главный экран</a>
+                <a href="/lessons" class="nav-item active">Уроки</a>
+                <a href="/schedule" class="nav-item">Расписание (день)</a>
+                <a href="/my-schedule" class="nav-item">Моё расписание</a>
+                <a href="/users" class="nav-item">Пользователи</a>
+            </nav>
+        </aside>
+
+        <main class="content" style="max-width:1200px;">
+            <header class="page-header">
+                <h1>Уроки</h1>
+                <div class="breadcrumb">Типы занятий: дисциплина + преподаватель + формат</div>
+            </header>
+
+            <div class="lessons-layout">
+                <!-- Левая колонка: создание -->
+                <section class="panel panel-create">
+                    <h2>Новый урок</h2>
+                    <form id="lesson-form">
+                        <div class="create-field">
+                            <label for="discipline_id">Дисциплина <span class="req">*</span></label>
+                            <select id="discipline_id" required><option value="">Загрузка...</option></select>
+                        </div>
+                        <div class="create-field">
+                            <label for="teacher_id">Преподаватель</label>
+                            <select id="teacher_id"><option value="">— не назначен —</option></select>
+                        </div>
+                        <div class="create-field">
+                            <label for="lesson_type">Формат</label>
+                            <select id="lesson_type">
+                                <option value="">—</option>
+                                <option value="individual">Индивидуальное</option>
+                                <option value="group">Групповое</option>
+                                <option value="online">Онлайн</option>
+                            </select>
+                        </div>
+                        <div class="create-field">
+                            <label for="level">Уровень</label>
+                            <select id="level">
+                                <option value="">—</option>
+                                <option value="beginner">Начинающий</option>
+                                <option value="intermediate">Средний</option>
+                                <option value="advanced">Продвинутый</option>
+                            </select>
+                        </div>
+                        <div class="create-field">
+                            <label for="max_students">Макс. учеников <span class="req">*</span></label>
+                            <input type="number" id="max_students" min="1" step="1" value="1" required>
+                        </div>
+                        <div id="create-msg" class="message hidden"></div>
+                        <div class="create-actions">
+                            <button type="submit" class="btn-primary">Создать урок</button>
+                        </div>
+                    </form>
+                </section>
+
+                <!-- Правая колонка: каталог -->
+                <section class="panel panel-list">
+                    <div class="filters">
+                        <input type="text" id="f-search" class="grow" placeholder="Поиск по дисциплине или преподавателю...">
+                        <select id="f-discipline" class="grow"><option value="">Все дисциплины</option></select>
+                        <select id="f-teacher" class="grow"><option value="">Все преподаватели</option></select>
+                        <button type="button" class="btn-ghost" id="f-reset">Сбросить</button>
+                    </div>
+                    <div class="list-body">
+                        <h2 style="margin-bottom:14px;">Каталог <span class="count" id="count"></span></h2>
+                        <div id="cards" class="cards"></div>
+                        <div id="loading" class="loading">Загрузка...</div>
+                        <div id="empty" class="empty hidden">Ничего не найдено.</div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script src="/pages/lessons/lessons.js"></script>
+</body>
+</html>

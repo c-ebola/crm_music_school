@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.discipline import Discipline
@@ -6,6 +6,7 @@ from app.models.lesson import Lesson
 from app.schemas.lesson import LessonCreate, LessonUpdate
 from app.models.role import Role
 from app.models.user import User
+from app.models.session import Session 
 
 class LessonError(Exception):
     pass
@@ -15,6 +16,26 @@ class NotATeacherError(LessonError):
 
 class DisciplineNotFoundError(LessonError):
     pass
+
+class LessonInUseError(LessonError):
+    pass
+
+
+async def delete_lesson(db: AsyncSession, lesson_id: int) -> bool:
+    lesson = await get_lesson(db, lesson_id)
+    if lesson is None:
+        return False
+    # урок нельзя удалить, если он уже стоит в расписании (есть занятия)
+    cnt = await db.execute(
+        select(func.count()).select_from(Session).where(Session.lesson_id == lesson_id)
+    )
+    if (cnt.scalar() or 0) > 0:
+        raise LessonInUseError(
+            "Урок используется в расписании. Сначала удалите связанные занятия."
+        )
+    await db.delete(lesson)
+    await db.commit()
+    return True
 
 
 async def list_lessons(

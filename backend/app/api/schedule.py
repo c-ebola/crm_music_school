@@ -20,6 +20,17 @@ async def get_schedule(
     return await schedule_service.list_schedule(db, quant=quant, entity_type=entity_type, day=day)
 
 
+@router.get("/week", response_model=list[ScheduleRead])
+async def get_week_schedule(
+    week_start: date,
+    teacher_id: int | None = None,
+    db: AsyncSession = Depends(get_db),
+):
+    return await schedule_service.list_week_schedule(
+        db, week_start=week_start, teacher_id=teacher_id
+    )
+
+
 @router.get("/{schedule_id}", response_model=ScheduleRead)
 async def get_schedule_by_id(schedule_id: int, db: AsyncSession = Depends(get_db)):
     s = await schedule_service.get_schedule(db, schedule_id)
@@ -67,3 +78,4 @@ async def remove_schedule(schedule_id: int, db: AsyncSession = Depends(get_db)):
     if not ok:
         raise HTTPException(status_code=404, detail="Запись расписания не найдена")
     return {"deleted": True}
+
