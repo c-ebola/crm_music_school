@@ -25,9 +25,7 @@ class Session(Base):
     room_id: Mapped[int | None] = mapped_column(
         ForeignKey("rooms.id", ondelete="SET NULL")
     )
-    session_date: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), nullable=False
-    )
+
     status: Mapped[SessionStatus] = mapped_column(
         Enum(SessionStatus, name="session_status"),
         nullable=False, default=SessionStatus.scheduled,

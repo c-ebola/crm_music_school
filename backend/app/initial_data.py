@@ -13,11 +13,11 @@ from app.models.user import User
 SEED_USERS = [
     (settings.first_admin_email, settings.first_admin_password,
      "Администратор", "Системный", "admin", True),
-    ("manager1@crm.example.com", "password123", "Соколова", "Мария", "manager", False),
-    ("manager2@crm.example.com", "password123", "Орлов", "Игорь", "manager", False),
-    ("teacher1@crm.example.com", "password123", "Петров", "Андрей", "teacher", False),
-    ("teacher2@crm.example.com", "password123", "Кузнецова", "Елена", "teacher", False),
-    ("methodist1@crm.example.com", "password123", "Васильева", "Ольга", "methodist", False),
+    ("manager1@crm.com", "password123", "Соколова", "Мария", "manager", False),
+    ("manager2@crm.com", "password123", "Орлов", "Игорь", "manager", False),
+    ("teacher1@crm.com", "password123", "Петров", "Андрей", "teacher", False),
+    ("teacher2@crm.com", "password123", "Кузнецова", "Елена", "teacher", False),
+    ("methodist1@crm.com", "password123", "Васильева", "Ольга", "methodist", False),
 ]
 
 

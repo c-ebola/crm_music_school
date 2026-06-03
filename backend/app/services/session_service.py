@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -20,19 +18,13 @@ async def list_sessions(
     db: AsyncSession,
     lesson_id: int | None = None,
     status: SessionStatus | None = None,
-    date_from: datetime | None = None,
-    date_to: datetime | None = None,
 ) -> list[Session]:
     query = select(Session)
     if lesson_id is not None:
         query = query.where(Session.lesson_id == lesson_id)
     if status is not None:
         query = query.where(Session.status == status)
-    if date_from is not None:
-        query = query.where(Session.session_date >= date_from)
-    if date_to is not None:
-        query = query.where(Session.session_date <= date_to)
-    query = query.order_by(Session.session_date.asc())
+    query = query.order_by(Session.id.desc())
     result = await db.execute(query)
     return list(result.scalars().all())
 

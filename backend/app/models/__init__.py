@@ -13,9 +13,14 @@ from app.models.lesson import Lesson
 from app.models.schedule import Schedule
 from app.models.session import Session, SessionStatus
 from app.models.session_student import SessionStudent
+from app.models.event import Event, EventStatus
+from app.models.instrument import Instrument
+from app.models.performance import Performance
+from app.models.performance_student import PerformanceStudent
 from app.models import (role, lead, user, subscription_plan, 
                         subscription, payment, discipline, room,
-                        lesson, session, schedule, session_student
+                        lesson, session, schedule, session_student, event,
+                        instrument, performance, performance_student
                         )  # noqa: F401
 
 
@@ -34,4 +39,7 @@ __all__ = [
     "Schedule",
     "Session", "SessionStatus",
     "SessionStudent",
+    "Event", "EventStatus",
+    "Instrument",
+    "Performance", "PerformanceStudent",    
 ]

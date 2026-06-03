@@ -1,4 +1,3 @@
-from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -7,6 +6,7 @@ from app.db.session import get_db
 from app.models.session import SessionStatus
 from app.schemas.session import SessionCreate, SessionRead, SessionUpdate
 from app.services import session_service
+from datetime import datetime
 
 router = APIRouter(prefix="/api/sessions", tags=["sessions"])
 
@@ -15,13 +15,9 @@ router = APIRouter(prefix="/api/sessions", tags=["sessions"])
 async def get_sessions(
     lesson_id: int | None = None,
     status: SessionStatus | None = None,
-    date_from: datetime | None = None,
-    date_to: datetime | None = None,
     db: AsyncSession = Depends(get_db),
 ):
-    return await session_service.list_sessions(
-        db, lesson_id=lesson_id, status=status, date_from=date_from, date_to=date_to
-    )
+    return await session_service.list_sessions(db, lesson_id=lesson_id, status=status)
 
 
 @router.get("/{session_id}", response_model=SessionRead)

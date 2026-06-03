@@ -19,7 +19,14 @@ from app.schemas.schedule import ScheduleCreate, ScheduleUpdate, ScheduleRead, S
 from app.schemas.session_student import (
     SessionStudentCreate, SessionStudentUpdate, SessionStudentRead,
 )
-
+from app.models.event import Event, EventStatus
+from app.schemas.event import EventBase, EventCreate, EventUpdate, EventRead
+from app.schemas.instrument import InstrumentBase, InstrumentCreate, InstrumentUpdate, InstrumentRead
+from app.schemas.instrument import InstrumentBase, InstrumentCreate, InstrumentUpdate, InstrumentRead
+from app.schemas.performance import PerformanceCreate, PerformanceUpdate, PerformanceRead
+from app.schemas.performance_student import (
+    PerformanceStudentCreate, PerformanceStudentUpdate, PerformanceStudentRead,
+)
 
 __all__ = [
     "RoleBase", "RoleCreate", "RoleRead",
@@ -35,4 +42,9 @@ __all__ = [
     "ScheduleCreate", "ScheduleUpdate", "ScheduleRead", "ScheduleAddSession",
     "SessionStudentCreate", "SessionStudentUpdate", "SessionStudentRead",
     "PaymentCreate", "PaymentUpdate", "PaymentRead", 
+    "Event", "EventStatus"
+    "EventBase", "EventCreate", "EventUpdate", "EventRead",
+    "InstrumentBase", "InstrumentCreate", "InstrumentUpdate", "InstrumentRead",
+    "PerformanceCreate", "PerformanceUpdate", "PerformanceRead",
+    "PerformanceStudentCreate", "PerformanceStudentUpdate", "PerformanceStudentRead"
 ]

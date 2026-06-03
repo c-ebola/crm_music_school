@@ -1,4 +1,4 @@
-from datetime import date, datetime, time, timedelta
+from datetime import date
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -10,8 +10,6 @@ from app.schemas.schedule import ScheduleAddSession, ScheduleCreate, ScheduleUpd
 from app.services import session_service
 
 ALLOWED_TYPES = ("session", "event")
-QUANT_START = time(hour=9)   # первый квант с 9:00
-QUANT_STEP_MIN = 60          # шаг (45 мин урок + 15 мин перемена)
 
 
 class ScheduleError(Exception):
@@ -26,11 +24,6 @@ class UnsupportedEntityError(ScheduleError):
     pass
 
 
-def quant_to_datetime(day: date, quant: int) -> datetime:
-    base = datetime.combine(day, QUANT_START)
-    return base + timedelta(minutes=(quant - 1) * QUANT_STEP_MIN)
-
-
 async def _resolve(db: AsyncSession, sch: Schedule) -> dict:
     session_obj = None
     if sch.entity_type == "session":
@@ -39,6 +32,7 @@ async def _resolve(db: AsyncSession, sch: Schedule) -> dict:
         "id": sch.id,
         "entity_type": sch.entity_type,
         "entity_id": sch.entity_id,
+        "date": sch.date,
         "quant": sch.quant,
         "session": session_obj,
         "created_at": sch.created_at,
@@ -68,13 +62,8 @@ async def list_schedule(
     if entity_type is not None:
         query = query.where(Schedule.entity_type == entity_type)
     if day is not None:
-        start = datetime.combine(day, time.min)
-        end = start + timedelta(days=1)
-        sess_ids = select(Session.id).where(
-            Session.session_date >= start, Session.session_date < end
-        )
-        query = query.where(Schedule.entity_type == "session", Schedule.entity_id.in_(sess_ids))
-    query = query.order_by(Schedule.quant.asc())
+        query = query.where(Schedule.date == day)
+    query = query.order_by(Schedule.date.asc(), Schedule.quant.asc())
     result = await db.execute(query)
     return [await _resolve(db, r) for r in result.scalars().all()]
 
@@ -87,7 +76,12 @@ async def get_schedule(db: AsyncSession, schedule_id: int) -> dict | None:
 
 async def create_schedule(db: AsyncSession, data: ScheduleCreate) -> dict:
     await _validate_entity(db, data.entity_type, data.entity_id)
-    sch = Schedule(entity_type=data.entity_type, entity_id=data.entity_id, quant=data.quant)
+    sch = Schedule(
+        entity_type=data.entity_type,
+        entity_id=data.entity_id,
+        date=data.date,
+        quant=data.quant,
+    )
     db.add(sch)
     await db.commit()
     await db.refresh(sch)
@@ -95,7 +89,7 @@ async def create_schedule(db: AsyncSession, data: ScheduleCreate) -> dict:
 
 
 async def add_session_to_schedule(db: AsyncSession, data: ScheduleAddSession) -> dict:
-    """Создать сессию в выбранном кванте дня и добавить её в расписание."""
+    """Создать сессию и поставить её в расписание на день/квант."""
     lesson = await db.get(Lesson, data.lesson_id)
     if lesson is None:
         raise EntityNotFoundError("Занятие (тип) не найдено")
@@ -103,13 +97,17 @@ async def add_session_to_schedule(db: AsyncSession, data: ScheduleAddSession) ->
     session = Session(
         lesson_id=data.lesson_id,
         room_id=data.room_id,
-        session_date=quant_to_datetime(data.day, data.quant),
         status=SessionStatus.scheduled,
     )
     db.add(session)
     await db.flush()  # получаем session.id
 
-    sch = Schedule(entity_type="session", entity_id=session.id, quant=data.quant)
+    sch = Schedule(
+        entity_type="session",
+        entity_id=session.id,
+        date=data.day,
+        quant=data.quant,
+    )
     db.add(sch)
     await db.commit()
     await db.refresh(sch)

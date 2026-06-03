@@ -9,7 +9,7 @@ from sqlalchemy import text
 from app.api import (auth, leads, 
 pages, roles, users, subscription_plans, subscriptions, 
 payments, disciplines, rooms, lessons, sessions, schedule,
-session_students
+session_students, events,instruments, performances, performance_students 
 )
 from app.core.config import settings
 from app.db.session import engine
@@ -52,6 +52,10 @@ app.include_router(lessons.router)
 app.include_router(sessions.router)
 app.include_router(schedule.router)
 app.include_router(session_students.router)
+app.include_router(events.router)
+app.include_router(instruments.router)
+app.include_router(performances.router)
+app.include_router(performance_students.router)
 
 @app.get("/health", tags=["system"])
 async def health_check():
@@ -64,11 +68,11 @@ async def health_check():
         return {"status": "error", "database": "disconnected", "error": str(e)}
 
 
-# --- Веб-маршруты (чистые URL без .html) ---
+# веб-маршруты (чистые URL без .html)
 # Регистрируются ДО монтирования статики, чтобы имели приоритет
 app.include_router(pages.router)
 
-# --- Статика фронта (CSS, JS, .html файлы) ---
+# статика фронта (CSS, JS, .html файлы) 
 # Монтируется ПОСЛЕДНЕЙ как catch-all
 FRONTEND_DIR = Path(__file__).resolve().parents[2] / "frontend"
 if FRONTEND_DIR.exists():

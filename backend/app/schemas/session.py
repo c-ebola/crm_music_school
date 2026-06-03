@@ -10,7 +10,6 @@ from app.schemas.room import RoomRead
 class SessionBase(BaseModel):
     lesson_id: int
     room_id: int | None = None
-    session_date: datetime
 
 
 class SessionCreate(SessionBase):
@@ -20,7 +19,6 @@ class SessionCreate(SessionBase):
 class SessionUpdate(BaseModel):
     lesson_id: int | None = None
     room_id: int | None = None
-    session_date: datetime | None = None
     status: SessionStatus | None = None
 
 
