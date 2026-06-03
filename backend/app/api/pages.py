@@ -67,3 +67,7 @@ async def page_my_schedule():
 @router.get("/lessons", summary="Уроки: каталог и создание")
 async def page_lessons():
     return _html("pages/lessons/lessons.html")
+
+@router.get("/homeworks", summary="Домашние задания")
+async def page_homeworks():
+    return _html("pages/homeworks/homeworks.html")

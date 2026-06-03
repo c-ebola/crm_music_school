@@ -9,7 +9,8 @@ from sqlalchemy import text
 from app.api import (auth, leads, 
 pages, roles, users, subscription_plans, subscriptions, 
 payments, disciplines, rooms, lessons, sessions, schedule,
-session_students, events,instruments, performances, performance_students
+session_students, events,instruments, performances, performance_students,
+homeworks
 
 )
 from app.core.config import settings
@@ -57,6 +58,7 @@ app.include_router(events.router)
 app.include_router(instruments.router)
 app.include_router(performances.router)
 app.include_router(performance_students.router)
+app.include_router(homeworks.router)
 
 
 @app.get("/health", tags=["system"])

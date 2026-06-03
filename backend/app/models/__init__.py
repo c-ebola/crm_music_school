@@ -17,10 +17,11 @@ from app.models.event import Event, EventStatus
 from app.models.instrument import Instrument
 from app.models.performance import Performance
 from app.models.performance_student import PerformanceStudent
+from app.models.homework import Homework  # noqa: F401
 from app.models import (role, lead, user, subscription_plan, 
                         subscription, payment, discipline, room,
                         lesson, session, schedule, session_student, event,
-                        instrument, performance, performance_student
+                        instrument, performance, performance_student, homework
                         )  # noqa: F401
 
 
@@ -41,5 +42,7 @@ __all__ = [
     "SessionStudent",
     "Event", "EventStatus",
     "Instrument",
-    "Performance", "PerformanceStudent",    
+    "Performance", "PerformanceStudent", 
+    "Homework"
 ]
+
