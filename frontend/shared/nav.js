@@ -1,5 +1,6 @@
 // Единое боковое меню по роли. Требует подключённый ранее auth.js.
-// На странице нужен пустой контейнер: <aside id="sidebar"></aside>
+// На странице должен быть контейнер сайдбара: <aside id="sidebar"></aside>
+
 (function () {
   const ROLE_NAMES = {
     admin: 'Админ сети',
@@ -11,33 +12,33 @@
   };
 
   const HOME = { label: 'Главный экран', href: '/' };
+  const DASHBOARD = { label: 'Панель управления', href: '/dashboard' };
+  const LEADS = { label: 'Новый лид', href: '/leads' };
+  const CONVERT = { label: 'Конверсия в ученика', href: '/convert' };
+  const PLANS = { label: 'Каталог абонементов', href: '/plans' };
+  const SUB_NEW = { label: 'Оформить абонемент', href: '/subscription-new' };
+  const PAY_NEW = { label: 'Фиксация оплаты', href: '/payment-new' };
+  const STUDENT_FIN = { label: 'Финансы ученика', href: '/student-finance' };
+  const CONFIRM_PAY = { label: 'Подтверждение оплат', href: '/confirm-payments' };
+  const SCHEDULE = { label: 'Расписание', href: '/schedule' };
+  const LESSONS = { label: 'Уроки', href: '/lessons' };
+  const STUDENT_SCHED = { label: 'Расписание ученика', href: '/student-schedule' };
+  const MY_SCHED = { label: 'Моё расписание', href: '/my-schedule' };
+  const HOMEWORKS = { label: 'Домашние задания', href: '/homeworks' };
+  const USERS = { label: 'Пользователи', href: '/users' };
+
+  // Набор пунктов роли = страницы, которые роль реально может открыть
 
   const NAV = {
-    manager: [HOME,
-      { label: 'Новый лид', href: '/leads' },
-      { label: 'Конверсия в ученика', href: '/convert' }],
-    accountant: [HOME,
-      { label: 'Каталог абонементов', href: '/plans' },
-      { label: 'Оформить абонемент', href: '/subscription-new' },
-      { label: 'Фиксация оплаты', href: '/payment-new' },
-      { label: 'Финансы ученика', href: '/student-finance' }],
-    methodist: [HOME,
-      { label: 'Расписание', href: '/schedule' },
-      { label: 'Уроки', href: '/lessons' },
-      { label: 'Расписание ученика', href: '/student-schedule' }],
-    teacher: [HOME,
-      { label: 'Моё расписание', href: '/my-schedule' },
-      { label: 'Домашние задания', href: '/homeworks' }],
-    branch_admin: [HOME,
-      { label: 'Новый лид', href: '/leads' },
-      { label: 'Конверсия в ученика', href: '/convert' },
-      { label: 'Расписание', href: '/schedule' },
-      { label: 'Расписание ученика', href: '/student-schedule' },
-      { label: 'Уроки', href: '/lessons' },
-      { label: 'Подтверждение оплат', href: '/confirm-payments' }],
-    // У админа сети сайдбар лёгкий — все ролевые формы вынесены на главную
-    admin: [HOME,
-      { label: 'Пользователи', href: '/users' }],
+    manager: [HOME, LEADS, CONVERT],
+    accountant: [HOME, PLANS, SUB_NEW, PAY_NEW, STUDENT_FIN],
+    methodist: [HOME, SCHEDULE, LESSONS, STUDENT_SCHED],
+    teacher: [HOME, MY_SCHED, HOMEWORKS],
+    branch_admin: [HOME, DASHBOARD, LEADS, CONVERT,
+      SCHEDULE, STUDENT_SCHED, LESSONS, CONFIRM_PAY],
+    admin: [HOME, DASHBOARD, LEADS, CONVERT,
+      PLANS, SUB_NEW, PAY_NEW, STUDENT_FIN, CONFIRM_PAY,
+      SCHEDULE, LESSONS, STUDENT_SCHED, USERS],
   };
 
   function esc(s) { const d = document.createElement('div'); d.textContent = s == null ? '' : s; return d.innerHTML; }
@@ -63,13 +64,23 @@
       '</div>';
   }
 
+  // Находим сайдбар максимально широко: по id, по классу, либо первый <aside>
+
+  function findSidebar() {
+    return document.getElementById('sidebar')
+        || document.querySelector('aside.sidebar')
+        || document.querySelector('.layout > aside')
+        || document.querySelector('aside');
+  }
+
   async function mount() {
-    const aside = document.getElementById('sidebar');
+    const aside = findSidebar();
     if (!aside) return;
+    aside.id = 'sidebar';
     aside.classList.add('sidebar');
     let me = null;
     try { me = await window.Auth.getMe(); } catch (e) { return; }
-    aside.innerHTML = render(me);
+    aside.innerHTML = render(me);   // ← затираем любые зашитые ссылки
     const lo = document.getElementById('nav-logout');
     if (lo) lo.addEventListener('click', function () { window.Auth.logout(); });
   }
