@@ -3,11 +3,14 @@ from datetime import date, datetime, time, timedelta
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.models.event import Event, EventStatus
 from app.models.lesson import Lesson
 from app.models.schedule import Schedule
-from app.models.session import Session, SessionStatus     # ← эта строка обязательна
-from app.schemas.schedule import ScheduleAddSession, ScheduleCreate, ScheduleUpdate
-from app.services import session_service
+from app.models.session import Session, SessionStatus
+from app.schemas.schedule import (
+    ScheduleAddSession, ScheduleAddEvent, ScheduleCreate, ScheduleUpdate,
+)
+from app.services import session_service, event_service
 
 ALLOWED_TYPES = ("session", "event")
 
@@ -26,8 +29,11 @@ class UnsupportedEntityError(ScheduleError):
 
 async def _resolve(db: AsyncSession, sch: Schedule) -> dict:
     session_obj = None
+    event_obj = None
     if sch.entity_type == "session":
         session_obj = await session_service.get_session(db, sch.entity_id)
+    elif sch.entity_type == "event":
+        event_obj = await event_service.get_event(db, sch.entity_id)
     return {
         "id": sch.id,
         "entity_type": sch.entity_type,
@@ -35,6 +41,7 @@ async def _resolve(db: AsyncSession, sch: Schedule) -> dict:
         "date": sch.date,
         "quant": sch.quant,
         "session": session_obj,
+        "event": event_obj,
         "created_at": sch.created_at,
         "updated_at": sch.updated_at,
     }
@@ -127,6 +134,26 @@ async def add_session_to_schedule(db: AsyncSession, data: ScheduleAddSession) ->
     await db.refresh(sch)
     return await _resolve(db, sch)
 
+async def add_event_to_schedule(db: AsyncSession, data: ScheduleAddEvent) -> dict:
+    """Создать концерт и поставить его в расписание на день/квант."""
+    event = Event(
+        title=data.title,
+        description=data.description,
+        status=EventStatus.planned,
+    )
+    db.add(event)
+    await db.flush()  # получаем event.id
+
+    sch = Schedule(
+        entity_type="event",
+        entity_id=event.id,
+        date=data.day,
+        quant=data.quant,
+    )
+    db.add(sch)
+    await db.commit()
+    await db.refresh(sch)
+    return await _resolve(db, sch)
 
 async def update_schedule(db: AsyncSession, schedule_id: int, data: ScheduleUpdate) -> dict | None:
     result = await db.execute(select(Schedule).where(Schedule.id == schedule_id))

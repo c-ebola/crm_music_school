@@ -3,10 +3,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import date
 
 
+
 from app.db.session import get_db
 from app.core.deps import require_roles
 from app.schemas.schedule import ScheduleCreate, ScheduleRead, ScheduleUpdate, ScheduleAddSession
 from app.services import schedule_service
+from app.schemas.schedule import (
+    ScheduleCreate, ScheduleRead, ScheduleUpdate, ScheduleAddSession, ScheduleAddEvent, ScheduleAddEventRef 
+)
 
 router = APIRouter(prefix="/api/schedule", tags=["schedule"])
 
@@ -50,7 +54,8 @@ async def add_schedule(data: ScheduleCreate, db: AsyncSession = Depends(get_db))
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.post("/add-session", response_model=ScheduleRead, status_code=status.HTTP_201_CREATED, dependencies=[Depends(require_roles("methodist","branch_admin"))])
+@router.post("/add-session", response_model=ScheduleRead, status_code=status.HTTP_201_CREATED, 
+            dependencies=[Depends(require_roles("methodist","branch_admin","admin"))])
 async def add_session_to_schedule(data: ScheduleAddSession, db: AsyncSession = Depends(get_db)):
     try:
         return await schedule_service.add_session_to_schedule(db, data)
@@ -59,6 +64,25 @@ async def add_session_to_schedule(data: ScheduleAddSession, db: AsyncSession = D
     except schedule_service.ScheduleError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+@router.post("/place-event", response_model=ScheduleRead, status_code=status.HTTP_201_CREATED,
+             dependencies=[Depends(require_roles("methodist", "branch_admin", "admin"))])
+async def place_event(data: ScheduleAddEventRef, db: AsyncSession = Depends(get_db)):
+    try:
+        return await schedule_service.place_event_in_schedule(db, data.event_id, data.day, data.quant)
+    except schedule_service.EntityNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except schedule_service.ScheduleError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.post("/add-event", response_model=ScheduleRead, status_code=status.HTTP_201_CREATED,
+             dependencies=[Depends(require_roles("methodist", "branch_admin", "admin"))])
+async def add_event_to_schedule(data: ScheduleAddEvent, db: AsyncSession = Depends(get_db)):
+    try:
+        return await schedule_service.add_event_to_schedule(db, data)
+    except schedule_service.EntityNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except schedule_service.ScheduleError as e:
+        raise HTTPException(status_code=400, detail=str(e)) 
 
 @router.patch("/{schedule_id}", response_model=ScheduleRead, dependencies=[Depends(require_roles("methodist","branch_admin"))])
 async def edit_schedule(schedule_id: int, data: ScheduleUpdate, db: AsyncSession = Depends(get_db)):
@@ -73,7 +97,7 @@ async def edit_schedule(schedule_id: int, data: ScheduleUpdate, db: AsyncSession
     return s
 
 
-@router.delete("/{schedule_id}", dependencies=[Depends(require_roles("methodist","branch_admin"))])
+@router.delete("/{schedule_id}", dependencies=[Depends(require_roles("methodist", "branch_admin", "admin"))])
 async def remove_schedule(schedule_id: int, db: AsyncSession = Depends(get_db)):
     ok = await schedule_service.delete_schedule(db, schedule_id)
     if not ok:

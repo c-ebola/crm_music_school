@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -12,20 +13,20 @@
         .grid th { background:#f5f5f7; text-align:left; }
         .qtime { width:130px; font-weight:600; white-space:nowrap; }
         .slot { min-height:48px; }
-        .sess { background:#e3f0ff; border-radius:8px; padding:8px 10px; margin-bottom:6px; font-size:13px; position:relative; }
+        .sess { background:#e3f0ff; border-radius:8px; padding:8px 10px; margin-bottom:6px; font-size:13px; position:relative; cursor:pointer; }
         .sess .del { position:absolute; top:4px; right:8px; cursor:pointer; color:#8c1f1f; border:none; background:none; font-size:14px; }
         .sess .disc { font-weight:600; }
         .sess .meta { color:#555; }
-        .add-btn { background:none; border:1px dashed #c7c7cc; border-radius:8px; padding:6px 10px; cursor:pointer; color:#0058b8; font-size:13px; }
+        .add-btn { display:block; width:100%; background:none; border:1px dashed #c7c7cc; border-radius:8px; padding:6px 10px; cursor:pointer; color:#0058b8; font-size:13px; }
         .overlay { position:fixed; inset:0; background:rgba(0,0,0,0.4); display:none; align-items:center; justify-content:center; z-index:100; }
         .overlay.show { display:flex; }
-        .modal { background:#fff; border-radius:12px; padding:24px; width:420px; }
+        .modal { background:#fff; border-radius:12px; padding:24px; width:420px; max-height:85vh; overflow:auto; }
         .modal h2 { font-size:18px; margin-bottom:16px; }
     </style>
 </head>
 <body>
     <div class="layout">
-        <aside id="sidebar" class="sidebar"></aside>
+        <aside id="sidebar"></aside>
 
         <main class="content">
             <header class="page-header">
@@ -43,7 +44,7 @@
             <section class="card">
                 <table class="grid">
                     <thead>
-                        <tr><th class="qtime">Время</th><th>Занятия</th><th style="width:120px;"></th></tr>
+                        <tr><th class="qtime">Время</th><th>Занятия</th><th style="width:140px;"></th></tr>
                     </thead>
                     <tbody id="grid-body"></tbody>
                 </table>
@@ -51,6 +52,7 @@
         </main>
     </div>
 
+    <!-- модал: добавить занятие -->
     <div class="overlay" id="overlay">
         <div class="modal">
             <h2 id="modal-title">Добавить занятие</h2>
@@ -69,28 +71,41 @@
             </div>
         </div>
     </div>
-    <div class="overlay" id="students-overlay">
-            <div class="modal" style="width:480px;">
-                <h2 id="st-title">Ученики занятия</h2>
-                <div id="st-info" style="color:#86868b; font-size:13px; margin-bottom:8px;"></div>
-                <div id="st-capacity" style="font-weight:600; margin-bottom:10px;"></div>
-                <div id="st-list"></div>
-                <div class="field" style="margin-top:14px;">
-                    <label>Записать ученика</label>
-                    <div style="display:flex; gap:8px;">
-                        <select id="st-eligible" style="flex:1;"></select>
-                        <button type="button" class="btn-primary" id="st-enroll">Записать</button>
-                    </div>
-                    <div style="font-size:13px; color:#86868b; margin-top:4px;">
-                        Список отфильтрован по дисциплине и филиалу занятия
-                    </div>
-                </div>
-                <div id="st-message" class="message hidden"></div>
-                <div class="form-actions">
-                    <button type="button" class="btn-ghost" id="st-close">Закрыть</button>
-                </div>
+
+    <!-- модал: выбрать концерт -->
+    <div class="overlay" id="ev-overlay">
+        <div class="modal">
+            <h2 id="ev-title-h">Добавить концерт</h2>
+            <div class="field">
+                <label for="ev_event">Концерт *</label>
+                <select id="ev_event"></select>
             </div>
+            <div id="ev-message" class="message hidden"></div>
+            <div class="form-actions">
+                <button type="button" class="btn-ghost" id="ev_cancel">Отмена</button>
+                <button type="button" class="btn-primary" id="ev_save">Поставить в расписание</button>
+            </div>
+        </div>
     </div>
+
+    <!-- модал: ученики занятия -->
+    <div class="overlay" id="students-overlay">
+        <div class="modal" style="width:480px;">
+            <h2 id="st-title">Ученики</h2>
+            <div id="st-info" style="color:#555; font-size:13px; margin-bottom:8px;"></div>
+            <div id="st-capacity" style="font-weight:600; margin-bottom:8px;"></div>
+            <div id="st-list" style="margin-bottom:12px;"></div>
+            <div style="display:flex; gap:6px;">
+                <select id="st-eligible" style="flex:1;"></select>
+                <button type="button" class="btn-primary" id="st-enroll">Записать</button>
+            </div>
+            <div id="st-message" class="message hidden"></div>
+            <div class="form-actions">
+                <button type="button" class="btn-ghost" id="st-close">Закрыть</button>
+            </div>
+        </div>
+    </div>
+
     <script src="/shared/auth.js"></script>
     <script src="/shared/nav.js"></script>
     <script src="/pages/schedule/schedule.js"></script>

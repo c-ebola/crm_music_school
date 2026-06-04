@@ -36,3 +36,11 @@ async def update_event(db: AsyncSession, event_id: int, data: EventUpdate) -> Ev
     await db.commit()
     await db.refresh(event)
     return event
+
+async def delete_event(db: AsyncSession, event_id: int) -> bool:
+    event = await get_event(db, event_id)
+    if event is None:
+        return False
+    await db.delete(event)
+    await db.commit()
+    return True

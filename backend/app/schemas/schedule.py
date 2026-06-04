@@ -3,7 +3,7 @@ from datetime import date as date_, datetime
 from pydantic import BaseModel, ConfigDict, Field
 
 from app.schemas.session import SessionRead
-
+from app.schemas.event import EventRead
 
 class ScheduleCreate(BaseModel):
     entity_type: str = Field(..., pattern="^(session|event)$")
@@ -26,6 +26,7 @@ class ScheduleRead(BaseModel):
     date: date_
     quant: int
     session: SessionRead | None = None
+    event: EventRead | None = None
     created_at: datetime
     updated_at: datetime
 
@@ -37,3 +38,16 @@ class ScheduleAddSession(BaseModel):
     quant: int = Field(..., ge=1)
     lesson_id: int
     room_id: int | None = None
+
+
+class ScheduleAddEvent(BaseModel):            
+    day: date_
+    quant: int = Field(..., ge=1)
+    title: str = Field(..., min_length=1, max_length=200)
+    description: str | None = None
+
+
+class ScheduleAddEventRef(BaseModel):
+    day: date_
+    quant: int = Field(..., ge=1)
+    event_id: int

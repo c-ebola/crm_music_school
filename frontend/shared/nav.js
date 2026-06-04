@@ -26,6 +26,7 @@
   const MY_SCHED = { label: 'Моё расписание', href: '/my-schedule' };
   const HOMEWORKS = { label: 'Домашние задания', href: '/homeworks' };
   const USERS = { label: 'Пользователи', href: '/users' };
+  const CONCERTS = { label: 'Концерты', href: '/events' };
 
   // Набор пунктов роли = страницы, которые роль реально может открыть
 

@@ -23,7 +23,8 @@ async def get_event_by_id(event_id: int, db: AsyncSession = Depends(get_db)):
     return event
 
 
-@router.post("", response_model=EventRead, status_code=status.HTTP_201_CREATED, dependencies=[Depends(require_roles("methodist"))])
+@router.post("", response_model=EventRead, status_code=status.HTTP_201_CREATED,
+             dependencies=[Depends(require_roles("methodist", "branch_admin", "admin"))])
 async def add_event(data: EventCreate, db: AsyncSession = Depends(get_db)):
     return await event_service.create_event(db, data)
 
@@ -34,3 +35,11 @@ async def edit_event(event_id: int, data: EventUpdate, db: AsyncSession = Depend
     if event is None:
         raise HTTPException(status_code=404, detail="Мероприятие не найдено")
     return event
+
+
+@router.delete("/{event_id}", dependencies=[Depends(require_roles("methodist", "branch_admin", "admin"))])
+async def remove_event(event_id: int, db: AsyncSession = Depends(get_db)):
+    ok = await event_service.delete_event(db, event_id)
+    if not ok:
+        raise HTTPException(status_code=404, detail="Мероприятие не найдено")
+    return {"deleted": True}

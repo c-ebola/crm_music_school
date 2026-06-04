@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>МузCRM — Концерты</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+        .ev-card { border:1px solid #e8e8ed; border-radius:10px; padding:14px; margin-bottom:10px; background:#fff; }
+        .ev-card .top { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+        .ev-card .perf-line { color:#555; font-size:13px; padding:2px 0; }
+        .perf-card { border:1px solid #e8e8ed; border-radius:10px; padding:12px; margin-bottom:10px; background:#fff; }
+        .badge { font-size:12px; font-weight:600; border-radius:10px; padding:2px 8px; margin-left:8px; }
+        .badge.planned { background:#e3f0ff; color:#0058b8; }
+        .badge.completed { background:#e6f5e9; color:#1a7f37; }
+        .badge.cancelled { background:#fde7e7; color:#8c1f1f; }
+        .hidden { display:none; }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <aside id="sidebar"></aside>
+
+        <main class="content">
+            <header class="page-header">
+                <h1>Концерты</h1>
+                <div class="breadcrumb">Мероприятия и выступления</div>
+            </header>
+
+            <!-- ===== СПИСОК ===== -->
+            <div id="view-list">
+                <div style="margin-bottom:16px;">
+                    <button class="btn-primary" id="open-create">+ Создать концерт</button>
+                </div>
+
+                <section class="card hidden" id="create-card">
+                    <h2 style="margin-bottom:14px;">Новый концерт</h2>
+                    <div class="field">
+                        <label for="e_title">Название концерта *</label>
+                        <input type="text" id="e_title" placeholder="Отчётный концерт">
+                    </div>
+                    <div class="field">
+                        <label for="e_desc">Описание</label>
+                        <textarea id="e_desc" rows="2"></textarea>
+                    </div>
+                    <div id="create-message" class="message hidden"></div>
+                    <div class="form-actions">
+                        <button type="button" class="btn-ghost" id="cancel-create">Отмена</button>
+                        <button type="button" class="btn-primary" id="save-concert">Создать и настроить</button>
+                    </div>
+                </section>
+
+                <section class="card">
+                    <div id="loading" class="hidden" style="color:#aaa;">Загрузка…</div>
+                    <div id="ev-list"></div>
+                </section>
+            </div>
+
+            <!-- ===== РЕДАКТОР КОНЦЕРТА ===== -->
+            <div id="view-editor" class="hidden">
+                <div style="margin-bottom:12px;">
+                    <button class="btn-ghost" id="back-list">← К списку концертов</button>
+                </div>
+                <section class="card">
+                    <h2 id="editor-title">Концерт</h2>
+                    <div id="editor-desc" style="color:#555; font-size:13px; margin-bottom:10px;"></div>
+
+                    <div style="font-weight:600; margin:10px 0;">Выступления</div>
+                    <div id="perf-list" style="margin-bottom:12px;"></div>
+
+                    <div class="card" style="background:#f5f5f7; box-shadow:none; padding:14px;">
+                        <div style="font-weight:600; margin-bottom:8px;">Добавить выступление</div>
+                        <div class="grid-2">
+                            <div class="field"><label for="pf_teacher">Преподаватель</label><select id="pf_teacher"></select></div>
+                            <div class="field"><label for="pf_room">Кабинет</label><select id="pf_room"></select></div>
+                        </div>
+                        <div class="field"><label for="pf_notes">Заметки</label><input type="text" id="pf_notes" placeholder="Напр.: финал, дуэт"></div>
+                        <div id="editor-message" class="message hidden"></div>
+                        <div class="form-actions" style="border:none; padding-top:8px;">
+                            <button type="button" class="btn-primary" id="pf_add">Добавить выступление</button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script src="/shared/auth.js"></script>
+    <script src="/shared/nav.js"></script>
+    <script src="/pages/events/events.js"></script>
+</body>
+</html>
