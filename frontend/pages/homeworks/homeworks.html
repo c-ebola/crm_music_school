@@ -46,16 +46,7 @@
 </head>
 <body>
     <div class="layout">
-        <aside class="sidebar">
-            <div class="brand">♪ МузCRM</div>
-            <div class="brand-sub">Преподаватель</div>
-            <nav class="nav">
-                <a href="/" class="nav-item">Главный экран</a>
-                <a href="/homeworks" class="nav-item active">Домашние задания</a>
-                <a href="/schedule" class="nav-item">Расписание</a>
-                <a href="/users" class="nav-item">Пользователи</a>
-            </nav>
-        </aside>
+        <aside id="sidebar"></aside>
         <main class="content" style="max-width:1200px;">
             <header class="page-header">
                 <h1>Домашние задания</h1>
@@ -97,6 +88,8 @@
             </div>
         </main>
     </div>
+    <script src="/shared/auth.js"></script>
+    <script src="/shared/nav.js"></script>
     <script src="/pages/homeworks/homeworks.js"></script>
 </body>
 </html>

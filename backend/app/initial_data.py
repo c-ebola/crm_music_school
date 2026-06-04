@@ -18,6 +18,8 @@ SEED_USERS = [
     ("teacher1@crm.com", "password123", "Петров", "Андрей", "teacher", False),
     ("teacher2@crm.com", "password123", "Кузнецова", "Елена", "teacher", False),
     ("methodist1@crm.com", "password123", "Васильева", "Ольга", "methodist", False),
+    ("branch1@crm.com", "password123", "Смирнов", "Дмитрий", "branch_admin", False),
+    ("accountant1@crm.com", "password123", "Зайцева", "Анна", "accountant", False),
 ]
 
 

@@ -1,7 +1,4 @@
-const token = localStorage.getItem('token');
-if (!token) window.location.href = '/login';
-
-const authHeaders = { 'Authorization': 'Bearer ' + token };
+Auth.requireRole(['admin']);
 
 const form = document.getElementById('user-form');
 const messageEl = document.getElementById('message');
@@ -13,61 +10,44 @@ function showMessage(text, type) {
     messageEl.className = 'message ' + type;
     messageEl.classList.remove('hidden');
 }
-
-function escapeHtml(s) {
-    const d = document.createElement('div');
-    d.textContent = s;
-    return d.innerHTML;
-}
-
-function logout() {
-    localStorage.removeItem('token');
-    window.location.href = '/login';
-}
-document.getElementById('logout-btn').addEventListener('click', logout);
-
-// Проверяем токен и показываем текущего пользователя
-async function checkAuth() {
-    const resp = await fetch('/api/auth/me', { headers: authHeaders });
-    if (resp.status === 401) { logout(); return; }
-    const me = await resp.json();
-    document.getElementById('current-user').textContent = me.full_name + ' (' + me.role.name + ')';
-}
+function escapeHtml(s) { const d = document.createElement('div'); d.textContent = s == null ? '' : s; return d.innerHTML; }
 
 async function loadRoles() {
-    const resp = await fetch('/api/roles', { headers: authHeaders });
-    const roles = await resp.json();
-    roleSelect.innerHTML = '<option value="">— выберите роль —</option>' +
-        roles.map(r => `<option value="${r.id}">${escapeHtml(r.name)}</option>`).join('');
+    try {
+        const resp = await Auth.apiFetch('/api/roles');
+        const roles = await resp.json();
+        roleSelect.innerHTML = '<option value="">— выберите роль —</option>' +
+            roles.map(r => `<option value="${r.id}">${escapeHtml(r.name)}</option>`).join('');
+    } catch (e) { /* ignore */ }
 }
 
 async function loadUsers() {
     tbody.innerHTML = '<tr><td colspan="5" class="empty">Загрузка...</td></tr>';
-    const resp = await fetch('/api/users', { headers: authHeaders });
-    if (resp.status === 403) {
-        tbody.innerHTML = '<tr><td colspan="5" class="empty">Нет прав на просмотр (нужен админ)</td></tr>';
-        return;
-    }
-    const users = await resp.json();
-    if (users.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="empty">Пользователей нет</td></tr>';
-        return;
-    }
-    tbody.innerHTML = users.map(u => `
-        <tr>
-            <td>${u.id}</td>
-            <td>${escapeHtml(u.full_name)}</td>
-            <td>${escapeHtml(u.email)}</td>
-            <td>${escapeHtml(u.role.name)}${u.is_superuser ? ' ★' : ''}</td>
-            <td>${u.is_active ? 'активен' : 'отключён'}</td>
-        </tr>
-    `).join('');
+    try {
+        const resp = await Auth.apiFetch('/api/users');
+        if (resp.status === 403) {
+            tbody.innerHTML = '<tr><td colspan="5" class="empty">Нет прав на просмотр (нужен админ)</td></tr>';
+            return;
+        }
+        const users = await resp.json();
+        if (!users.length) {
+            tbody.innerHTML = '<tr><td colspan="5" class="empty">Пользователей нет</td></tr>';
+            return;
+        }
+        tbody.innerHTML = users.map(u => `
+            <tr>
+                <td>${u.id}</td>
+                <td>${escapeHtml(u.full_name)}</td>
+                <td>${escapeHtml(u.email)}</td>
+                <td>${escapeHtml(u.role.name)}${u.is_superuser ? ' ★' : ''}</td>
+                <td>${u.is_active ? 'активен' : 'отключён'}</td>
+            </tr>`).join('');
+    } catch (e) { /* 401 уже увёл на логин */ }
 }
 
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
     messageEl.classList.add('hidden');
-
     const fd = new FormData(form);
     const payload = {
         last_name: fd.get('last_name').trim(),
@@ -80,11 +60,10 @@ form.addEventListener('submit', async (e) => {
         is_active: document.getElementById('is_active').checked,
         is_superuser: document.getElementById('is_superuser').checked,
     };
-
     try {
-        const resp = await fetch('/api/users', {
+        const resp = await Auth.apiFetch('/api/users', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', ...authHeaders },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
         });
         if (resp.ok) {
@@ -105,6 +84,5 @@ form.addEventListener('submit', async (e) => {
     }
 });
 
-checkAuth();
 loadRoles();
 loadUsers();

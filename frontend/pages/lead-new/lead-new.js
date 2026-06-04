@@ -1,3 +1,5 @@
+Auth.requireRole(['manager', 'branch_admin', 'admin']);
+
 const form = document.getElementById('lead-form');
 const messageEl = document.getElementById('message');
 
@@ -10,7 +12,7 @@ function showMessage(text, type = 'success') {
 async function loadDisciplines() {
     const sel = document.getElementById('discipline_id');
     try {
-        const r = await fetch('/api/disciplines?only_active=true');
+        const r = await Auth.apiFetch('/api/disciplines?only_active=true');
         const list = await r.json();
         sel.innerHTML = '<option value="">— выберите —</option>' +
             list.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
@@ -26,19 +28,11 @@ function collectFormData() {
     const data = {};
     for (const [key, rawValue] of fd.entries()) {
         const value = typeof rawValue === 'string' ? rawValue.trim() : rawValue;
-        // Пустые опциональные поля не отправляем — пусть будут null/undefined
         if (value === '') continue;
         data[key] = value;
     }
-    // student_age — число
-    if (data.student_age) {
-        data.student_age = parseInt(data.student_age, 10);
-    }
-    // discipline_id — число
-    if (data.discipline_id) {
-        data.discipline_id = parseInt(data.discipline_id, 10);
-    }
-    return data;
+    if (data.student_age) data.student_age = parseInt(data.student_age, 10);
+    if (data.discipline_id) data.discipline_id = parseInt(data.discipline_id, 10);
     return data;
 }
 
@@ -49,7 +43,7 @@ form.addEventListener('submit', async (e) => {
     const payload = collectFormData();
 
     try {
-        const response = await fetch('/api/leads', {
+        const response = await Auth.apiFetch('/api/leads', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
@@ -64,7 +58,6 @@ form.addEventListener('submit', async (e) => {
             const error = await response.json();
             let text;
             if (Array.isArray(error.detail)) {
-                // FastAPI вернул массив ошибок валидации
                 text = error.detail.map(e => `${e.loc.slice(-1)[0]}: ${e.msg}`).join('; ');
             } else {
                 text = error.detail || 'Неизвестная ошибка';

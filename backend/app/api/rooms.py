@@ -2,13 +2,14 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db
+from app.core.deps import require_roles
 from app.schemas.room import RoomCreate, RoomRead, RoomUpdate
 from app.services import room_service
 
 router = APIRouter(prefix="/api/rooms", tags=["rooms"])
 
 
-@router.get("", response_model=list[RoomRead])
+@router.get("", response_model=list[RoomRead], dependencies=[Depends(require_roles("methodist","branch_admin","admin"))])
 async def get_rooms(
     only_active: bool = False,
     branch: str | None = None,
@@ -17,7 +18,7 @@ async def get_rooms(
     return await room_service.list_rooms(db, only_active=only_active, branch=branch)
 
 
-@router.get("/{room_id}", response_model=RoomRead)
+@router.get("/{room_id}", response_model=RoomRead, dependencies=[Depends(require_roles("methodist","branch_admin","admin"))])
 async def get_room_by_id(room_id: int, db: AsyncSession = Depends(get_db)):
     room = await room_service.get_room(db, room_id)
     if room is None:

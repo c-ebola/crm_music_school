@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db
+from app.core.deps import require_roles
 from app.schemas.performance_student import (
     PerformanceStudentCreate, PerformanceStudentRead, PerformanceStudentUpdate,
 )
@@ -10,7 +11,7 @@ from app.services import performance_student_service
 router = APIRouter(prefix="/api/performance-students", tags=["performance-students"])
 
 
-@router.get("", response_model=list[PerformanceStudentRead])
+@router.get("", response_model=list[PerformanceStudentRead], dependencies=[Depends(require_roles("methodist","branch_admin","admin"))])
 async def get_performance_students(
     performance_id: int | None = None,
     student_id: int | None = None,
@@ -21,7 +22,7 @@ async def get_performance_students(
     )
 
 
-@router.get("/{ps_id}", response_model=PerformanceStudentRead)
+@router.get("/{ps_id}", response_model=PerformanceStudentRead, dependencies=[Depends(require_roles("methodist","branch_admin","admin"))])
 async def get_performance_student_by_id(ps_id: int, db: AsyncSession = Depends(get_db)):
     ps = await performance_student_service.get_performance_student(db, ps_id)
     if ps is None:
@@ -29,7 +30,7 @@ async def get_performance_student_by_id(ps_id: int, db: AsyncSession = Depends(g
     return ps
 
 
-@router.post("", response_model=PerformanceStudentRead, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=PerformanceStudentRead, status_code=status.HTTP_201_CREATED, dependencies=[Depends(require_roles("methodist"))])
 async def enroll_performer(data: PerformanceStudentCreate, db: AsyncSession = Depends(get_db)):
     try:
         return await performance_student_service.enroll(db, data)
@@ -43,7 +44,7 @@ async def enroll_performer(data: PerformanceStudentCreate, db: AsyncSession = De
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.patch("/{ps_id}", response_model=PerformanceStudentRead)
+@router.patch("/{ps_id}", response_model=PerformanceStudentRead, dependencies=[Depends(require_roles("methodist"))])
 async def edit_performance_student(ps_id: int, data: PerformanceStudentUpdate, db: AsyncSession = Depends(get_db)):
     ps = await performance_student_service.update_performance_student(db, ps_id, data)
     if ps is None:
@@ -51,7 +52,7 @@ async def edit_performance_student(ps_id: int, data: PerformanceStudentUpdate, d
     return ps
 
 
-@router.delete("/{ps_id}")
+@router.delete("/{ps_id}", dependencies=[Depends(require_roles("methodist"))])
 async def remove_performance_student(ps_id: int, db: AsyncSession = Depends(get_db)):
     ok = await performance_student_service.unenroll(db, ps_id)
     if not ok:

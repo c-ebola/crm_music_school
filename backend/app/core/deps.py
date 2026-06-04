@@ -46,3 +46,12 @@ async def require_admin(
     if not is_admin:
         raise HTTPException(status_code=403, detail="Требуются права администратора")
     return user
+
+
+def require_roles(*codes: str):
+    """Зависимость доступа по ролям. Суперюзер проходит всегда."""
+    async def checker(user: User = Depends(get_current_active_user)) -> User:
+        if user.is_superuser or (user.role and user.role.code in codes):
+            return user
+        raise HTTPException(status_code=403, detail="Недостаточно прав")
+    return checker

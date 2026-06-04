@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.deps import require_admin
+from app.core.deps import require_admin, get_current_active_user
 from app.db.session import get_db
 from app.schemas.user import UserCreate, UserRead
 from app.services import user_service
@@ -30,7 +30,7 @@ async def create_user(data: UserCreate, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=409, detail=str(e))
 
 
-@router.get("/teachers", response_model=list[UserRead], dependencies=[])
+@router.get("/teachers", response_model=list[UserRead], dependencies=[Depends(get_current_active_user)])
 async def get_teachers(db: AsyncSession = Depends(get_db)):
     """Список преподавателей для выпадающих списков."""
     from sqlalchemy import select

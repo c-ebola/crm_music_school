@@ -3,67 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRM Music School</title>
+    <title>МузCRM — Главный экран</title>
     <link rel="stylesheet" href="/styles.css">
+    <style>
+        .dash-group { margin-top: 24px; }
+        .dash-group h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: #86868b; margin-bottom: 12px; }
+        .dash-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+        .dash-card { display: block; padding: 16px; background: #fff; border: 1px solid #e8e8ed; border-radius: 10px;
+                     text-decoration: none; color: #1d1d1f; font-weight: 500; transition: box-shadow .15s, transform .15s; }
+        .dash-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,.08); transform: translateY(-1px); }
+    </style>
 </head>
 <body>
-    <main class="container">
-        <h1>CRM для сети музыкальных школ</h1>
-        <p class="subtitle">Тестовая страница: добавление роли</p>
-
-        <section class="card">
-            <h2>Добавить роль</h2>
-            <form id="role-form">
-                <div class="field">
-                    <label for="code">Код</label>
-                    <input
-                        type="text"
-                        id="code"
-                        name="code"
-                        required
-                        maxlength="50"
-                        placeholder="например, teacher"
-                        pattern="[a-z_]+"
-                        title="Только латиница в нижнем регистре и подчёркивания"
-                    >
-                </div>
-
-                <div class="field">
-                    <label for="name">Название</label>
-                    <input
-                        type="text"
-                        id="name"
-                        name="name"
-                        required
-                        maxlength="100"
-                        placeholder="например, Преподаватель"
-                    >
-                </div>
-
-                <button type="submit">Создать</button>
-            </form>
-
-            <div id="message" class="message hidden"></div>
-        </section>
-
-        <section class="card">
-            <h2>Список ролей</h2>
-            <button id="refresh-btn" class="secondary">Обновить</button>
-            <table id="roles-table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Код</th>
-                        <th>Название</th>
-                    </tr>
-                </thead>
-                <tbody id="roles-tbody">
-                    <tr><td colspan="3" class="empty">Загрузка...</td></tr>
-                </tbody>
-            </table>
-        </section>
-    </main>
-
-    <script src="/app.js"></script>
+    <div class="layout">
+        <aside id="sidebar"></aside>
+        <main class="content">
+            <header class="page-header">
+                <h1>Главный экран</h1>
+                <div class="breadcrumb">МузCRM</div>
+            </header>
+            <section class="card">
+                <p id="welcome">Добро пожаловать. Выберите раздел в меню слева.</p>
+            </section>
+            <div id="admin-dashboard"></div>
+        </main>
+    </div>
+    <script src="/shared/auth.js"></script>
+    <script src="/shared/nav.js"></script>
+    <script>
+        (function () {
+            if (!window.Auth) return;
+            var GROUPS = [
+                { title: 'Оформление учеников', items: [['Новый лид', '/leads'], ['Конверсия в ученика', '/convert']] },
+                { title: 'Бухгалтерия', items: [['Каталог абонементов', '/plans'], ['Оформить абонемент', '/subscription-new'], ['Фиксация оплаты', '/payment-new'], ['Финансы ученика', '/student-finance'], ['Подтверждение оплат', '/confirm-payments']] },
+                { title: 'Расписание и занятия', items: [['Расписание', '/schedule'], ['Уроки', '/lessons'], ['Расписание ученика', '/student-schedule']] },
+                { title: 'Преподаватель', items: [['Моё расписание', '/my-schedule'], ['Домашние задания', '/homeworks']] },
+                { title: 'Администрирование', items: [['Пользователи', '/users']] }
+            ];
+            function esc(s) { var d = document.createElement('div'); d.textContent = s == null ? '' : s; return d.innerHTML; }
+            window.Auth.getMe().then(function (me) {
+                var w = document.getElementById('welcome');
+                if (w && me) w.textContent = 'Добро пожаловать, ' + (me.full_name || '') + '.';
+                var isAdmin = me && (me.is_superuser || (me.role && me.role.code === 'admin'));
+                if (!isAdmin) return;
+                if (w) w.textContent = 'Добро пожаловать, ' + (me.full_name || '') + '. Все разделы — ниже.';
+                var root = document.getElementById('admin-dashboard');
+                root.innerHTML = GROUPS.map(function (g) {
+                    var cards = g.items.map(function (it) {
+                        return '<a class="dash-card" href="' + it[1] + '">' + esc(it[0]) + '</a>';
+                    }).join('');
+                    return '<div class="dash-group"><h2>' + esc(g.title) + '</h2><div class="dash-grid">' + cards + '</div></div>';
+                }).join('');
+            }).catch(function () {});
+        })();
+    </script>
 </body>
 </html>

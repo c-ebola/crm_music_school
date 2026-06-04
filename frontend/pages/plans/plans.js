@@ -1,3 +1,5 @@
+Auth.requireRole(['accountant', 'admin']);
+
 const form = document.getElementById('plan-form');
 const tbody = document.getElementById('plans-tbody');
 const message = document.getElementById('message');
@@ -8,7 +10,7 @@ function money(v){ return Number(v).toLocaleString('ru-RU') + ' ₽'; }
 async function loadPlans() {
     tbody.innerHTML = '<tr><td colspan="7" class="empty">Загрузка...</td></tr>';
     try {
-        const r = await fetch('/api/subscription-plans');
+        const r = await Auth.apiFetch('/api/subscription-plans');
         const plans = await r.json();
         if (!plans.length) {
             tbody.innerHTML = '<tr><td colspan="7" class="empty">Абонементов пока нет</td></tr>';
@@ -35,7 +37,7 @@ async function loadPlans() {
 
 async function togglePlan(id, isActive) {
     try {
-        await fetch('/api/subscription-plans/' + id, {
+        await Auth.apiFetch('/api/subscription-plans/' + id, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ is_active: !isActive }),
@@ -56,7 +58,7 @@ form.addEventListener('submit', async (e) => {
         description: document.getElementById('f_description').value.trim() || null,
     };
     try {
-        const r = await fetch('/api/subscription-plans', {
+        const r = await Auth.apiFetch('/api/subscription-plans', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),

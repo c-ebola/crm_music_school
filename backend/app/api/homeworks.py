@@ -2,13 +2,14 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db
+from app.core.deps import require_roles
 from app.schemas.homework import HomeworkCreate, HomeworkRead, HomeworkUpdate
 from app.services import homework_service
 
 router = APIRouter(prefix="/api/homeworks", tags=["homeworks"])
 
 
-@router.get("", response_model=list[HomeworkRead])
+@router.get("", response_model=list[HomeworkRead], dependencies=[Depends(require_roles("teacher","admin"))])
 async def get_homeworks(
     teacher_id: int | None = None,
     student_id: int | None = None,
@@ -20,7 +21,7 @@ async def get_homeworks(
     )
 
 
-@router.get("/{hw_id}", response_model=HomeworkRead)
+@router.get("/{hw_id}", response_model=HomeworkRead, dependencies=[Depends(require_roles("teacher","admin"))])
 async def get_homework_by_id(hw_id: int, db: AsyncSession = Depends(get_db)):
     h = await homework_service.get_homework(db, hw_id)
     if h is None:
@@ -28,7 +29,7 @@ async def get_homework_by_id(hw_id: int, db: AsyncSession = Depends(get_db)):
     return h
 
 
-@router.post("", response_model=HomeworkRead, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=HomeworkRead, status_code=status.HTTP_201_CREATED, dependencies=[Depends(require_roles("teacher"))])
 async def add_homework(data: HomeworkCreate, db: AsyncSession = Depends(get_db)):
     try:
         return await homework_service.create_homework(db, data)
@@ -40,7 +41,7 @@ async def add_homework(data: HomeworkCreate, db: AsyncSession = Depends(get_db))
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.patch("/{hw_id}", response_model=HomeworkRead)
+@router.patch("/{hw_id}", response_model=HomeworkRead, dependencies=[Depends(require_roles("teacher"))])
 async def edit_homework(hw_id: int, data: HomeworkUpdate, db: AsyncSession = Depends(get_db)):
     h = await homework_service.update_homework(db, hw_id, data)
     if h is None:
@@ -48,7 +49,7 @@ async def edit_homework(hw_id: int, data: HomeworkUpdate, db: AsyncSession = Dep
     return h
 
 
-@router.delete("/{hw_id}")
+@router.delete("/{hw_id}", dependencies=[Depends(require_roles("teacher"))])
 async def remove_homework(hw_id: int, db: AsyncSession = Depends(get_db)):
     ok = await homework_service.delete_homework(db, hw_id)
     if not ok:

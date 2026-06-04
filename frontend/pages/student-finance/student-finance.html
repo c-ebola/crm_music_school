@@ -23,17 +23,7 @@
 </head>
 <body>
     <div class="layout">
-        <aside class="sidebar">
-            <div class="brand">♪ МузCRM</div>
-            <div class="brand-sub">CRM</div>
-            <nav class="nav">
-                <a href="/" class="nav-item">Главный экран</a>
-                <a href="/subscription-new" class="nav-item">Оформить абонемент</a>
-                <a href="/payment-new" class="nav-item">Фиксация оплаты</a>
-                <a href="/student-finance" class="nav-item active">Финансы ученика</a>
-                <a href="/users" class="nav-item">Пользователи</a>
-            </nav>
-        </aside>
+        <aside id="sidebar"></aside>
 
         <main class="content">
             <header class="page-header">
@@ -75,6 +65,8 @@
             </div>
         </main>
     </div>
+    <script src="/shared/auth.js"></script>
+    <script src="/shared/nav.js"></script>
     <script src="/pages/student-finance/student-finance.js"></script>
 </body>
 </html>

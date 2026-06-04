@@ -1,3 +1,5 @@
+Auth.requireRole(['teacher', 'admin']);
+
 const token = localStorage.getItem('token');
 if (!token) window.location.href = '/login';
 const authHeaders = { 'Authorization': 'Bearer ' + token };
@@ -43,7 +45,7 @@ function setupTypeahead(inputEl, sugEl, onPick){
 }
 
 async function init(){
-    const r = await fetch('/api/auth/me', { headers: authHeaders });
+    const r = await Auth.apiFetch('/api/auth/me', { headers: authHeaders });
     if (r.status === 401){ localStorage.removeItem('token'); window.location.href='/login'; return; }
     me = await r.json();
     teacherId = me.id;
@@ -63,11 +65,11 @@ async function init(){
 }
 
 async function loadStudents(){
-    try { students = await (await fetch('/api/leads?is_student=true', { headers: authHeaders })).json(); }
+    try { students = await (await Auth.apiFetch('/api/leads?is_student=true', { headers: authHeaders })).json(); }
     catch(e){ students = []; }
 }
 async function loadHomeworks(){
-    try { allHw = await (await fetch('/api/homeworks?teacher_id=' + teacherId, { headers: authHeaders })).json(); }
+    try { allHw = await (await Auth.apiFetch('/api/homeworks?teacher_id=' + teacherId, { headers: authHeaders })).json(); }
     catch(e){ allHw = []; }
     renderHomeworks();
 }
@@ -82,7 +84,7 @@ async function onCreate(e){
     const description = $('hw-desc').value.trim();
     if (!description){ createMsg('Введите текст задания', 'error'); return; }
     try {
-        const r = await fetch('/api/homeworks', {
+        const r = await Auth.apiFetch('/api/homeworks', {
             method:'POST', headers:{ 'Content-Type':'application/json', ...authHeaders },
             body: JSON.stringify({ teacher_id: teacherId, student_id: createStudentId, description }),
         });
@@ -158,7 +160,7 @@ $('hw-list').addEventListener('click', async (e) => {
     }
 });
 async function req(url, opts){
-    try { await fetch(url, { headers:{ 'Content-Type':'application/json', ...authHeaders }, ...opts }); } catch(e){}
+    try { await Auth.apiFetch(url, { headers:{ 'Content-Type':'application/json', ...authHeaders }, ...opts }); } catch(e){}
 }
 
 init();

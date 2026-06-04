@@ -8,18 +8,7 @@
 </head>
 <body>
     <div class="layout">
-        <aside class="sidebar">
-            <div class="brand">♪ МузCRM</div>
-            <div class="brand-sub">Менеджер по продажам</div>
-            <nav class="nav">
-                <a href="/" class="nav-item">Главный экран</a>
-                <a href="/leads" class="nav-item active">Лиды</a>
-                <a href="#" class="nav-item">Воронка</a>
-                <a href="#" class="nav-item">Договоры</a>
-                <a href="#" class="nav-item">Источники обращений</a>
-                <a href="#" class="nav-item">Профиль</a>
-            </nav>
-        </aside>
+        <aside id="sidebar"></aside>
 
         <main class="content">
             <header class="page-header">
@@ -149,6 +138,8 @@
         </main>
     </div>
 
+    <script src="/shared/auth.js"></script>
+    <script src="/shared/nav.js"></script>
     <script src="/pages/lead-new/lead-new.js"></script>
 </body>
 </html>

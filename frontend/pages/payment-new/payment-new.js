@@ -1,3 +1,5 @@
+Auth.requireRole(['accountant', 'admin']);
+
 const subSel = document.getElementById('f_sub');
 const preview = document.getElementById('sub-preview');
 const amountInput = document.getElementById('f_amount');
@@ -17,7 +19,7 @@ function fmtDate(iso){ if(!iso) return ''; return new Date(iso).toLocaleDateStri
 
 async function loadSubscriptions() {
     try {
-        const r = await fetch('/api/subscriptions');
+        const r = await Auth.apiFetch('/api/subscriptions');
         subsCache = await r.json();
         if (!subsCache.length) {
             subSel.innerHTML = '<option value="">Нет абонементов — сначала оформите</option>';
@@ -59,7 +61,7 @@ form.addEventListener('submit', async (e) => {
     if (dateInput.value) payload.payment_date = dateInput.value;
 
     try {
-        const r = await fetch('/api/payments', {
+        const r = await Auth.apiFetch('/api/payments', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),

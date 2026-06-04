@@ -1,3 +1,5 @@
+Auth.requireRole(['branch_admin', 'admin']);
+
 const tbody = document.getElementById('pays-tbody');
 const authWarn = document.getElementById('auth-warn');
 
@@ -7,7 +9,7 @@ function esc(s){ const d=document.createElement('div'); d.textContent=s==null?''
 function money(v){ return Number(v).toLocaleString('ru-RU') + ' ₽'; }
 function fmtDate(iso){ if(!iso) return ''; return new Date(iso).toLocaleDateString('ru-RU'); }
 
-// JWT сохраняется при входе в localStorage. Проверь ключ в login.js, если не найдётся.
+// JWT сохраняется при входе в localStorage. Проверить ключ в login.js, если не найдётся.
 function getToken() {
     return localStorage.getItem('token')
         || localStorage.getItem('access_token')
@@ -23,7 +25,7 @@ async function loadPending() {
     if (!getToken()) authWarn.classList.remove('hidden');
     tbody.innerHTML = '<tr><td colspan="7" class="empty">Загрузка...</td></tr>';
     try {
-        const r = await fetch('/api/payments?status=pending');
+        const r = await Auth.apiFetch('/api/payments?status=pending');
         const pays = await r.json();
         if (!pays.length) {
             tbody.innerHTML = '<tr><td colspan="7" class="empty">Нет платежей в ожидании</td></tr>';
@@ -57,7 +59,7 @@ async function act(id, action) {
         return;
     }
     try {
-        const r = await fetch(`/api/payments/${id}/${action}`, {
+        const r = await Auth.apiFetch(`/api/payments/${id}/${action}`, {
             method: 'POST',
             headers: authHeaders(),
         });

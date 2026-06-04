@@ -1,3 +1,5 @@
+Auth.requireRole(['teacher', 'admin']);
+
 const DEFAULT_QUANTS = 11;          // 9:00 … 19:45
 const DOW = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
 const style = document.createElement('style');
@@ -76,7 +78,7 @@ function dayIndexOf(iso){
 }
 
 async function init(){
-    const r = await fetch('/api/auth/me', { headers: authHeaders });
+    const r = await Auth.apiFetch('/api/auth/me', { headers: authHeaders });
     if (r.status === 401){ localStorage.removeItem('token'); window.location.href='/login'; return; }
     const me = await r.json();
     whoEl.textContent = `${me.full_name} (${me.role.name})`;
@@ -90,7 +92,7 @@ async function init(){
 // Селектор преподавателей показываем только тем, у кого есть доступ к /api/users (админ).
 async function maybeSetupTeacherPicker(me){
     try {
-        const r = await fetch('/api/users', { headers: authHeaders });
+        const r = await Auth.apiFetch('/api/users', { headers: authHeaders });
         if (!r.ok) return;                       // 403 у обычного преподавателя — просто скрыт
         const users = await r.json();
         const teachers = users.filter(u => u.role && u.role.code === 'teacher');
@@ -129,7 +131,7 @@ async function loadWeek(){
 
     let entries = [];
     try {
-        const r = await fetch(`/api/schedule/week?week_start=${ws}&teacher_id=${teacherId}`,
+        const r = await Auth.apiFetch(`/api/schedule/week?week_start=${ws}&teacher_id=${teacherId}`,
                               { headers: authHeaders });
         const data = await r.json();
         entries = Array.isArray(data) ? data : [];   // если пришла ошибка — не падаем

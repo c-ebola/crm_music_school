@@ -1,3 +1,5 @@
+Auth.requireRole(['methodist', 'branch_admin', 'admin']);
+
 const QUANTS = 10;
 const dayInput = document.getElementById('day');
 const gridBody = document.getElementById('grid-body');
@@ -36,8 +38,8 @@ function quantTime(q) {
 async function loadDicts() {
     try {
         const [lr, rr] = await Promise.all([
-            fetch('/api/lessons'),
-            fetch('/api/rooms?only_active=true'),
+            Auth.apiFetch('/api/lessons'),
+            Auth.apiFetch('/api/rooms?only_active=true'),
         ]);
         lessonsCache = await lr.json();
         const rooms = await rr.json();
@@ -54,7 +56,7 @@ async function loadDicts() {
 async function loadGrid() {
     const day = dayInput.value;
     try {
-        const r = await fetch('/api/schedule?day=' + day);
+        const r = await Auth.apiFetch('/api/schedule?day=' + day);
         currentEntries = await r.json();
     } catch(e) { currentEntries = []; }
 
@@ -113,7 +115,7 @@ document.getElementById('m_save').addEventListener('click', async () => {
         room_id: roomSel.value ? parseInt(roomSel.value, 10) : null,
     };
     try {
-        const r = await fetch('/api/schedule/add-session', {
+        const r = await Auth.apiFetch('/api/schedule/add-session', {
             method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload),
         });
         if (r.ok) { closeAddModal(); loadGrid(); }
@@ -122,7 +124,7 @@ document.getElementById('m_save').addEventListener('click', async () => {
 });
 
 async function removeEntry(id) {
-    try { await fetch('/api/schedule/' + id, { method: 'DELETE' }); loadGrid(); }
+    try { await Auth.apiFetch('/api/schedule/' + id, { method: 'DELETE' }); loadGrid(); }
     catch(e) { alert('Ошибка: ' + e.message); }
 }
 
@@ -148,7 +150,7 @@ async function refreshStudents() {
     const maxStudents = currentSession.lesson ? currentSession.lesson.max_students : null;
     let enrolled = [];
     try {
-        const r = await fetch('/api/session-students?session_id=' + sid);
+        const r = await Auth.apiFetch('/api/session-students?session_id=' + sid);
         enrolled = await r.json();
     } catch(e) {}
 
@@ -178,7 +180,7 @@ async function refreshStudents() {
     if (level) params.set('level', level);
 
     let candidates = [];
-    try { candidates = await (await fetch('/api/leads?' + params.toString())).json(); } catch(e) {}
+    try { candidates = await (await Auth.apiFetch('/api/leads?' + params.toString())).json(); } catch(e) {}
     const enrolledIds = new Set(enrolled.map(s => s.student_id));
     candidates = candidates.filter(c => !enrolledIds.has(c.id));
 
@@ -191,7 +193,7 @@ document.getElementById('st-enroll').addEventListener('click', async () => {
     stMessage.classList.add('hidden');
     if (!stEligible.value) { stMessage.textContent = 'Нет ученика для записи'; stMessage.className = 'message error'; return; }
     try {
-        const r = await fetch('/api/session-students', {
+        const r = await Auth.apiFetch('/api/session-students', {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ session_id: currentSession.id, student_id: parseInt(stEligible.value, 10) }),
         });
@@ -202,14 +204,14 @@ document.getElementById('st-enroll').addEventListener('click', async () => {
 
 async function setAttended(id, attended) {
     try {
-        await fetch('/api/session-students/' + id, {
+        await Auth.apiFetch('/api/session-students/' + id, {
             method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ attended }),
         });
     } catch(e) { alert('Ошибка: ' + e.message); }
 }
 
 async function unenroll(id) {
-    try { await fetch('/api/session-students/' + id, { method: 'DELETE' }); refreshStudents(); }
+    try { await Auth.apiFetch('/api/session-students/' + id, { method: 'DELETE' }); refreshStudents(); }
     catch(e) { alert('Ошибка: ' + e.message); }
 }
 

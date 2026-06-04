@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db
+from app.core.deps import require_roles
 from app.schemas.session_student import (
     SessionStudentCreate, SessionStudentRead, SessionStudentUpdate,
 )
@@ -10,7 +11,7 @@ from app.services import session_student_service
 router = APIRouter(prefix="/api/session-students", tags=["session-students"])
 
 
-@router.get("", response_model=list[SessionStudentRead])
+@router.get("", response_model=list[SessionStudentRead], dependencies=[Depends(require_roles("methodist","branch_admin","teacher","admin"))])
 async def get_session_students(
     session_id: int | None = None,
     student_id: int | None = None,
@@ -21,7 +22,7 @@ async def get_session_students(
     )
 
 
-@router.get("/{ss_id}", response_model=SessionStudentRead)
+@router.get("/{ss_id}", response_model=SessionStudentRead, dependencies=[Depends(require_roles("methodist","branch_admin","teacher","admin"))])
 async def get_session_student_by_id(ss_id: int, db: AsyncSession = Depends(get_db)):
     ss = await session_student_service.get_session_student(db, ss_id)
     if ss is None:
@@ -29,7 +30,7 @@ async def get_session_student_by_id(ss_id: int, db: AsyncSession = Depends(get_d
     return ss
 
 
-@router.post("", response_model=SessionStudentRead, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=SessionStudentRead, status_code=status.HTTP_201_CREATED, dependencies=[Depends(require_roles("methodist","branch_admin","teacher"))])
 async def enroll_student(data: SessionStudentCreate, db: AsyncSession = Depends(get_db)):
     try:
         return await session_student_service.enroll(db, data)
@@ -51,7 +52,7 @@ async def enroll_student(data: SessionStudentCreate, db: AsyncSession = Depends(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.patch("/{ss_id}", response_model=SessionStudentRead)
+@router.patch("/{ss_id}", response_model=SessionStudentRead, dependencies=[Depends(require_roles("methodist","branch_admin","teacher"))])
 async def edit_session_student(ss_id: int, data: SessionStudentUpdate, db: AsyncSession = Depends(get_db)):
     ss = await session_student_service.update_session_student(db, ss_id, data)
     if ss is None:
@@ -59,7 +60,7 @@ async def edit_session_student(ss_id: int, data: SessionStudentUpdate, db: Async
     return ss
 
 
-@router.delete("/{ss_id}")
+@router.delete("/{ss_id}", dependencies=[Depends(require_roles("methodist","branch_admin"))])
 async def remove_session_student(ss_id: int, db: AsyncSession = Depends(get_db)):
     ok = await session_student_service.unenroll(db, ss_id)
     if not ok:

@@ -1,3 +1,5 @@
+Auth.requireRole(['methodist', 'branch_admin', 'admin']);
+
 const FMT = { individual:'Индивидуальное', group:'Групповое', online:'Онлайн' };
 const LVL = { beginner:'Начинающий', intermediate:'Средний', advanced:'Продвинутый' };
 
@@ -13,8 +15,8 @@ function teacherName(t){ return t ? [t.last_name, t.first_name].filter(Boolean).
 async function loadRefs(){
     try {
         const [dr, tr] = await Promise.all([
-            fetch('/api/disciplines?only_active=true'),
-            fetch('/api/users/teachers'),
+            Auth.apiFetch('/api/disciplines?only_active=true'),
+            Auth.apiFetch('/api/users/teachers'),
         ]);
         const discs = await dr.json();
         const teachers = await tr.json();
@@ -36,7 +38,7 @@ async function loadRefs(){
 async function loadLessons(){
     $('loading').classList.remove('hidden');
     try {
-        const r = await fetch('/api/lessons');
+        const r = await Auth.apiFetch('/api/lessons');
         allLessons = await r.json();
     } catch(e){ allLessons = []; }
     $('loading').classList.add('hidden');
@@ -106,7 +108,7 @@ $('cards').addEventListener('click', async (e) => {
     if (act === 'cancel'){ confirming.delete(id); render(); return; }
     if (act === 'confirm'){
         try {
-            const r = await fetch('/api/lessons/' + id, { method:'DELETE' });
+            const r = await Auth.apiFetch('/api/lessons/' + id, { method:'DELETE' });
             if (r.ok){
                 allLessons = allLessons.filter(l => l.id !== id);
                 confirming.delete(id); delete errById[id];
@@ -158,7 +160,7 @@ $('lesson-form').addEventListener('submit', async (e) => {
     if ($('level').value)       payload.level = $('level').value;
 
     try {
-        const r = await fetch('/api/lessons', {
+        const r = await Auth.apiFetch('/api/lessons', {
             method:'POST',
             headers:{ 'Content-Type':'application/json' },
             body: JSON.stringify(payload),

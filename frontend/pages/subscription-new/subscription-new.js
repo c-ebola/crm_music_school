@@ -1,3 +1,5 @@
+Auth.requireRole(['accountant', 'admin']);
+
 const studentSel = document.getElementById('f_student');
 const planSel = document.getElementById('f_plan');
 const startInput = document.getElementById('f_start');
@@ -14,7 +16,7 @@ function fmtDate(iso){ if(!iso) return ''; return new Date(iso).toLocaleDateStri
 
 async function loadStudents() {
     try {
-        const r = await fetch('/api/leads?is_student=true');
+        const r = await Auth.apiFetch('/api/leads?is_student=true');
         const students = await r.json();
         if (!students.length) {
             studentSel.innerHTML = '<option value="">Нет учеников — сначала сконвертируйте лид</option>';
@@ -30,7 +32,7 @@ async function loadStudents() {
 
 async function loadPlans() {
     try {
-        const r = await fetch('/api/subscription-plans?only_active=true');
+        const r = await Auth.apiFetch('/api/subscription-plans?only_active=true');
         plansCache = await r.json();
         if (!plansCache.length) {
             planSel.innerHTML = '<option value="">Нет активных тарифов — создайте в каталоге</option>';
@@ -66,7 +68,7 @@ form.addEventListener('submit', async (e) => {
     if (startInput.value) payload.start_date = startInput.value;
 
     try {
-        const r = await fetch('/api/subscriptions', {
+        const r = await Auth.apiFetch('/api/subscriptions', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),

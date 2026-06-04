@@ -23,7 +23,7 @@ form.addEventListener('submit', async (e) => {
         if (resp.ok) {
             const data = await resp.json();
             localStorage.setItem('token', data.access_token);
-            window.location.href = '/users';
+            window.location.href = '/';
         } else {
             const err = await resp.json();
             showMessage(err.detail || 'Ошибка входа');

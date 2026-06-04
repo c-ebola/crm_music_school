@@ -4,13 +4,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.session import get_db
 from app.schemas.payment import PaymentCreate, PaymentRead, PaymentUpdate
 from app.services import payment_service
-from app.core.deps import require_admin
+from app.core.deps import require_admin, require_roles
 from app.models.payment import PaymentStatus
 
 router = APIRouter(prefix="/api/payments", tags=["payments"])
 
 
-@router.get("", response_model=list[PaymentRead])
+@router.get("", response_model=list[PaymentRead], dependencies=[Depends(require_roles("accountant","branch_admin","admin"))])
 async def get_payments(
     subscription_id: int | None = None,
     student_id: int | None = None,
@@ -22,7 +22,7 @@ async def get_payments(
     )
 
 
-@router.get("/{payment_id}", response_model=PaymentRead)
+@router.get("/{payment_id}", response_model=PaymentRead, dependencies=[Depends(require_roles("accountant","branch_admin","admin"))])
 async def get_payment_by_id(payment_id: int, db: AsyncSession = Depends(get_db)):
     payment = await payment_service.get_payment(db, payment_id)
     if payment is None:
@@ -30,7 +30,7 @@ async def get_payment_by_id(payment_id: int, db: AsyncSession = Depends(get_db))
     return payment
 
 
-@router.post("", response_model=PaymentRead, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=PaymentRead, status_code=status.HTTP_201_CREATED, dependencies=[Depends(require_roles("accountant"))])
 async def add_payment(data: PaymentCreate, db: AsyncSession = Depends(get_db)):
     try:
         return await payment_service.create_payment(db, data)
@@ -40,7 +40,7 @@ async def add_payment(data: PaymentCreate, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.patch("/{payment_id}", response_model=PaymentRead)
+@router.patch("/{payment_id}", response_model=PaymentRead, dependencies=[Depends(require_roles("accountant"))])
 async def edit_payment(payment_id: int, data: PaymentUpdate, db: AsyncSession = Depends(get_db)):
     payment = await payment_service.update_payment(db, payment_id, data)
     if payment is None:
@@ -49,7 +49,7 @@ async def edit_payment(payment_id: int, data: PaymentUpdate, db: AsyncSession = 
 
 
 @router.post("/{payment_id}/confirm", response_model=PaymentRead)
-async def confirm_payment(payment_id: int, admin=Depends(require_admin), db: AsyncSession = Depends(get_db)):
+async def confirm_payment(payment_id: int, admin=Depends(require_roles("branch_admin")), db: AsyncSession = Depends(get_db)):
     payment = await payment_service.confirm_payment(db, payment_id, admin.id)
     if payment is None:
         raise HTTPException(status_code=404, detail="Оплата не найдена")
@@ -57,7 +57,7 @@ async def confirm_payment(payment_id: int, admin=Depends(require_admin), db: Asy
 
 
 @router.post("/{payment_id}/reject", response_model=PaymentRead)
-async def reject_payment(payment_id: int, admin=Depends(require_admin), db: AsyncSession = Depends(get_db)):
+async def reject_payment(payment_id: int, admin=Depends(require_roles("branch_admin")), db: AsyncSession = Depends(get_db)):
     payment = await payment_service.reject_payment(db, payment_id, admin.id)
     if payment is None:
         raise HTTPException(status_code=404, detail="Оплата не найдена")

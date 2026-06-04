@@ -1,3 +1,5 @@
+Auth.requireRole(['accountant', 'admin']);
+
 const studentSel = document.getElementById('f_student');
 const content = document.getElementById('content');
 const summary = document.getElementById('summary');
@@ -14,7 +16,7 @@ function fmtDate(iso){ if(!iso) return ''; return new Date(iso).toLocaleDateStri
 
 async function loadStudents() {
     try {
-        const r = await fetch('/api/leads?is_student=true');
+        const r = await Auth.apiFetch('/api/leads?is_student=true');
         const students = await r.json();
         if (!students.length) {
             studentSel.innerHTML = '<option value="">Нет учеников</option>';
@@ -31,8 +33,8 @@ async function loadStudents() {
 async function loadFinance(studentId) {
     try {
         const [subsR, paysR] = await Promise.all([
-            fetch('/api/subscriptions?student_id=' + studentId),
-            fetch('/api/payments?student_id=' + studentId),
+            Auth.apiFetch('/api/subscriptions?student_id=' + studentId),
+            Auth.apiFetch('/api/payments?student_id=' + studentId),
         ]);
         const subs = await subsR.json();
         const pays = await paysR.json();
