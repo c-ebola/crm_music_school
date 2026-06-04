@@ -36,9 +36,10 @@
             var GROUPS = [
                 { title: 'Оформление учеников', items: [['Новый лид', '/leads'], ['Конверсия в ученика', '/convert']] },
                 { title: 'Бухгалтерия', items: [['Каталог абонементов', '/plans'], ['Оформить абонемент', '/subscription-new'], ['Фиксация оплаты', '/payment-new'], ['Финансы ученика', '/student-finance'], ['Подтверждение оплат', '/confirm-payments']] },
-                { title: 'Расписание и занятия', items: [['Расписание', '/schedule'], ['Уроки', '/lessons'], ['Расписание ученика', '/student-schedule']] },
+                { title: 'Расписание и занятия', items: [['Расписание', '/schedule'], ['Уроки', '/lessons'], ['Расписание ученика', '/student-schedule'], ['Концерты', '/events']] },
                 { title: 'Преподаватель', items: [['Моё расписание', '/my-schedule'], ['Домашние задания', '/homeworks']] },
                 { title: 'Администрирование', items: [['Пользователи', '/users']] }
+                
             ];
             function esc(s) { var d = document.createElement('div'); d.textContent = s == null ? '' : s; return d.innerHTML; }
             window.Auth.getMe().then(function (me) {

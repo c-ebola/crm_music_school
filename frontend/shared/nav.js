@@ -30,16 +30,16 @@
 
   // Набор пунктов роли = страницы, которые роль реально может открыть
 
-  const NAV = {
+const NAV = {
     manager: [HOME, LEADS, CONVERT],
     accountant: [HOME, PLANS, SUB_NEW, PAY_NEW, STUDENT_FIN],
-    methodist: [HOME, SCHEDULE, LESSONS, STUDENT_SCHED],
+    methodist: [HOME, SCHEDULE, LESSONS, STUDENT_SCHED, CONCERTS],
     teacher: [HOME, MY_SCHED, HOMEWORKS],
     branch_admin: [HOME, DASHBOARD, LEADS, CONVERT,
-      SCHEDULE, STUDENT_SCHED, LESSONS, CONFIRM_PAY],
+      SCHEDULE, STUDENT_SCHED, LESSONS, CONFIRM_PAY, CONCERTS],
     admin: [HOME, DASHBOARD, LEADS, CONVERT,
       PLANS, SUB_NEW, PAY_NEW, STUDENT_FIN, CONFIRM_PAY,
-      SCHEDULE, LESSONS, STUDENT_SCHED, USERS],
+      SCHEDULE, LESSONS, STUDENT_SCHED, USERS, CONCERTS],
   };
 
   function esc(s) { const d = document.createElement('div'); d.textContent = s == null ? '' : s; return d.innerHTML; }
