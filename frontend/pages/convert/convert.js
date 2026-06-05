@@ -1,8 +1,8 @@
-const DISCIPLINE = { piano:"Фортепиано", guitar:"Гитара", vocals:"Вокал", violin:"Скрипка", drums:"Барабаны", other:"Другое" };
-const CONTACT = { parent:"Родитель", student:"Сам ученик", other:"Другое" };
+Auth.requireRole(['manager', 'branch_admin', 'admin']);
 
-const leadIdInput = document.getElementById('lead-id-input');
-const loadBtn = document.getElementById('load-btn');
+const CONTACT = { parent: "Родитель", student: "Сам ученик", other: "Другое" };
+
+const leadSelect = document.getElementById('lead-select');
 const leadInfo = document.getElementById('lead-info');
 const form = document.getElementById('convert-form');
 const teacherSel = document.getElementById('f_teacher');
@@ -11,23 +11,38 @@ const message = document.getElementById('message');
 let currentLead = null;
 
 function esc(s){ const d=document.createElement('div'); d.textContent=s==null?'':s; return d.innerHTML; }
+function leadName(l){ return l.student_full_name || l.contact_full_name || ('Лид #'+l.id); }
 
 async function loadTeachers() {
     try {
-        const r = await fetch('/api/users/teachers');
+        const r = await Auth.apiFetch('/api/users/teachers');
         const teachers = await r.json();
         teacherSel.innerHTML = '<option value="">— не назначен —</option>' +
             teachers.map(t => {
                 const fio = [t.last_name, t.first_name].filter(Boolean).join(' ');
                 return `<option value="${t.id}">${esc(fio)} (${esc(t.email)})</option>`;
             }).join('');
-    } catch(e) { /* список останется пустым */ }
+    } catch(e) {}
+}
+
+async function loadLeads() {
+    try {
+        const r = await Auth.apiFetch('/api/leads');
+        const leads = await r.json();
+        const open = (Array.isArray(leads) ? leads : []).filter(l => l.status !== 'converted' && !l.is_student);
+        leadSelect.innerHTML = open.length
+            ? '<option value="">— выберите лида —</option>' + open.map(l =>
+                `<option value="${l.id}">№${l.id} · ${esc(leadName(l))}${l.discipline ? ' · ' + esc(l.discipline.name) : ''}</option>`).join('')
+            : '<option value="">Нет несконвертированных лидов</option>';
+    } catch(e) {
+        leadSelect.innerHTML = '<option value="">Ошибка загрузки</option>';
+    }
 }
 
 async function loadLead(id) {
     message.classList.add('hidden');
     try {
-        const r = await fetch('/api/leads/' + id);
+        const r = await Auth.apiFetch('/api/leads/' + id);
         if (!r.ok) throw new Error(r.status === 404 ? 'Лид не найден' : 'HTTP ' + r.status);
         const l = await r.json();
         currentLead = l;
@@ -49,7 +64,6 @@ async function loadLead(id) {
             return;
         }
 
-        // Предзаполняем форму: ФИО ученика (не родителя), филиал
         document.getElementById('f_full_name').value = l.student_full_name
             || (l.contact_type === 'student' ? l.contact_full_name : '');
         document.getElementById('f_branch').value = l.preferred_branch || '';
@@ -63,34 +77,33 @@ async function loadLead(id) {
     }
 }
 
-loadBtn.addEventListener('click', () => {
-    if (leadIdInput.value) loadLead(leadIdInput.value);
+leadSelect.addEventListener('change', () => {
+    if (leadSelect.value) loadLead(leadSelect.value);
+    else { leadInfo.classList.add('hidden'); form.classList.add('hidden'); }
 });
 
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
     message.classList.add('hidden');
-
+    if (!currentLead) { message.textContent = 'Сначала выберите лида'; message.className = 'message error'; return; }
     const payload = {
         full_name: document.getElementById('f_full_name').value.trim() || null,
         teacher_id: teacherSel.value ? parseInt(teacherSel.value, 10) : null,
         branch: document.getElementById('f_branch').value.trim() || null,
         enrollment_date: document.getElementById('f_enrollment').value,
     };
-
     try {
-        const r = await fetch('/api/leads/' + currentLead.id + '/convert-to-student', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
+        const r = await Auth.apiFetch('/api/leads/' + currentLead.id + '/convert-to-student', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload),
         });
         const data = await r.json();
         if (r.ok) {
-            message.innerHTML = `Ученик зачислен (№${data.id}: ${esc(data.student_full_name)}). ` +
-                `<a href="/students-list">Перейти к списку учеников</a>`;
+            message.innerHTML = `Ученик зачислен (№${data.id}: ${esc(data.student_full_name)}).`;
             message.className = 'message success';
             form.classList.add('hidden');
-            loadLead(currentLead.id); // обновим инфо (статус станет converted)
+            leadInfo.classList.add('hidden');
+            await loadLeads();
+            leadSelect.value = '';
         } else {
             const detail = Array.isArray(data.detail)
                 ? data.detail.map(x => x.msg).join('; ') : (data.detail || 'Ошибка');
@@ -103,7 +116,9 @@ form.addEventListener('submit', async (e) => {
     }
 });
 
-// Автозагрузка по ?lead_id=N
-loadTeachers();
-const urlId = new URLSearchParams(location.search).get('lead_id');
-if (urlId) { leadIdInput.value = urlId; loadLead(urlId); }
+(async () => {
+    await loadTeachers();
+    await loadLeads();
+    const urlId = new URLSearchParams(location.search).get('lead_id');
+    if (urlId) { leadSelect.value = urlId; loadLead(urlId); }
+})();

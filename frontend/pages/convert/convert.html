@@ -25,12 +25,9 @@
 
             <section class="card">
                 <div class="field">
-                    <label for="lead-id-input">ID лида</label>
-                    <div style="display:flex; gap:8px;">
-                        <input type="number" id="lead-id-input" placeholder="Введите id лида" style="flex:1;">
-                        <button type="button" class="btn-ghost" id="load-btn">Загрузить</button>
-                    </div>
-                    <div class="hint">Можно открыть сразу: /convert?lead_id=2</div>
+                    <label for="lead-select">Лид *</label>
+                    <select id="lead-select"><option value="">Загрузка списка...</option></select>
+                    <div class="hint">Выберите заявку из списка (показаны несконвертированные)</div>
                 </div>
 
                 <div id="lead-info" class="lead-info hidden"></div>

@@ -1,15 +1,17 @@
 from datetime import date, datetime, time, timedelta
 
-from sqlalchemy import select
+from sqlalchemy import select, or_, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.event import Event, EventStatus
+from app.models.performance import Performance
 from app.models.lesson import Lesson
 from app.models.schedule import Schedule
 from app.models.session import Session, SessionStatus
 from app.models.exam import Exam
 from app.models.exam_session import ExamSession, ExamStatus
 from app.models.exam_session_student import ExamSessionStudent
+from app.models.commission_member import CommissionMember
 from app.schemas.schedule import (
     ScheduleAddSession, ScheduleAddEvent, ScheduleAddExam, ScheduleCreate, ScheduleUpdate,
 )
@@ -60,18 +62,39 @@ async def list_week_schedule(
 ) -> list[dict]:
     end = week_start + timedelta(days=7)
 
-    query = select(Schedule).where(
-        Schedule.entity_type == "session",
-        Schedule.date >= week_start,
-        Schedule.date < end,
-    )
     if teacher_id is not None:
         sess_ids = (
             select(Session.id)
             .join(Lesson, Session.lesson_id == Lesson.id)
             .where(Lesson.teacher_id == teacher_id)
         )
-        query = query.where(Schedule.entity_id.in_(sess_ids))
+        # экзамены, где преподаватель состоит в комиссии
+        exam_ids = (
+            select(ExamSession.id)
+            .join(Exam, ExamSession.exam_id == Exam.id)
+            .join(CommissionMember, CommissionMember.commission_id == Exam.commission_id)
+            .where(CommissionMember.user_id == teacher_id)
+        )
+        # концерты, где у преподавателя есть выступление
+        event_ids = (
+            select(Performance.event_id)
+            .where(Performance.teacher_id == teacher_id)
+        )
+        query = select(Schedule).where(
+            Schedule.date >= week_start,
+            Schedule.date < end,
+            or_(
+                and_(Schedule.entity_type == "session", Schedule.entity_id.in_(sess_ids)),
+                and_(Schedule.entity_type == "exam", Schedule.entity_id.in_(exam_ids)),
+                and_(Schedule.entity_type == "event", Schedule.entity_id.in_(event_ids)),
+            ),
+        )
+    else:
+        query = select(Schedule).where(
+            Schedule.entity_type == "session",
+            Schedule.date >= week_start,
+            Schedule.date < end,
+        )
 
     query = query.order_by(Schedule.date.asc(), Schedule.quant.asc())
     result = await db.execute(query)

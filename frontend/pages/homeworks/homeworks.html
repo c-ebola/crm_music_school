@@ -57,12 +57,8 @@
                     <h2>Новое задание</h2>
                     <form id="hw-form">
                         <div class="create-field">
-                            <label>Ученик</label>
-                            <div class="ta-wrap">
-                                <input type="text" id="hw-student-input" placeholder="Начните вводить имя...">
-                                <button type="button" id="hw-student-clear" class="clear-x hidden">&times;</button>
-                            </div>
-                            <div id="hw-student-sug" class="sug hidden"></div>
+                            <label for="hw-student">Ученик</label>
+                            <select id="hw-student"><option value="">Загрузка...</option></select>
                         </div>
                         <div class="create-field">
                             <label for="hw-desc">Текст задания</label>

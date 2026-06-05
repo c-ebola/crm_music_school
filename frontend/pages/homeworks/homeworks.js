@@ -1,13 +1,9 @@
 Auth.requireRole(['teacher', 'admin']);
 
-const token = localStorage.getItem('token');
-if (!token) window.location.href = '/login';
-const authHeaders = { 'Authorization': 'Bearer ' + token };
-
 let me = null;
 let teacherId = null;
-let students = [];          // ученики (leads is_student=true)
-let allHw = [];             // домашки текущего преподавателя
+let students = [];
+let allHw = [];
 const confirming = new Set();
 
 const $ = id => document.getElementById(id);
@@ -19,79 +15,56 @@ function fmtDate(iso){
     return `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${d.getFullYear()}`;
 }
 
-let createStudentId = null;
-function setupTypeahead(inputEl, sugEl, onPick){
-    inputEl.addEventListener('input', () => {
-        const q = inputEl.value.trim().toLowerCase();
-        if (!q){ sugEl.classList.add('hidden'); sugEl.innerHTML=''; return; }
-        const matches = students.filter(l => studentName(l).toLowerCase().includes(q)).slice(0, 8);
-        if (!matches.length){ sugEl.innerHTML = '<div class="sug-empty">Не найдено</div>'; sugEl.classList.remove('hidden'); return; }
-        sugEl.innerHTML = matches.map(l => {
-            const disc = l.discipline ? ' · ' + esc(l.discipline.name) : '';
-            return `<div class="sug-item" data-id="${l.id}">${esc(studentName(l))}<span class="sug-sub">${disc}</span></div>`;
-        }).join('');
-        sugEl.classList.remove('hidden');
-    });
-    sugEl.addEventListener('click', (e) => {
-        const it = e.target.closest('.sug-item'); if (!it) return;
-        const id = parseInt(it.dataset.id, 10);
-        inputEl.value = studentName(students.find(s => s.id === id));
-        sugEl.classList.add('hidden');
-        onPick(id);
-    });
-    document.addEventListener('click', (e) => {
-        if (!sugEl.contains(e.target) && e.target !== inputEl) sugEl.classList.add('hidden');
-    });
-}
-
 async function init(){
-    const r = await Auth.apiFetch('/api/auth/me', { headers: authHeaders });
-    if (r.status === 401){ localStorage.removeItem('token'); window.location.href='/login'; return; }
+    const r = await Auth.apiFetch('/api/auth/me');
+    if (r.status === 401){ window.location.href='/login'; return; }
     me = await r.json();
     teacherId = me.id;
     $('who').textContent = `${me.full_name} (${me.role.name})`;
-
     await loadStudents();
     await loadHomeworks();
-
-    setupTypeahead($('hw-student-input'), $('hw-student-sug'), (id) => {
-        createStudentId = id; $('hw-student-clear').classList.remove('hidden');
-    });
-    $('hw-student-clear').addEventListener('click', () => {
-        createStudentId = null; $('hw-student-input').value = ''; $('hw-student-clear').classList.add('hidden');
-    });
     $('hw-form').addEventListener('submit', onCreate);
     ['f-search','f-status'].forEach(id => $(id).addEventListener('input', renderHomeworks));
 }
 
 async function loadStudents(){
-    try { students = await (await Auth.apiFetch('/api/leads?is_student=true', { headers: authHeaders })).json(); }
+    try { students = await (await Auth.apiFetch('/api/leads?is_student=true')).json(); }
     catch(e){ students = []; }
+    if (!Array.isArray(students)) students = [];
+    const sel = $('hw-student');
+    sel.innerHTML = students.length
+        ? '<option value="">— выберите ученика —</option>' + students.map(l =>
+            `<option value="${l.id}">${esc(studentName(l))}${l.discipline ? ' · ' + esc(l.discipline.name) : ''}</option>`).join('')
+        : '<option value="">Учеников нет — сначала зачислите через «Конверсию»</option>';
 }
+
 async function loadHomeworks(){
-    try { allHw = await (await Auth.apiFetch('/api/homeworks?teacher_id=' + teacherId, { headers: authHeaders })).json(); }
+    try { allHw = await (await Auth.apiFetch('/api/homeworks?teacher_id=' + teacherId)).json(); }
     catch(e){ allHw = []; }
+    if (!Array.isArray(allHw)) allHw = [];
     renderHomeworks();
 }
 
 function createMsg(text, type){
     const el = $('create-msg'); el.innerHTML = text; el.className = `message ${type}`; el.classList.remove('hidden');
 }
+
 async function onCreate(e){
     e.preventDefault();
     $('create-msg').classList.add('hidden');
-    if (!createStudentId){ createMsg('Выберите ученика', 'error'); return; }
+    const studentId = parseInt($('hw-student').value, 10);
+    if (!studentId){ createMsg('Выберите ученика', 'error'); return; }
     const description = $('hw-desc').value.trim();
     if (!description){ createMsg('Введите текст задания', 'error'); return; }
     try {
         const r = await Auth.apiFetch('/api/homeworks', {
-            method:'POST', headers:{ 'Content-Type':'application/json', ...authHeaders },
-            body: JSON.stringify({ teacher_id: teacherId, student_id: createStudentId, description }),
+            method:'POST', headers:{ 'Content-Type':'application/json' },
+            body: JSON.stringify({ teacher_id: teacherId, student_id: studentId, description }),
         });
         const data = await r.json();
         if (r.ok){
             createMsg('Задание создано', 'success');
-            $('hw-form').reset(); createStudentId = null; $('hw-student-clear').classList.add('hidden');
+            $('hw-desc').value = ''; $('hw-student').value = '';
             await loadHomeworks();
         } else {
             const t = Array.isArray(data.detail) ? data.detail.map(x=>x.msg).join('; ') : (data.detail||'Ошибка');
@@ -160,7 +133,7 @@ $('hw-list').addEventListener('click', async (e) => {
     }
 });
 async function req(url, opts){
-    try { await Auth.apiFetch(url, { headers:{ 'Content-Type':'application/json', ...authHeaders }, ...opts }); } catch(e){}
+    try { await Auth.apiFetch(url, { headers:{ 'Content-Type':'application/json' }, ...opts }); } catch(e){}
 }
 
 init();
