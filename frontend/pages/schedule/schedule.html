@@ -106,6 +106,51 @@
         </div>
     </div>
 
+    <!-- модал: назначить экзамен -->
+    <div class="overlay" id="ex-overlay">
+        <div class="modal" style="width:480px;">
+            <h2 id="ex-title-h">Назначить экзамен</h2>
+            <div class="field">
+                <label for="ex_exam">Экзамен (пул) *</label>
+                <select id="ex_exam"></select>
+            </div>
+            <div class="field">
+                <label for="ex_room">Кабинет</label>
+                <select id="ex_room"></select>
+            </div>
+            <div class="field">
+                <label>Ученики</label>
+                <div style="display:flex; gap:6px;">
+                    <select id="ex_eligible" style="flex:1; min-width:0;"></select>
+                    <button type="button" class="btn-primary" id="ex_add" style="white-space:nowrap;">Добавить</button>
+                </div>
+                <div id="ex_pending" style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;"></div>
+            </div>
+            <div id="ex-message" class="message hidden"></div>
+            <div class="form-actions">
+                <button type="button" class="btn-ghost" id="ex_cancel">Отмена</button>
+                <button type="button" class="btn-primary" id="ex_save">Поставить в расписание</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- модал: проведение экзамена (ученики + результаты) -->
+    <div class="overlay" id="exs-overlay">
+        <div class="modal" style="width:560px;">
+            <h2 id="exs-title">Проведение экзамена</h2>
+            <div id="exs-info" style="color:#555; font-size:13px; margin-bottom:10px;"></div>
+            <div id="exs-list" style="margin-bottom:12px;"></div>
+            <div style="display:flex; gap:6px;">
+                <select id="exs-eligible" style="flex:1; min-width:0;"></select>
+                <button type="button" class="btn-primary" id="exs-add" style="white-space:nowrap;">Добавить ученика</button>
+            </div>
+            <div id="exs-message" class="message hidden"></div>
+            <div class="form-actions">
+                <button type="button" class="btn-ghost" id="exs-close">Закрыть</button>
+            </div>
+        </div>
+    </div>
+
     <script src="/shared/auth.js"></script>
     <script src="/shared/nav.js"></script>
     <script src="/pages/schedule/schedule.js"></script>

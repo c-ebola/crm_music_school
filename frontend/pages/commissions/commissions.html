@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>МузCRM — Комиссии</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        .cm-layout { display:grid; grid-template-columns:360px 1fr; gap:24px; align-items:start; }
+        @media (max-width:900px){ .cm-layout{ grid-template-columns:1fr; } }
+        .panel { background:#fff; border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,.05); }
+        .panel-create { padding:24px; position:sticky; top:24px; }
+        .panel h2 { font-size:16px; margin-bottom:16px; }
+        .create-field { margin-bottom:14px; display:flex; flex-direction:column; }
+        .create-field label { font-size:13px; font-weight:500; margin-bottom:5px; }
+        .row-add { display:flex; gap:8px; align-items:flex-end; }
+        .row-add select { width:auto; }
+        .row-add .grow { flex:1 1 auto; min-width:0; }
+        .row-add #c-role { flex:0 0 auto; }
+        .btn-add { padding:9px 12px; border:1px solid #d2d2d7; background:#fff; border-radius:8px; cursor:pointer; font-size:13px; white-space:nowrap; }
+        .btn-add:hover { background:#f5f5f7; }
+        .chips { display:flex; flex-wrap:wrap; gap:6px; margin:10px 0 4px; }
+        .chip { display:inline-flex; align-items:center; gap:6px; padding:4px 8px; border-radius:999px; background:#f0f0f3; font-size:12px; }
+        .chip .x { cursor:pointer; color:#86868b; font-weight:700; }
+        .chip .x:hover { color:#c0392b; }
+        .chip.chairman { background:#eaf0ff; color:#2c4fc0; }
+        .list-body { padding:20px; }
+        .cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:14px; }
+        .cm-card { border:1px solid #e8e8ed; border-radius:10px; padding:14px; background:#fff; }
+        .cm-card:hover { box-shadow:0 4px 14px rgba(0,0,0,.08); }
+        .cm-name { font-weight:600; font-size:15px; margin-bottom:10px; }
+        .cm-foot { display:flex; justify-content:space-between; align-items:center; margin-top:12px; padding-top:10px; border-top:1px solid #f0f0f3; }
+        .cm-id { color:#a1a1a6; font-size:11px; }
+        .cm-err { color:#c0392b; font-size:12px; margin-top:8px; }
+        .badge { display:inline-block; padding:1px 7px; border-radius:999px; font-size:11px; font-weight:600; }
+        .badge.role-chairman { background:#eaf0ff; color:#2c4fc0; }
+        .badge.role-member { background:#f0f0f3; color:#555; }
+        .btn-del { border:1px solid #e8c4c4; background:#fff; color:#c0392b; border-radius:8px; padding:5px 10px; font-size:12px; cursor:pointer; }
+        .btn-del:hover { background:#fdeeee; }
+        .confirm-row { display:flex; gap:6px; }
+        .btn-confirm { background:#c0392b; color:#fff; border:none; border-radius:8px; padding:5px 10px; font-size:12px; cursor:pointer; }
+        .btn-cancel { background:#f0f0f3; border:none; border-radius:8px; padding:5px 10px; font-size:12px; cursor:pointer; }
+        .empty, .loading { color:#86868b; padding:30px 4px; text-align:center; }
+        .mini-add { display:flex; gap:6px; margin-top:10px; }
+        .mini-add select { flex:1; }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <aside id="sidebar" class="sidebar"></aside>
+        <main class="content" style="max-width:1200px;">
+            <header class="page-header">
+                <h1>Экзаменационные комиссии</h1>
+                <div class="breadcrumb">Панель экзаменаторов: председатель и члены комиссии</div>
+            </header>
+            <div class="cm-layout">
+                <section class="panel panel-create">
+                    <h2>Новая комиссия</h2>
+                    <form id="commission-form">
+                        <div class="create-field">
+                            <label for="c-name">Название <span class="req">*</span></label>
+                            <input type="text" id="c-name" maxlength="200" placeholder="Комиссия по фортепиано" required>
+                        </div>
+                        <div class="create-field">
+                            <label>Участники</label>
+                            <div class="row-add">
+                                <select id="c-user" class="grow"><option value="">Загрузка...</option></select>
+                                <select id="c-role">
+                                    <option value="member">Член</option>
+                                    <option value="chairman">Председатель</option>
+                                </select>
+                                <button type="button" class="btn-add" id="c-add">+</button>
+                            </div>
+                            <div class="chips" id="c-pending"></div>
+                        </div>
+                        <div id="create-msg" class="message hidden"></div>
+                        <div class="create-actions">
+                            <button type="submit" class="btn-primary" style="width:100%;">Создать комиссию</button>
+                        </div>
+                    </form>
+                </section>
+                <section class="panel panel-list">
+                    <div class="list-body">
+                        <h2 style="margin-bottom:14px;">Комиссии <span class="count" id="count"></span></h2>
+                        <div id="cards" class="cards"></div>
+                        <div id="loading" class="loading">Загрузка...</div>
+                        <div id="empty" class="empty hidden">Комиссий пока нет.</div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+    <script src="/shared/auth.js"></script>
+    <script src="/shared/nav.js"></script>
+    <script src="/pages/commissions/commissions.js"></script>
+</body>
+</html>

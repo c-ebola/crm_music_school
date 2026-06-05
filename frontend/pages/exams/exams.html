@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>МузCRM — Экзамены</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        .ex-layout { display:grid; grid-template-columns:340px 1fr; gap:24px; align-items:start; }
+        @media (max-width:900px){ .ex-layout{ grid-template-columns:1fr; } }
+        .panel { background:#fff; border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,.05); }
+        .panel-create { padding:24px; position:sticky; top:24px; }
+        .panel h2 { font-size:16px; margin-bottom:16px; }
+        .create-field { margin-bottom:14px; display:flex; flex-direction:column; }
+        .create-field label { font-size:13px; font-weight:500; margin-bottom:5px; }
+        .filters { display:flex; gap:10px; flex-wrap:wrap; padding:18px 20px; border-bottom:1px solid #e8e8ed; }
+        .filters .grow { flex:1; min-width:150px; }
+        .list-body { padding:20px; }
+        .cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:14px; }
+        .ex-card { border:1px solid #e8e8ed; border-left:3px solid #d08a3c; border-radius:10px; padding:14px; background:#fff; transition:box-shadow .15s, transform .15s; }
+        .ex-card:hover { box-shadow:0 4px 14px rgba(0,0,0,.08); transform:translateY(-1px); }
+        .ex-disc { font-weight:600; font-size:15px; }
+        .ex-meta { color:#86868b; font-size:12px; margin-top:8px; display:flex; gap:8px; flex-wrap:wrap; }
+        .ex-comm { font-size:12px; margin-top:8px; }
+        .ex-comm.none { color:#a1a1a6; }
+        .ex-foot { display:flex; justify-content:space-between; align-items:center; margin-top:12px; padding-top:10px; border-top:1px solid #f0f0f3; }
+        .ex-id { color:#a1a1a6; font-size:11px; }
+        .ex-err { color:#c0392b; font-size:12px; margin-top:8px; }
+        .badge { display:inline-block; padding:2px 8px; border-radius:999px; font-size:11px; font-weight:600; }
+        .badge.type { background:#fbeecf; color:#9a6512; }
+        .badge.lvl { background:#f0f0f3; color:#555; }
+        .btn-del { border:1px solid #e8c4c4; background:#fff; color:#c0392b; border-radius:8px; padding:5px 10px; font-size:12px; cursor:pointer; }
+        .btn-del:hover { background:#fdeeee; }
+        .confirm-row { display:flex; gap:6px; }
+        .btn-confirm { background:#c0392b; color:#fff; border:none; border-radius:8px; padding:5px 10px; font-size:12px; cursor:pointer; }
+        .btn-cancel { background:#f0f0f3; border:none; border-radius:8px; padding:5px 10px; font-size:12px; cursor:pointer; }
+        .empty, .loading { color:#86868b; padding:30px 4px; text-align:center; }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <aside id="sidebar" class="sidebar"></aside>
+        <main class="content" style="max-width:1200px;">
+            <header class="page-header">
+                <h1>Экзамены</h1>
+                <div class="breadcrumb">Пул экзаменов: дисциплина + тип + комиссия</div>
+            </header>
+            <div class="ex-layout">
+                <section class="panel panel-create">
+                    <h2>Новый экзамен</h2>
+                    <form id="exam-form">
+                        <div class="create-field">
+                            <label for="e-discipline">Дисциплина <span class="req">*</span></label>
+                            <select id="e-discipline" required><option value="">Загрузка...</option></select>
+                        </div>
+                        <div class="create-field">
+                            <label for="e-type">Тип экзамена</label>
+                            <input type="text" id="e-type" maxlength="50" placeholder="сольфеджо, выступление...">
+                        </div>
+                        <div class="create-field">
+                            <label for="e-level">Уровень</label>
+                            <select id="e-level">
+                                <option value="">—</option>
+                                <option value="beginner">Начинающий</option>
+                                <option value="intermediate">Средний</option>
+                                <option value="advanced">Продвинутый</option>
+                            </select>
+                        </div>
+                        <div class="create-field">
+                            <label for="e-max">Макс. учеников <span class="req">*</span></label>
+                            <input type="number" id="e-max" min="1" step="1" value="1" required>
+                        </div>
+                        <div class="create-field">
+                            <label for="e-commission">Комиссия</label>
+                            <select id="e-commission"><option value="">— не назначена —</option></select>
+                        </div>
+                        <div id="create-msg" class="message hidden"></div>
+                        <div class="create-actions">
+                            <button type="submit" class="btn-primary" style="width:100%;">Создать экзамен</button>
+                        </div>
+                    </form>
+                </section>
+                <section class="panel panel-list">
+                    <div class="filters">
+                        <input type="text" id="f-search" class="grow" placeholder="Поиск по дисциплине или типу...">
+                        <select id="f-discipline" class="grow"><option value="">Все дисциплины</option></select>
+                        <button type="button" class="btn-ghost" id="f-reset">Сбросить</button>
+                    </div>
+                    <div class="list-body">
+                        <h2 style="margin-bottom:14px;">Каталог <span class="count" id="count"></span></h2>
+                        <div id="cards" class="cards"></div>
+                        <div id="loading" class="loading">Загрузка...</div>
+                        <div id="empty" class="empty hidden">Ничего не найдено.</div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+    <script src="/shared/auth.js"></script>
+    <script src="/shared/nav.js"></script>
+    <script src="/pages/exams/exams.js"></script>
+</body>
+</html>

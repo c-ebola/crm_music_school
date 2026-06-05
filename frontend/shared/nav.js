@@ -27,19 +27,21 @@
   const HOMEWORKS = { label: 'Домашние задания', href: '/homeworks' };
   const USERS = { label: 'Пользователи', href: '/users' };
   const CONCERTS = { label: 'Концерты', href: '/events' };
+  const EXAMS = { label: 'Экзамены', href: '/exams' };
+  const COMMISSIONS = { label: 'Комиссии', href: '/commissions' };
 
-  // Набор пунктов роли = страницы, которые роль реально может открыть
+  // Набор пунктов роли = страницы, которые роль может открыть
 
 const NAV = {
     manager: [HOME, LEADS, CONVERT],
     accountant: [HOME, PLANS, SUB_NEW, PAY_NEW, STUDENT_FIN],
-    methodist: [HOME, SCHEDULE, LESSONS, STUDENT_SCHED, CONCERTS],
+    methodist: [HOME, SCHEDULE, LESSONS, STUDENT_SCHED, CONCERTS, EXAMS, COMMISSIONS],
     teacher: [HOME, MY_SCHED, HOMEWORKS],
     branch_admin: [HOME, DASHBOARD, LEADS, CONVERT,
-      SCHEDULE, STUDENT_SCHED, LESSONS, CONFIRM_PAY, CONCERTS],
+      SCHEDULE, STUDENT_SCHED, LESSONS, CONFIRM_PAY, CONCERTS, EXAMS, COMMISSIONS],
     admin: [HOME, DASHBOARD, LEADS, CONVERT,
       PLANS, SUB_NEW, PAY_NEW, STUDENT_FIN, CONFIRM_PAY,
-      SCHEDULE, LESSONS, STUDENT_SCHED, USERS, CONCERTS],
+      SCHEDULE, LESSONS, STUDENT_SCHED, USERS, CONCERTS, EXAMS, COMMISSIONS],
   };
 
   function esc(s) { const d = document.createElement('div'); d.textContent = s == null ? '' : s; return d.innerHTML; }

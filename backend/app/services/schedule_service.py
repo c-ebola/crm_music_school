@@ -7,12 +7,15 @@ from app.models.event import Event, EventStatus
 from app.models.lesson import Lesson
 from app.models.schedule import Schedule
 from app.models.session import Session, SessionStatus
+from app.models.exam import Exam
+from app.models.exam_session import ExamSession, ExamStatus
+from app.models.exam_session_student import ExamSessionStudent
 from app.schemas.schedule import (
-    ScheduleAddSession, ScheduleAddEvent, ScheduleCreate, ScheduleUpdate,
+    ScheduleAddSession, ScheduleAddEvent, ScheduleAddExam, ScheduleCreate, ScheduleUpdate,
 )
-from app.services import session_service, event_service
+from app.services import session_service, event_service, exam_session_service
 
-ALLOWED_TYPES = ("session", "event")
+ALLOWED_TYPES = ("session", "event", "exam")
 
 
 class ScheduleError(Exception):
@@ -30,10 +33,13 @@ class UnsupportedEntityError(ScheduleError):
 async def _resolve(db: AsyncSession, sch: Schedule) -> dict:
     session_obj = None
     event_obj = None
+    exam_obj = None
     if sch.entity_type == "session":
         session_obj = await session_service.get_session(db, sch.entity_id)
     elif sch.entity_type == "event":
         event_obj = await event_service.get_event(db, sch.entity_id)
+    elif sch.entity_type == "exam":
+        exam_obj = await exam_session_service.get_exam_session(db, sch.entity_id)
     return {
         "id": sch.id,
         "entity_type": sch.entity_type,
@@ -42,6 +48,7 @@ async def _resolve(db: AsyncSession, sch: Schedule) -> dict:
         "quant": sch.quant,
         "session": session_obj,
         "event": event_obj,
+        "exam": exam_obj,
         "created_at": sch.created_at,
         "updated_at": sch.updated_at,
     }
@@ -150,6 +157,36 @@ async def add_event_to_schedule(db: AsyncSession, data: ScheduleAddEvent) -> dic
         date=data.day,
         quant=data.quant,
     )
+    db.add(sch)
+    await db.commit()
+    await db.refresh(sch)
+    return await _resolve(db, sch)
+
+async def place_event_in_schedule(db: AsyncSession, event_id: int, day, quant: int) -> dict:
+    """Поставить СУЩЕСТВУЮЩИЙ концерт в расписание на день/квант."""
+    event = await db.get(Event, event_id)
+    if event is None:
+        raise EntityNotFoundError("Концерт не найден")
+    sch = Schedule(entity_type="event", entity_id=event.id, date=day, quant=quant)
+    db.add(sch)
+    await db.commit()
+    await db.refresh(sch)
+    return await _resolve(db, sch)
+
+async def add_exam_to_schedule(db: AsyncSession, data: ScheduleAddExam) -> dict:
+    """Создать проведение экзамена (+ учеников) и поставить в расписание."""
+    exam = await db.get(Exam, data.exam_id)
+    if exam is None:
+        raise EntityNotFoundError("Экзамен (пул) не найден")
+
+    es = ExamSession(exam_id=data.exam_id, room_id=data.room_id, status=ExamStatus.scheduled)
+    db.add(es)
+    await db.flush()
+
+    for sid in data.student_ids:
+        db.add(ExamSessionStudent(exam_session_id=es.id, student_id=sid))
+
+    sch = Schedule(entity_type="exam", entity_id=es.id, date=data.day, quant=data.quant)
     db.add(sch)
     await db.commit()
     await db.refresh(sch)

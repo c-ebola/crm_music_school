@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import text
 
+from app.api import exams, exam_sessions, commissions
 from app.api import (auth, leads, 
 pages, roles, users, subscription_plans, subscriptions, 
 payments, disciplines, rooms, lessons, sessions, schedule,
@@ -59,6 +60,10 @@ app.include_router(instruments.router)
 app.include_router(performances.router)
 app.include_router(performance_students.router)
 app.include_router(homeworks.router)
+app.include_router(commissions.router)
+app.include_router(exams.router)
+app.include_router(exam_sessions.router)
+app.include_router(exam_sessions.students_router)
 
 
 @app.get("/health", tags=["system"])

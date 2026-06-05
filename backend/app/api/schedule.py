@@ -6,7 +6,7 @@ from datetime import date
 
 from app.db.session import get_db
 from app.core.deps import require_roles
-from app.schemas.schedule import ScheduleCreate, ScheduleRead, ScheduleUpdate, ScheduleAddSession
+from app.schemas.schedule import ScheduleCreate, ScheduleRead, ScheduleUpdate, ScheduleAddSession, ScheduleAddExam
 from app.services import schedule_service
 from app.schemas.schedule import (
     ScheduleCreate, ScheduleRead, ScheduleUpdate, ScheduleAddSession, ScheduleAddEvent, ScheduleAddEventRef 
@@ -83,6 +83,17 @@ async def add_event_to_schedule(data: ScheduleAddEvent, db: AsyncSession = Depen
         raise HTTPException(status_code=404, detail=str(e))
     except schedule_service.ScheduleError as e:
         raise HTTPException(status_code=400, detail=str(e)) 
+
+@router.post("/add-exam", response_model=ScheduleRead, status_code=status.HTTP_201_CREATED,
+             dependencies=[Depends(require_roles("methodist", "branch_admin", "admin"))])
+async def add_exam_to_schedule(data: ScheduleAddExam, db: AsyncSession = Depends(get_db)):
+    try:
+        return await schedule_service.add_exam_to_schedule(db, data)
+    except schedule_service.EntityNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except schedule_service.ScheduleError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
 
 @router.patch("/{schedule_id}", response_model=ScheduleRead, dependencies=[Depends(require_roles("methodist","branch_admin"))])
 async def edit_schedule(schedule_id: int, data: ScheduleUpdate, db: AsyncSession = Depends(get_db)):

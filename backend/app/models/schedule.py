@@ -24,7 +24,7 @@ class Schedule(Base):
     )
 
     __table_args__ = (
-        CheckConstraint("entity_type IN ('session','event')", name="schedule_entity_type_check"),
+        CheckConstraint("entity_type IN ('session','event','exam')", name="schedule_entity_type_check"),
     )
 
     def __repr__(self) -> str:

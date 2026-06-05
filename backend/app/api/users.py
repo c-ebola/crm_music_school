@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.deps import require_admin, get_current_active_user
+from app.core.deps import require_admin, get_current_active_user, require_roles
 from app.db.session import get_db
 from app.schemas.user import UserCreate, UserRead
 from app.services import user_service
@@ -38,5 +38,16 @@ async def get_teachers(db: AsyncSession = Depends(get_db)):
     from app.models.role import Role
     result = await db.execute(
         select(User).join(Role).where(Role.code == "teacher")
+    )
+    return list(result.scalars().all())
+
+@router.get("/staff", response_model=list[UserRead], dependencies=[Depends(require_roles("methodist", "branch_admin", "admin"))])
+async def get_staff(db: AsyncSession = Depends(get_db)):
+    """Список персонала (админ/методист/учитель/админ филиала) — для выбора в комиссию."""
+    from sqlalchemy import select
+    from app.models.user import User
+    from app.models.role import Role
+    result = await db.execute(
+        select(User).join(Role).where(Role.code.in_(["admin", "methodist", "teacher", "branch_admin"]))
     )
     return list(result.scalars().all())

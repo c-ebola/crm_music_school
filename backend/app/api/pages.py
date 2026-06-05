@@ -80,3 +80,12 @@ async def page_student_schedule():
 @router.get("/events", summary="Концерты")
 async def page_events():
     return _html("pages/events/events.html")
+
+@router.get("/exams", summary="Экзамены: пул")
+async def page_exams():
+    return _html("pages/exams/exams.html")
+
+
+@router.get("/commissions", summary="Экзаменационные комиссии")
+async def page_commissions():
+    return _html("pages/commissions/commissions.html")

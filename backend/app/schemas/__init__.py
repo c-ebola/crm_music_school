@@ -24,9 +24,14 @@ from app.schemas.event import EventBase, EventCreate, EventUpdate, EventRead
 from app.schemas.instrument import InstrumentBase, InstrumentCreate, InstrumentUpdate, InstrumentRead
 from app.schemas.instrument import InstrumentBase, InstrumentCreate, InstrumentUpdate, InstrumentRead
 from app.schemas.performance import PerformanceCreate, PerformanceUpdate, PerformanceRead
+from app.schemas.exam import (
+    ExamCreate, ExamUpdate, ExamRead,
+    ExamSessionUpdate, ExamSessionStudentRead,
+)
 from app.schemas.performance_student import (
     PerformanceStudentCreate, PerformanceStudentUpdate, PerformanceStudentRead,
 )
+from app.schemas.homework import HomeworkCreate, HomeworkUpdate, HomeworkRead
 
 __all__ = [
     "RoleBase", "RoleCreate", "RoleRead",
@@ -43,8 +48,12 @@ __all__ = [
     "SessionStudentCreate", "SessionStudentUpdate", "SessionStudentRead",
     "PaymentCreate", "PaymentUpdate", "PaymentRead", 
     "Event", "EventStatus"
-    "EventBase", "EventCreate", "EventUpdate", "EventRead",
+    "EventBase", "EventCreate", "EventStatus","EventBase", "EventUpdate", "EventRead",
     "InstrumentBase", "InstrumentCreate", "InstrumentUpdate", "InstrumentRead",
     "PerformanceCreate", "PerformanceUpdate", "PerformanceRead",
-    "PerformanceStudentCreate", "PerformanceStudentUpdate", "PerformanceStudentRead"
+    "PerformanceStudentCreate", "PerformanceStudentUpdate", "PerformanceStudentRead",
+    "HomeworkCreate", "HomeworkUpdate", "HomeworkRead",
+    "CommissionMemberCreate", "CommissionMemberRead",
+    "ExamCreate", "ExamUpdate", "ExamRead",
+    "ExamSessionUpdate", "ExamSessionStudentRead",
 ]

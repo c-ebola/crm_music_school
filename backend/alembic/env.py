@@ -19,7 +19,10 @@ from app.db.base import Base  # берет базовый класс
 from app.models import (
     role, lead, user, 
     subscription_plan, subscription,
-    payment, discipline, room)  # noqa: F401
+    payment, discipline, room, lesson,
+    session, schedule, session_student,
+    event, instrument, performance, performance_student
+    )  # noqa: F401
 # from app.models import school, ...  
 
 config = context.config
