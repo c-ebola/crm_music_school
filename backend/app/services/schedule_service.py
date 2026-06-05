@@ -106,6 +106,7 @@ async def list_schedule(
     quant: int | None = None,
     entity_type: str | None = None,
     day: date | None = None,
+    branch_filter: int | None = None,
 ) -> list[dict]:
     query = select(Schedule)
     if quant is not None:
@@ -116,7 +117,19 @@ async def list_schedule(
         query = query.where(Schedule.date == day)
     query = query.order_by(Schedule.date.asc(), Schedule.quant.asc())
     result = await db.execute(query)
-    return [await _resolve(db, r) for r in result.scalars().all()]
+    results = [await _resolve(db, r) for r in result.scalars().all()]
+    if branch_filter is not None:
+        filtered = []
+        for e in results:
+            etype = e.get('entity_type')
+            if etype == 'event': filtered.append(e); continue
+            room_branch = None
+            s = e.get('session'); x = e.get('exam')
+            if etype == 'session' and s and s.room: room_branch = s.room.branch_id
+            elif etype == 'exam' and x and x.room: room_branch = x.room.branch_id
+            if room_branch is None or room_branch == branch_filter: filtered.append(e)
+        results = filtered
+    return results
 
 
 async def get_schedule(db: AsyncSession, schedule_id: int) -> dict | None:

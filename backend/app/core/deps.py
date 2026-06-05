@@ -55,3 +55,12 @@ def require_roles(*codes: str):
             return user
         raise HTTPException(status_code=403, detail="Недостаточно прав")
     return checker
+
+
+async def get_branch_filter(
+    user: User = Depends(get_current_active_user),
+) -> int | None:
+    """None = нет фильтрации (админ сети). int = только свой филиал."""
+    if user.is_superuser or (user.role and user.role.code == "admin"):
+        return None
+    return user.branch_id

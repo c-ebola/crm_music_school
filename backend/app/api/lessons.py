@@ -2,7 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db
-from app.core.deps import require_roles
+from app.core.deps import require_roles, get_current_active_user
+from app.models.user import User
 from app.schemas.lesson import LessonCreate, LessonRead, LessonUpdate
 from app.services import lesson_service
 
@@ -14,8 +15,14 @@ async def get_lessons(
     discipline_id: int | None = None,
     teacher_id: int | None = None,
     db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
 ):
-    return await lesson_service.list_lessons(db, discipline_id=discipline_id, teacher_id=teacher_id)
+    eff_tid = teacher_id; tb_id = None
+    if not current_user.is_superuser and current_user.role:
+        code = current_user.role.code
+        if code == 'teacher': eff_tid = current_user.id
+        elif code in ('branch_admin', 'methodist') and current_user.branch_id: tb_id = current_user.branch_id
+    return await lesson_service.list_lessons(db, discipline_id=discipline_id, teacher_id=eff_tid, teacher_branch_id=tb_id)
 
 
 @router.get("/{lesson_id}", response_model=LessonRead, dependencies=[Depends(require_roles("methodist","branch_admin","admin"))])

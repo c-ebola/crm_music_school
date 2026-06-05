@@ -5,12 +5,12 @@ from app.models.instrument import Instrument
 from app.schemas.instrument import InstrumentCreate, InstrumentUpdate
 
 
-async def list_instruments(db: AsyncSession, only_active: bool = False, branch: str | None = None) -> list[Instrument]:
+async def list_instruments(db: AsyncSession, only_active: bool = False, branch_id: int | None = None) -> list[Instrument]:
     query = select(Instrument)
     if only_active:
         query = query.where(Instrument.is_active.is_(True))
-    if branch:
-        query = query.where(Instrument.branch == branch)
+    if branch_id is not None:
+        query = query.where(Instrument.branch_id == branch_id)
     query = query.order_by(Instrument.name.asc())
     result = await db.execute(query)
     return list(result.scalars().all())

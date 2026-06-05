@@ -15,6 +15,7 @@ from app.models.session import Session, SessionStatus
 from app.models.session_student import SessionStudent
 from app.models.event import Event, EventStatus
 from app.models.instrument import Instrument
+from app.models.branch import Branch, BranchKind
 from app.models.performance import Performance
 from app.models.performance_student import PerformanceStudent
 from app.models.exam import Exam  
@@ -49,6 +50,7 @@ __all__ = [
     "SessionStudent",
     "Event", "EventStatus",
     "Instrument",
+    "Branch", "BranchKind",
     "Performance", "PerformanceStudent", 
     "Homework",
     "Exam",

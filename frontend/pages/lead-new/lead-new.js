@@ -23,6 +23,17 @@ async function loadDisciplines() {
 
 loadDisciplines();
 
+async function loadBranches() {
+    const sel = document.getElementById('branch_id');
+    try {
+        const r = await Auth.apiFetch('/api/branches?kind=school&only_active=true');
+        const list = await r.json();
+        sel.innerHTML = '<option value="">— не выбран —</option>' +
+            (Array.isArray(list)?list:[]).map(b => `<option value="${b.id}">${b.name}${b.city ? ' ('+b.city+')' : ''}</option>`).join('');
+    } catch (e) { sel.innerHTML = '<option value="">Ошибка загрузки филиалов</option>'; }
+}
+loadBranches();
+
 function collectFormData() {
     const fd = new FormData(form);
     const data = {};
@@ -33,6 +44,7 @@ function collectFormData() {
     }
     if (data.student_age) data.student_age = parseInt(data.student_age, 10);
     if (data.discipline_id) data.discipline_id = parseInt(data.discipline_id, 10);
+    if (data.branch_id) data.branch_id = parseInt(data.branch_id, 10);
     return data;
 }
 

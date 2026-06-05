@@ -9,8 +9,8 @@ router = APIRouter(prefix="/api/instruments", tags=["instruments"])
 
 
 @router.get("", response_model=list[InstrumentRead])
-async def get_instruments(only_active: bool = False, branch: str | None = None, db: AsyncSession = Depends(get_db)):
-    return await instrument_service.list_instruments(db, only_active=only_active, branch=branch)
+async def get_instruments(only_active: bool = False, branch_id: int | None = None, db: AsyncSession = Depends(get_db)):
+    return await instrument_service.list_instruments(db, only_active=only_active, branch_id=branch_id)
 
 
 @router.get("/{instrument_id}", response_model=InstrumentRead)

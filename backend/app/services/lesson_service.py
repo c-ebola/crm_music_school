@@ -42,12 +42,15 @@ async def list_lessons(
     db: AsyncSession,
     discipline_id: int | None = None,
     teacher_id: int | None = None,
+    teacher_branch_id: int | None = None,
 ) -> list[Lesson]:
     query = select(Lesson)
     if discipline_id is not None:
         query = query.where(Lesson.discipline_id == discipline_id)
     if teacher_id is not None:
         query = query.where(Lesson.teacher_id == teacher_id)
+    if teacher_branch_id is not None:
+        query = query.join(User, Lesson.teacher_id == User.id).where(User.branch_id == teacher_branch_id)
     query = query.order_by(Lesson.created_at.desc())
     result = await db.execute(query)
     return list(result.scalars().all())

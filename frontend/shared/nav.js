@@ -29,6 +29,7 @@
   const CONCERTS = { label: 'Концерты', href: '/events' };
   const EXAMS = { label: 'Экзамены', href: '/exams' };
   const COMMISSIONS = { label: 'Комиссии', href: '/commissions' };
+  const BRANCHES = { label: 'Филиалы', href: '/branches' };
 
   // Набор пунктов роли = страницы, которые роль может открыть
 
@@ -41,7 +42,7 @@ const NAV = {
       SCHEDULE, STUDENT_SCHED, LESSONS, CONFIRM_PAY, CONCERTS, EXAMS, COMMISSIONS],
     admin: [HOME, DASHBOARD, LEADS, CONVERT,
       PLANS, SUB_NEW, PAY_NEW, STUDENT_FIN, CONFIRM_PAY,
-      SCHEDULE, LESSONS, STUDENT_SCHED, USERS, CONCERTS, EXAMS, COMMISSIONS],
+      SCHEDULE, LESSONS, STUDENT_SCHED, USERS, BRANCHES, CONCERTS, EXAMS, COMMISSIONS],
   };
 
   function esc(s) { const d = document.createElement('div'); d.textContent = s == null ? '' : s; return d.innerHTML; }

@@ -6,6 +6,7 @@ from app.models.lead import (
     ContactType, LeadChannel, LeadStatus, LessonFormat, Level, StudentStatus,
 )
 from app.schemas.discipline import DisciplineRead
+from app.schemas.branch import BranchRead
 from app.schemas.user import UserRead
 
 
@@ -20,7 +21,7 @@ class LeadBase(BaseModel):
     discipline_id: int
     level: Level | None = None
     lesson_format: LessonFormat | None = None
-    preferred_branch: str | None = Field(None, max_length=100)
+    branch_id: int | None = None
     channel: LeadChannel
     utm_campaign: str | None = Field(None, max_length=200)
     manager_comment: str | None = None
@@ -39,6 +40,7 @@ class LeadRead(LeadBase):
     student_status: StudentStatus | None
     teacher: UserRead | None
     discipline: DisciplineRead | None
+    branch: BranchRead | None = None
     created_at: datetime
     updated_at: datetime
 
@@ -49,4 +51,4 @@ class ConvertLeadRequest(BaseModel):
     teacher_id: int | None = None
     enrollment_date: date
     full_name: str | None = None
-    branch: str | None = None
+    branch_id: int | None = None

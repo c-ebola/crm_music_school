@@ -97,8 +97,8 @@ async def enroll(db: AsyncSession, data: SessionStudentCreate) -> dict:
     # филиал: если у кабинета задан филиал — ученик должен быть из того же
     if session.room_id is not None:
         room = await db.get(Room, session.room_id)
-        if room is not None and room.branch and student.preferred_branch and room.branch != student.preferred_branch:
-            raise BranchMismatchError(f"Ученик из другого филиала (занятие в филиале «{room.branch}»)")
+        if room is not None and room.branch_id and student.branch_id and room.branch_id != student.branch_id:
+            raise BranchMismatchError("Ученик из другого филиала")
 
     # вместимость по типу занятия
     if lesson is not None and lesson.max_students is not None:

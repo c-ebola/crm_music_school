@@ -25,6 +25,16 @@ async function loadTeachers() {
     } catch(e) {}
 }
 
+async function loadBranches() {
+    const sel = document.getElementById('f_branch');
+    try {
+        const r = await Auth.apiFetch('/api/branches?kind=school&only_active=true');
+        const list = await r.json();
+        sel.innerHTML = '<option value="">— не выбран —</option>' +
+            (Array.isArray(list)?list:[]).map(b => `<option value="${b.id}">${esc(b.name)}${b.city ? ' ('+esc(b.city)+')' : ''}</option>`).join('');
+    } catch (e) { sel.innerHTML = '<option value="">Ошибка загрузки</option>'; }
+}
+
 async function loadLeads() {
     try {
         const r = await Auth.apiFetch('/api/leads');
@@ -52,7 +62,7 @@ async function loadLead(id) {
             <div class="row"><span>Контакт</span><span>${esc(l.contact_full_name)} (${esc(CONTACT[l.contact_type]||l.contact_type)})</span></div>
             <div class="row"><span>ФИО ученика</span><span>${esc(l.student_full_name || '—')}</span></div>
             <div class="row"><span>Инструмент</span><span>${esc(l.discipline ? l.discipline.name : '—')}</span></div>
-            <div class="row"><span>Филиал</span><span>${esc(l.preferred_branch || '—')}</span></div>
+            <div class="row"><span>Филиал</span><span>${esc(l.branch ? l.branch.name : '—')}</span></div>
             <div class="row"><span>Статус</span><span>${esc(l.status)}</span></div>
         `;
         leadInfo.classList.remove('hidden');
@@ -66,7 +76,7 @@ async function loadLead(id) {
 
         document.getElementById('f_full_name').value = l.student_full_name
             || (l.contact_type === 'student' ? l.contact_full_name : '');
-        document.getElementById('f_branch').value = l.preferred_branch || '';
+        document.getElementById('f_branch').value = l.branch_id ? String(l.branch_id) : '';
         document.getElementById('f_enrollment').value = new Date().toISOString().slice(0,10);
         form.classList.remove('hidden');
     } catch(e) {
@@ -89,7 +99,7 @@ form.addEventListener('submit', async (e) => {
     const payload = {
         full_name: document.getElementById('f_full_name').value.trim() || null,
         teacher_id: teacherSel.value ? parseInt(teacherSel.value, 10) : null,
-        branch: document.getElementById('f_branch').value.trim() || null,
+        branch_id: document.getElementById('f_branch').value ? parseInt(document.getElementById('f_branch').value, 10) : null,
         enrollment_date: document.getElementById('f_enrollment').value,
     };
     try {
@@ -118,6 +128,7 @@ form.addEventListener('submit', async (e) => {
 
 (async () => {
     await loadTeachers();
+    await loadBranches();
     await loadLeads();
     const urlId = new URLSearchParams(location.search).get('lead_id');
     if (urlId) { leadSelect.value = urlId; loadLead(urlId); }

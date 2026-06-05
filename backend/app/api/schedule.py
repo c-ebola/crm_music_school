@@ -5,7 +5,9 @@ from datetime import date
 
 
 from app.db.session import get_db
-from app.core.deps import require_roles
+from app.core.deps import require_roles, get_current_active_user, get_branch_filter
+from app.models.user import User
+from app.models.room import Room
 from app.schemas.schedule import ScheduleCreate, ScheduleRead, ScheduleUpdate, ScheduleAddSession, ScheduleAddExam
 from app.services import schedule_service
 from app.schemas.schedule import (
@@ -21,8 +23,10 @@ async def get_schedule(
     entity_type: str | None = None,
     day: date | None = None,
     db: AsyncSession = Depends(get_db),
+    branch_filter: int | None = Depends(get_branch_filter),
 ):
-    return await schedule_service.list_schedule(db, quant=quant, entity_type=entity_type, day=day)
+    return await schedule_service.list_schedule(db, quant=quant, entity_type=entity_type, day=day,
+                                                 branch_filter=branch_filter)
 
 
 @router.get("/week", response_model=list[ScheduleRead], dependencies=[Depends(require_roles("methodist","branch_admin","teacher","admin"))])
@@ -54,9 +58,15 @@ async def add_schedule(data: ScheduleCreate, db: AsyncSession = Depends(get_db))
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.post("/add-session", response_model=ScheduleRead, status_code=status.HTTP_201_CREATED, 
-            dependencies=[Depends(require_roles("methodist","branch_admin","admin"))])
-async def add_session_to_schedule(data: ScheduleAddSession, db: AsyncSession = Depends(get_db)):
+@router.post("/add-session", response_model=ScheduleRead, status_code=status.HTTP_201_CREATED)
+async def add_session_to_schedule(
+    data: ScheduleAddSession, db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_roles("methodist","branch_admin","admin")),
+):
+    if current_user.branch_id and data.room_id:
+        room = await db.get(Room, data.room_id)
+        if room and room.branch_id and room.branch_id != current_user.branch_id:
+            raise HTTPException(403, "Кабинет не принадлежит вашему филиалу")
     try:
         return await schedule_service.add_session_to_schedule(db, data)
     except schedule_service.EntityNotFoundError as e:
@@ -84,9 +94,15 @@ async def add_event_to_schedule(data: ScheduleAddEvent, db: AsyncSession = Depen
     except schedule_service.ScheduleError as e:
         raise HTTPException(status_code=400, detail=str(e)) 
 
-@router.post("/add-exam", response_model=ScheduleRead, status_code=status.HTTP_201_CREATED,
-             dependencies=[Depends(require_roles("methodist", "branch_admin", "admin"))])
-async def add_exam_to_schedule(data: ScheduleAddExam, db: AsyncSession = Depends(get_db)):
+@router.post("/add-exam", response_model=ScheduleRead, status_code=status.HTTP_201_CREATED)
+async def add_exam_to_schedule(
+    data: ScheduleAddExam, db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_roles("methodist","branch_admin","admin")),
+):
+    if current_user.branch_id and data.room_id:
+        room = await db.get(Room, data.room_id)
+        if room and room.branch_id and room.branch_id != current_user.branch_id:
+            raise HTTPException(403, "Кабинет не принадлежит вашему филиалу")
     try:
         return await schedule_service.add_exam_to_schedule(db, data)
     except schedule_service.EntityNotFoundError as e:

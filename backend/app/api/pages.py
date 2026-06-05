@@ -89,3 +89,8 @@ async def page_exams():
 @router.get("/commissions", summary="Экзаменационные комиссии")
 async def page_commissions():
     return _html("pages/commissions/commissions.html")
+
+
+@router.get("/branches", summary="Филиалы и площадки")
+async def page_branches():
+    return _html("pages/branches/branches.html")

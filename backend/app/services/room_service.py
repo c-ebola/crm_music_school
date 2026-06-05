@@ -5,12 +5,12 @@ from app.models.room import Room
 from app.schemas.room import RoomCreate, RoomUpdate
 
 
-async def list_rooms(db: AsyncSession, only_active: bool = False, branch: str | None = None) -> list[Room]:
+async def list_rooms(db: AsyncSession, only_active: bool = False, branch_id: int | None = None) -> list[Room]:
     query = select(Room)
     if only_active:
         query = query.where(Room.is_active.is_(True))
-    if branch:
-        query = query.where(Room.branch == branch)
+    if branch_id is not None:
+        query = query.where(Room.branch_id == branch_id)
     query = query.order_by(Room.name.asc())
     result = await db.execute(query)
     return list(result.scalars().all())

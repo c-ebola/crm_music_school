@@ -3,6 +3,7 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 from app.schemas.role import RoleRead
+from app.schemas.branch import BranchRead
 
 
 class UserBase(BaseModel):
@@ -14,6 +15,7 @@ class UserBase(BaseModel):
     role_id: int
     is_active: bool = True
     is_superuser: bool = False
+    branch_id: int | None = None
 
 
 class UserCreate(UserBase):
@@ -26,6 +28,7 @@ class UserRead(UserBase):
     id: int
     full_name: str
     role: RoleRead
+    branch: BranchRead | None = None
     created_at: datetime
     updated_at: datetime
 

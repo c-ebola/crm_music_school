@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db
-from app.core.deps import require_roles, get_current_active_user
+from app.core.deps import require_roles, get_current_active_user, get_branch_filter
 from app.schemas.lead import ConvertLeadRequest, LeadCreate, LeadRead
 from app.services import lead_service
 from app.models.lead import Level
@@ -14,12 +14,14 @@ router = APIRouter(prefix="/api/leads", tags=["leads"])
 async def get_leads(
     is_student: bool | None = None,
     discipline_id: int | None = None,
-    branch: str | None = None,
+    branch_id: int | None = None,
     level: Level | None = None,
     db: AsyncSession = Depends(get_db),
+    branch_filter: int | None = Depends(get_branch_filter),
 ):
+    effective_branch = branch_filter if branch_filter is not None else branch_id
     return await lead_service.list_leads(
-        db, is_student=is_student, discipline_id=discipline_id, branch=branch, level=level
+        db, is_student=is_student, discipline_id=discipline_id, branch_id=effective_branch, level=level
     )
 
 

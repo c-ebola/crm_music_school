@@ -7,6 +7,7 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy import text
 
 from app.api import exams, exam_sessions, commissions
+from app.api import branches
 from app.api import (auth, leads, 
 pages, roles, users, subscription_plans, subscriptions, 
 payments, disciplines, rooms, lessons, sessions, schedule,
@@ -64,6 +65,7 @@ app.include_router(commissions.router)
 app.include_router(exams.router)
 app.include_router(exam_sessions.router)
 app.include_router(exam_sessions.students_router)
+app.include_router(branches.router)
 
 
 @app.get("/health", tags=["system"])
@@ -82,7 +84,7 @@ async def health_check():
 app.include_router(pages.router)
 
 # статика фронта (CSS, JS, .html файлы) 
-# Монтируется ПОСЛЕДНЕЙ как catch-all
+# Монтируется последний как catch-all
 FRONTEND_DIR = Path(__file__).resolve().parents[2] / "frontend"
 if FRONTEND_DIR.exists():
     app.mount(

@@ -36,7 +36,12 @@ class User(Base):
         onupdate=func.now(), nullable=False,
     )
 
+    branch_id: Mapped[int | None] = mapped_column(
+        ForeignKey("branches.id", ondelete="SET NULL")
+    )
+
     role: Mapped["Role"] = relationship("Role", lazy="joined")  # noqa: F821
+    branch: Mapped["Branch | None"] = relationship("Branch", lazy="joined")  # noqa: F821
 
     @property
     def full_name(self) -> str:

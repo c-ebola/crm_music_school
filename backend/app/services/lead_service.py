@@ -22,7 +22,7 @@ async def list_leads(
     db: AsyncSession,
     is_student: bool | None = None,
     discipline_id: int | None = None,
-    branch: str | None = None,
+    branch_id: int | None = None,
     level: Level | None = None,
 ) -> list[Lead]:
     query = select(Lead)
@@ -30,8 +30,8 @@ async def list_leads(
         query = query.where(Lead.is_student == is_student)
     if discipline_id is not None:
         query = query.where(Lead.discipline_id == discipline_id)
-    if branch is not None:
-        query = query.where(Lead.preferred_branch == branch)
+    if branch_id is not None:
+        query = query.where(Lead.branch_id == branch_id)
     if level is not None:
         query = query.where(Lead.level == level)
     query = query.order_by(Lead.created_at.desc())
@@ -73,8 +73,8 @@ async def convert_lead_to_student(
             "В заявке не указано ФИО ученика. Укажите его в форме конверсии."
         )
 
-    if data.branch is not None:
-        lead.preferred_branch = data.branch
+    if data.branch_id is not None:
+        lead.branch_id = data.branch_id
 
     lead.teacher_id = data.teacher_id
     lead.enrollment_date = data.enrollment_date

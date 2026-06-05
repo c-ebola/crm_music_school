@@ -21,6 +21,16 @@ async function loadRoles() {
     } catch (e) { /* ignore */ }
 }
 
+async function loadBranches() {
+    const sel = document.getElementById('user_branch');
+    try {
+        const resp = await Auth.apiFetch('/api/branches?kind=school&only_active=true');
+        const list = await resp.json();
+        sel.innerHTML = '<option value="">— не выбран —</option>' +
+            (Array.isArray(list)?list:[]).map(b => `<option value="${b.id}">${escapeHtml(b.name)}${b.city ? ' ('+escapeHtml(b.city)+')' : ''}</option>`).join('');
+    } catch (e) { /* ignore */ }
+}
+
 async function loadUsers() {
     tbody.innerHTML = '<tr><td colspan="5" class="empty">Загрузка...</td></tr>';
     try {
@@ -59,6 +69,7 @@ form.addEventListener('submit', async (e) => {
         role_id: parseInt(fd.get('role_id'), 10),
         is_active: document.getElementById('is_active').checked,
         is_superuser: document.getElementById('is_superuser').checked,
+        branch_id: document.getElementById('user_branch').value ? parseInt(document.getElementById('user_branch').value, 10) : null,
     };
     try {
         const resp = await Auth.apiFetch('/api/users', {
@@ -85,4 +96,5 @@ form.addEventListener('submit', async (e) => {
 });
 
 loadRoles();
+loadBranches();
 loadUsers();

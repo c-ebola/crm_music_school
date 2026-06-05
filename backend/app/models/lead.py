@@ -81,7 +81,9 @@ class Lead(Base):
     lesson_format: Mapped[LessonFormat | None] = mapped_column(
         Enum(LessonFormat, name="lesson_format")
     )
-    preferred_branch: Mapped[str | None] = mapped_column(String(100))
+    branch_id: Mapped[int | None] = mapped_column(
+        ForeignKey("branches.id", ondelete="SET NULL")
+    )
 
     # Источник
     channel: Mapped[LeadChannel] = mapped_column(
@@ -124,3 +126,4 @@ class Lead(Base):
     
     teacher: Mapped["User | None"] = relationship("User", lazy="joined")  # noqa: F821
     discipline: Mapped["Discipline"] = relationship("Discipline", lazy="joined")
+    branch: Mapped["Branch | None"] = relationship("Branch", lazy="joined")  # noqa: F821
