@@ -94,3 +94,11 @@ async def page_commissions():
 @router.get("/branches", summary="Филиалы и площадки")
 async def page_branches():
     return _html("pages/branches/branches.html")
+
+@router.get("/funnel")
+async def page_funnel():
+    return _html("pages/funnel/funnel.html")
+
+@router.get("/journal", summary="Журнал занятий преподавателя")
+async def page_journal():
+    return _html("pages/journal/journal.html")

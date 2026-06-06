@@ -1,89 +1,155 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>МузCRM — Домашние задания</title>
     <link rel="stylesheet" href="/styles.css">
     <style>
-        .hw-layout { display:grid; grid-template-columns:340px 1fr; gap:24px; align-items:start; }
-        @media (max-width:900px){ .hw-layout{ grid-template-columns:1fr; } }
-        .panel { background:#fff; border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,.05); }
-        .panel-create { padding:24px; position:sticky; top:24px; }
-        .panel h2 { font-size:16px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:baseline; }
-        .count { color:#86868b; font-size:13px; font-weight:400; }
-        .create-field { margin-bottom:14px; display:flex; flex-direction:column; position:relative; }
-        .create-field label { font-size:13px; font-weight:500; margin-bottom:5px; }
-        .ta-wrap { position:relative; }
-        .clear-x { position:absolute; right:8px; top:8px; cursor:pointer; color:#86868b; background:none; border:none; font-size:16px; }
-        .sug { position:absolute; z-index:20; left:0; right:0; top:64px; background:#fff; border:1px solid #e8e8ed;
-               border-radius:8px; box-shadow:0 6px 20px rgba(0,0,0,.1); max-height:240px; overflow:auto; }
-        .sug-item { padding:9px 12px; cursor:pointer; font-size:14px; display:flex; justify-content:space-between; gap:8px; }
-        .sug-item:hover { background:#f0f4ff; }
-        .sug-sub { color:#86868b; font-size:12px; }
-        .sug-empty { padding:9px 12px; color:#86868b; font-size:13px; }
-        .filters { display:flex; gap:10px; flex-wrap:wrap; padding:18px 20px; border-bottom:1px solid #e8e8ed; }
-        .filters .grow { flex:1; min-width:160px; }
-        .list-body { padding:20px; display:flex; flex-direction:column; gap:14px; }
-        .hw-card { border:1px solid #e8e8ed; border-left:3px solid #4a73e8; border-radius:10px; padding:16px; }
-        .hw-card:has(.badge.done) { border-left-color:#2e9e4f; }
-        .hw-top { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:8px; }
-        .hw-student { font-weight:600; font-size:15px; }
-        .hw-desc { font-size:14px; white-space:pre-wrap; margin-bottom:10px; }
-        .hw-clabel { font-size:12px; color:#86868b; }
-        .hw-comment { width:100%; margin:4px 0 10px; resize:vertical; }
-        .hw-actions { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
-        .hw-foot { color:#a1a1a6; font-size:11px; margin-top:8px; }
-        .badge { display:inline-block; padding:2px 10px; border-radius:999px; font-size:12px; font-weight:600; }
+        /* ── шапка с кнопкой справа ── */
+        .hw-head { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; }
+        .hw-add { white-space:nowrap; }
+
+        /* ── фильтры-пилюли ── */
+        .hw-filters { display:flex; gap:8px; flex-wrap:wrap; margin:20px 0 16px; }
+        .pill {
+            border:1px solid #e8e8ed; background:#fff; color:#1d1d1f;
+            padding:6px 14px; border-radius:999px; font-size:13px; font-weight:500;
+            cursor:pointer; transition:all .15s; display:inline-flex; align-items:center; gap:6px;
+        }
+        .pill:hover { background:#f5f5f7; }
+        .pill .cnt { color:#86868b; font-weight:600; }
+        .pill.active { background:#1d1d1f; color:#fff; border-color:#1d1d1f; }
+        .pill.active .cnt { color:#c9c9cf; }
+
+        /* ── таблица ── */
+        .hw-table { width:100%; border-collapse:collapse; }
+        .hw-table th {
+            text-align:left; font-size:12px; font-weight:600; letter-spacing:.03em;
+            text-transform:uppercase; color:#86868b; background:transparent;
+            padding:0 14px 10px; border-bottom:1px solid #e8e8ed;
+        }
+        .hw-table td { padding:14px; border-bottom:1px solid #f0f0f3; font-size:14px; vertical-align:top; }
+        .hw-row { cursor:pointer; transition:background .12s; }
+        .hw-row:hover { background:#fafafc; }
+        .hw-row.open { background:#fafafc; }
+        .col-student { font-weight:600; white-space:nowrap; }
+        .col-date { color:#86868b; white-space:nowrap; }
+        .col-task { color:#1d1d1f; }
+        .col-task .disc { color:#86868b; font-size:12px; margin-top:2px; }
+        .col-status { white-space:nowrap; text-align:right; }
+        .chev { color:#c1c1c6; font-size:12px; margin-left:8px; transition:transform .15s; display:inline-block; }
+        .hw-row.open .chev { transform:rotate(90deg); }
+
+        /* ── бейджи статуса ── */
+        .badge { display:inline-block; padding:3px 11px; border-radius:999px; font-size:12px; font-weight:600; }
         .badge.done { background:#e7f6ea; color:#1f7a3d; }
         .badge.open { background:#fff3e0; color:#9a6400; }
-        .btn-del { border:1px solid #e8c4c4; background:#fff; color:#c0392b; border-radius:8px; padding:6px 12px; font-size:13px; cursor:pointer; }
+
+        /* ── раскрытая строка с деталями ── */
+        .detail-row td { background:#fafafc; border-bottom:1px solid #f0f0f3; padding:0 14px; }
+        .detail-box {
+            padding:16px; margin:0 0 4px; background:#fff; border:1px solid #e8e8ed;
+            border-radius:10px;
+        }
+        .detail-box .lbl { font-size:12px; color:#86868b; margin-bottom:4px; }
+        .detail-box .full-task { font-size:14px; white-space:pre-wrap; margin-bottom:14px; }
+        .detail-box textarea { min-height:64px; margin-bottom:10px; }
+        .detail-actions { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+        .btn-sm { padding:7px 14px; border-radius:8px; font-size:13px; font-weight:500; cursor:pointer; border:1px solid transparent; }
+        .btn-ok { background:#1d6e1d; color:#fff; }
+        .btn-ok:hover { background:#155515; }
+        .btn-undo { background:#fff; color:#1d1d1f; border-color:#d2d2d7; }
+        .btn-undo:hover { background:#f5f5f7; }
+        .btn-save { background:#1d1d1f; color:#fff; }
+        .btn-save:hover { background:#000; }
+        .btn-del { background:#fff; color:#c0392b; border:1px solid #e8c4c4; margin-left:auto; }
         .btn-del:hover { background:#fdeeee; }
-        .confirm-row { display:inline-flex; gap:6px; }
-        .btn-confirm { background:#c0392b; color:#fff; border:none; border-radius:8px; padding:6px 12px; font-size:13px; cursor:pointer; }
-        .btn-cancel { background:#f0f0f3; border:none; border-radius:8px; padding:6px 12px; font-size:13px; cursor:pointer; }
-        .empty { color:#86868b; padding:24px 4px; text-align:center; }
+        .btn-confirm { background:#c0392b; color:#fff; }
+        .btn-cancel { background:#f0f0f3; color:#1d1d1f; }
+        .row-msg { font-size:12px; margin-top:8px; }
+        .row-msg.ok { color:#1d6e1d; }
+        .row-msg.err { color:#c0392b; }
+
+        .empty, .loading { color:#86868b; padding:36px 4px; text-align:center; }
+
+        /* ── модалка «Выдать ДЗ» ── */
+        .overlay {
+            display:none; position:fixed; inset:0; background:rgba(0,0,0,.35);
+            z-index:50; align-items:flex-start; justify-content:center; padding:60px 16px;
+        }
+        .overlay.show { display:flex; }
+        .modal {
+            background:#fff; border-radius:14px; width:460px; max-width:100%;
+            padding:24px; box-shadow:0 12px 40px rgba(0,0,0,.18);
+        }
+        .modal h2 { font-size:18px; margin-bottom:4px; }
+        .modal .sub { color:#86868b; font-size:13px; margin-bottom:18px; }
+        .modal .field { margin-bottom:14px; }
     </style>
 </head>
 <body>
     <div class="layout">
         <aside id="sidebar" class="sidebar"></aside>
+
         <main class="content" style="max-width:1200px;">
-            <header class="page-header">
-                <h1>Домашние задания</h1>
-                <div class="breadcrumb" id="who">—</div>
+            <header class="page-header hw-head">
+                <div>
+                    <h1>Домашние задания</h1>
+                    <div class="breadcrumb" id="who">Выданные, ожидающие и просроченные</div>
+                </div>
+                <button class="btn-primary hw-add" id="open-create">+ Выдать ДЗ</button>
             </header>
-            <div class="hw-layout">
-                <section class="panel panel-create">
-                    <h2>Новое задание</h2>
-                    <form id="hw-form">
-                        <div class="create-field">
-                            <label for="hw-student">Ученик</label>
-                            <select id="hw-student"><option value="">Загрузка...</option></select>
-                        </div>
-                        <div class="create-field">
-                            <label for="hw-desc">Текст задания</label>
-                            <textarea id="hw-desc" rows="4" placeholder="Что нужно сделать..."></textarea>
-                        </div>
-                        <div id="create-msg" class="message hidden"></div>
-                        <button type="submit" class="btn-primary" style="width:100%;">Создать задание</button>
-                    </form>
-                </section>
-                <section class="panel">
-                    <div class="filters">
-                        <input type="text" id="f-search" class="grow" placeholder="Поиск по ученику или тексту...">
-                        <select id="f-status">
-                            <option value="">Все</option>
-                            <option value="open">В работе</option>
-                            <option value="done">Выполненные</option>
-                        </select>
-                    </div>
-                    <div style="padding:14px 20px 0;"><h2>Список <span class="count" id="hw-count"></span></h2></div>
-                    <div id="hw-list" class="list-body"></div>
-                    <div id="hw-empty" class="empty hidden">Заданий нет.</div>
-                </section>
+
+            <div class="hw-filters" id="filters">
+                <button class="pill active" data-f="all">Все <span class="cnt" id="cnt-all">0</span></button>
+                <button class="pill" data-f="open">В работе <span class="cnt" id="cnt-open">0</span></button>
+                <button class="pill" data-f="done">Выполнено <span class="cnt" id="cnt-done">0</span></button>
             </div>
+
+            <section class="card" style="padding:18px 14px;">
+                <table class="hw-table">
+                    <thead>
+                        <tr>
+                            <th>Ученик</th>
+                            <th>Дата выдачи</th>
+                            <th>Задание</th>
+                            <th style="text-align:right;">Статус</th>
+                        </tr>
+                    </thead>
+                    <tbody id="hw-tbody"></tbody>
+                </table>
+                <div id="loading" class="loading">Загрузка…</div>
+                <div id="empty" class="empty hidden">Заданий пока нет.</div>
+            </section>
         </main>
     </div>
+
+    <!-- модалка: выдать ДЗ -->
+    <div class="overlay" id="create-overlay">
+        <div class="modal">
+            <h2>Выдать домашнее задание</h2>
+            <div class="sub">Задание появится в списке со статусом «В работе».</div>
+
+            <div class="field">
+                <label for="hw-student">Ученик</label>
+                <select id="hw-student"><option value="">Загрузка...</option></select>
+            </div>
+            <div class="field">
+                <label for="hw-desc">Текст задания</label>
+                <textarea id="hw-desc" rows="4" placeholder="Например: Бах — Менуэт g-moll, такты 1–8. Гамма C-dur."></textarea>
+            </div>
+
+            <div id="create-msg" class="message hidden"></div>
+
+            <div class="form-actions" style="border-top:none; padding-top:4px;">
+                <button type="button" class="btn-ghost" id="create-cancel">Отмена</button>
+                <button type="button" class="btn-primary" id="create-save">Выдать задание</button>
+            </div>
+        </div>
+    </div>
+
     <script src="/shared/auth.js"></script>
     <script src="/shared/nav.js"></script>
     <script src="/pages/homeworks/homeworks.js"></script>

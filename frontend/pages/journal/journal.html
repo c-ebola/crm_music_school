@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>МузCRM — Журнал занятий</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        .jr-toolbar { display:flex; align-items:center; gap:10px; margin-bottom:18px; flex-wrap:wrap; }
+        .btn-nav { padding:8px 14px; border:1px solid #d2d2d7; border-radius:8px; background:#fff; cursor:pointer; font-size:14px; }
+        .btn-nav:hover { background:#f0f0f3; }
+        .jr-toolbar input[type=date] { width:auto; }
+        .jr-toolbar select { width:auto; min-width:200px; }
+
+        .jr-grid { display:grid; grid-template-columns:300px 1fr; gap:20px; align-items:start; }
+        @media (max-width:980px){ .jr-grid{ grid-template-columns:1fr; } }
+
+        /* список занятий дня */
+        .sess-list { background:#fff; border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,.05); padding:10px; }
+        .sess-item { padding:12px 14px; border-radius:10px; cursor:pointer; border:1px solid transparent; transition:background .12s; }
+        .sess-item:hover { background:#f5f5f7; }
+        .sess-item.active { background:#f0f0f3; border-color:#e0e0e6; }
+        .sess-time { font-size:13px; color:#86868b; }
+        .sess-disc { font-weight:600; font-size:14px; margin-top:2px; }
+        .sess-room { font-size:12px; color:#86868b; margin-top:2px; }
+        .sess-list .empty { color:#86868b; padding:24px 6px; text-align:center; font-size:14px; }
+
+        /* деталь */
+        .detail { display:grid; grid-template-columns:1fr 320px; gap:20px; align-items:start; }
+        @media (max-width:1200px){ .detail{ grid-template-columns:1fr; } }
+        .detail.hidden { display:none; }
+        .panel { background:#fff; border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,.05); padding:22px 24px; }
+        .panel h2 { font-size:16px; margin-bottom:4px; }
+        .panel .sub { color:#86868b; font-size:13px; margin-bottom:18px; }
+        .section-title { font-size:12px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:#86868b; margin:0 0 12px; }
+
+        /* статус-карточки */
+        .status-cards { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+        @media (max-width:560px){ .status-cards{ grid-template-columns:1fr; } }
+        .st-card { border:1px solid #e2e2e8; border-radius:12px; padding:14px; cursor:pointer; transition:all .12s; background:#fff; }
+        .st-card:hover { background:#fafafc; }
+        .st-card .st-name { font-weight:600; font-size:14px; }
+        .st-card .st-desc { font-size:12px; color:#86868b; margin-top:3px; }
+        .st-card.sel-scheduled { border-color:#c9c9cf; background:#f4f4f6; }
+        .st-card.sel-completed { border-color:#bfe3c6; background:#eef7ef; }
+        .st-card.sel-cancelled { border-color:#f1cccc; background:#fdeeee; }
+        .save-hint { font-size:12px; margin-top:10px; min-height:16px; }
+        .save-hint.ok { color:#1d6e1d; }
+        .save-hint.err { color:#c0392b; }
+
+        /* ученики */
+        .cap { font-weight:600; font-size:14px; margin-bottom:12px; }
+        .stud { border:1px solid #ececed; border-radius:10px; padding:12px; margin-bottom:10px; }
+        .stud .name { font-weight:600; font-size:14px; }
+        .stud .sub-note { font-size:12px; color:#86868b; margin-top:2px; }
+        .att-row { display:flex; gap:6px; margin-top:10px; }
+        .att-btn { flex:1; border:1px solid #d2d2d7; background:#fff; border-radius:8px; padding:7px 8px; font-size:12px; font-weight:500; cursor:pointer; }
+        .att-btn:hover { background:#f5f5f7; }
+        .att-btn.came.on { background:#1d6e1d; color:#fff; border-color:#1d6e1d; }
+        .att-btn.miss.on { background:#8c1f1f; color:#fff; border-color:#8c1f1f; }
+        .stud-msg { font-size:11px; margin-top:6px; }
+        .stud-msg.err { color:#c0392b; }
+        .stud-list .empty { color:#86868b; padding:18px 4px; text-align:center; font-size:14px; }
+        .markall { width:100%; margin-top:4px; }
+
+        .placeholder { color:#86868b; padding:48px 4px; text-align:center; }
+
+        .badge { display:inline-block; padding:2px 9px; border-radius:999px; font-size:11px; font-weight:600; }
+        .badge.scheduled { background:#f0f0f3; color:#555; }
+        .badge.completed { background:#e7f6ea; color:#1f7a3d; }
+        .badge.cancelled { background:#fde7e7; color:#8c1f1f; }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <aside id="sidebar" class="sidebar"></aside>
+
+        <main class="content" style="max-width:1280px;">
+            <header class="page-header">
+                <h1>Журнал занятий</h1>
+                <div class="breadcrumb" id="who">—</div>
+            </header>
+
+            <div class="jr-toolbar">
+                <button class="btn-nav" id="prev">← День</button>
+                <input type="date" id="day">
+                <button class="btn-nav" id="next">День →</button>
+                <button class="btn-nav" id="today-btn">Сегодня</button>
+                <select id="teacher-sel" class="hidden"></select>
+            </div>
+
+            <div class="jr-grid">
+                <div class="sess-list" id="sess-list">
+                    <div class="empty">Загрузка…</div>
+                </div>
+
+                <div id="detail-wrap">
+                    <div class="panel placeholder" id="placeholder">Выберите занятие слева.</div>
+
+                    <div class="detail hidden" id="detail">
+                        <div class="panel">
+                            <h2 id="d-title">—</h2>
+                            <div class="sub" id="d-sub">—</div>
+
+                            <div class="section-title">Статус занятия</div>
+                            <div class="status-cards">
+                                <div class="st-card" data-status="scheduled">
+                                    <div class="st-name">Запланировано</div>
+                                    <div class="st-desc">ещё не проведено</div>
+                                </div>
+                                <div class="st-card" data-status="completed">
+                                    <div class="st-name">✓ Проведено</div>
+                                    <div class="st-desc">урок состоялся</div>
+                                </div>
+                                <div class="st-card" data-status="cancelled">
+                                    <div class="st-name">✕ Отменено</div>
+                                    <div class="st-desc">не состоялось</div>
+                                </div>
+                            </div>
+                            <div class="save-hint" id="status-hint"></div>
+                        </div>
+
+                        <div class="panel">
+                            <div class="section-title">Ученики на занятии</div>
+                            <div class="cap" id="cap">—</div>
+                            <div class="stud-list" id="stud-list"></div>
+                            <button class="btn-ghost markall" id="mark-all">Отметить всех пришедшими</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/shared/auth.js"></script>
+    <script src="/shared/nav.js"></script>
+    <script src="/pages/journal/journal.js"></script>
+</body>
+</html>

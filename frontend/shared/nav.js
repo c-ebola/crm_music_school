@@ -34,6 +34,7 @@
   const FUNNEL = { label: 'Воронка', href: '/funnel' };
   const STUDENTS = { label: 'Ученики', href: '/students' };
   const PORTAL = { label: 'Мой кабинет', href: '/portal' };
+  const JOURNAL = { label: 'Журнал занятий', href: '/journal' };
 
   // Набор пунктов роли = страницы, которые роль может открыть
 
@@ -41,12 +42,12 @@ const NAV = {
     manager: [HOME, LEADS, FUNNEL, STUDENTS, CONVERT],
     accountant: [HOME, PLANS, SUB_NEW, PAY_NEW, STUDENT_FIN],
     methodist: [HOME, SCHEDULE, LESSONS, STUDENT_SCHED, CONCERTS, EXAMS, COMMISSIONS],
-    teacher: [HOME, MY_SCHED, HOMEWORKS],
+    teacher: [HOME, MY_SCHED, HOMEWORKS, JOURNAL],
     branch_admin: [HOME, DASHBOARD, LEADS, FUNNEL, STUDENTS, CONVERT,
-      SCHEDULE, STUDENT_SCHED, LESSONS, CONFIRM_PAY, CONCERTS, EXAMS, COMMISSIONS],
+      SCHEDULE, STUDENT_SCHED, LESSONS, CONFIRM_PAY, CONCERTS, EXAMS, COMMISSIONS, JOURNAL],
     admin: [HOME, DASHBOARD, LEADS, FUNNEL, STUDENTS, CONVERT,
       PLANS, SUB_NEW, PAY_NEW, STUDENT_FIN, CONFIRM_PAY,
-      SCHEDULE, LESSONS, STUDENT_SCHED, USERS, BRANCHES, CONCERTS, EXAMS, COMMISSIONS],
+      SCHEDULE, LESSONS, STUDENT_SCHED, USERS, BRANCHES, CONCERTS, EXAMS, COMMISSIONS, JOURNAL],
     student: [PORTAL],
 };
 
