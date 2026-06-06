@@ -10,7 +10,7 @@ from app.models.branch import Branch, BranchKind
 from app.models.role import Role
 from app.models.user import User
 
-# ─── Филиалы и площадки ──────────────────────────────────────────────────────
+# Филиалы и площадки
 # (name, city, address, kind)
 SEED_BRANCHES = [
     ("Центральный",         "Москва", "ул. Ленина, 1",      BranchKind.school),
@@ -18,7 +18,7 @@ SEED_BRANCHES = [
     ("Концертный зал ЦДМ", "Москва", "Театральный пр., 3", BranchKind.venue),
 ]
 
-# ─── Пользователи ────────────────────────────────────────────────────────────
+# Пользователи
 # (email, пароль, фамилия, имя, код_роли, суперпользователь, имя_филиала|None)
 SEED_USERS = [
     (settings.first_admin_email, settings.first_admin_password,
@@ -37,7 +37,7 @@ async def main() -> None:
     try:
         async with AsyncSessionLocal() as db:
 
-            # ── 1. Филиалы (создаём если нет) ──────────────────────────────
+            # Филиалы (создаём если нет)
             branch_by_name: dict[str, Branch] = {}
             branches_created = 0
             for name, city, address, kind in SEED_BRANCHES:
@@ -56,11 +56,11 @@ async def main() -> None:
             else:
                 print("[seed] филиалы уже есть, пропуск")
 
-            # ── 2. Роли ─────────────────────────────────────────────────────
+            # Роли 
             roles = (await db.execute(select(Role))).scalars().all()
             role_by_code = {r.code: r for r in roles}
 
-            # ── 3. Пользователи: создать новых + дозаполнить филиал у старых ─
+            # Пользователи: создать новых + дозаполнить филиал у старых
             users_created = 0
             users_updated = 0
             for email, pwd, last, first, role_code, is_super, branch_name in SEED_USERS:

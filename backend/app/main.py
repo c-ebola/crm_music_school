@@ -12,7 +12,7 @@ from app.api import (auth, leads,
 pages, roles, users, subscription_plans, subscriptions, 
 payments, disciplines, rooms, lessons, sessions, schedule,
 session_students, events,instruments, performances, performance_students,
-homeworks, stats
+homeworks, stats, portal
 
 )
 from app.core.config import settings
@@ -41,7 +41,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- API-маршруты ---
+# API-маршруты 
 app.include_router(roles.router)
 app.include_router(leads.router)
 app.include_router(auth.router)
@@ -67,6 +67,7 @@ app.include_router(exam_sessions.router)
 app.include_router(exam_sessions.students_router)
 app.include_router(branches.router)
 app.include_router(stats.router)
+app.include_router(portal.router)
 
 
 @app.get("/health", tags=["system"])

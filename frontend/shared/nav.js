@@ -9,6 +9,7 @@
     accountant: 'Бухгалтер',
     manager: 'Менеджер',
     teacher: 'Преподаватель',
+    student: 'Ученик'
   };
 
   const HOME = { label: 'Главный экран', href: '/' };
@@ -32,6 +33,7 @@
   const BRANCHES = { label: 'Филиалы', href: '/branches' };
   const FUNNEL = { label: 'Воронка', href: '/funnel' };
   const STUDENTS = { label: 'Ученики', href: '/students' };
+  const PORTAL = { label: 'Мой кабинет', href: '/portal' };
 
   // Набор пунктов роли = страницы, которые роль может открыть
 
@@ -45,6 +47,7 @@ const NAV = {
     admin: [HOME, DASHBOARD, LEADS, FUNNEL, STUDENTS, CONVERT,
       PLANS, SUB_NEW, PAY_NEW, STUDENT_FIN, CONFIRM_PAY,
       SCHEDULE, LESSONS, STUDENT_SCHED, USERS, BRANCHES, CONCERTS, EXAMS, COMMISSIONS],
+    student: [PORTAL],
 };
 
   function esc(s) { const d = document.createElement('div'); d.textContent = s == null ? '' : s; return d.innerHTML; }
