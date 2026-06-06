@@ -54,6 +54,13 @@ class StudentStatus(str, enum.Enum):
     finished = "finished"
     dropped = "dropped"
 
+class LeadStatus(str, enum.Enum):
+    new = "new"
+    in_progress = "in_progress"
+    trial_scheduled = "trial_scheduled"
+    contract = "contract"             
+    converted = "converted"
+    rejected = "rejected"
 
 class Lead(Base):
     __tablename__ = "leads"

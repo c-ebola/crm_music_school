@@ -1,9 +1,10 @@
 from datetime import date, timedelta
+from collections import defaultdict
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.lead import Lead
+from app.models.lead import Lead, StudentStatus
 from app.models.subscription import Subscription, SubscriptionStatus
 from app.models.subscription_plan import SubscriptionPlan
 from app.schemas.subscription import SubscriptionCreate, SubscriptionUpdate
@@ -88,6 +89,15 @@ async def create_subscription(db: AsyncSession, data: SubscriptionCreate) -> dic
     return _to_read_dict(sub)
 
 
+def _effective_status(sub) -> SubscriptionStatus:
+    if sub.status == SubscriptionStatus.cancelled:
+        return SubscriptionStatus.cancelled
+    if sub.lessons_used >= sub.lessons_total:
+        return SubscriptionStatus.used_up
+    if sub.end_date < date.today():
+        return SubscriptionStatus.expired
+    return SubscriptionStatus.active
+
 async def update_subscription(db: AsyncSession, sub_id: int, data: SubscriptionUpdate) -> dict | None:
     result = await db.execute(select(Subscription).where(Subscription.id == sub_id))
     sub = result.scalar_one_or_none()
@@ -98,3 +108,47 @@ async def update_subscription(db: AsyncSession, sub_id: int, data: SubscriptionU
     await db.commit()
     await db.refresh(sub)
     return _to_read_dict(sub)
+
+
+async def students_needing_renewal(db: AsyncSession) -> list[dict]:
+    """Активные ученики без действующего абонемента — очередь на продление."""
+    today = date.today()
+    students = (await db.execute(
+        select(Lead).where(Lead.is_student.is_(True))
+    )).scalars().all()
+    active = [s for s in students
+              if s.student_status not in (StudentStatus.finished, StudentStatus.dropped)]
+
+    subs = (await db.execute(select(Subscription))).scalars().all()
+    by_student: dict[int, list] = defaultdict(list)
+    for sub in subs:
+        by_student[sub.student_id].append(sub)
+
+    out = []
+    for s in active:
+        subs_s = by_student.get(s.id, [])
+        valid = [
+            x for x in subs_s
+            if x.status != SubscriptionStatus.cancelled
+            and x.end_date >= today
+            and x.lessons_used < x.lessons_total
+        ]
+        if valid:
+            continue
+        if not subs_s:
+            reason = "Нет абонемента"
+        else:
+            last = max(subs_s, key=lambda x: x.end_date)
+            if last.lessons_used >= last.lessons_total:
+                reason = "Занятия закончились"
+            elif last.end_date < today:
+                reason = "Истёк срок"
+            else:
+                reason = "Нет действующего"
+        out.append({
+            "student_id": s.id,
+            "student_name": s.student_full_name or s.contact_full_name,
+            "discipline_name": s.discipline.name if s.discipline else None,
+            "reason": reason,
+        })
+    return out

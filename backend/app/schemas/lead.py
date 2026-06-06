@@ -52,3 +52,6 @@ class ConvertLeadRequest(BaseModel):
     enrollment_date: date
     full_name: str | None = None
     branch_id: int | None = None
+
+class LeadStatusUpdate(BaseModel):
+    status: LeadStatus

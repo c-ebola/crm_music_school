@@ -1,12 +1,13 @@
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from datetime import date
 
 from app.models.room import Room
 from app.models.lead import Lead
 from app.models.lesson import Lesson
 from app.models.session import Session
 from app.models.session_student import SessionStudent
-from app.models.subscription import Subscription
+from app.models.subscription import Subscription, SubscriptionStatus
 from app.schemas.session_student import SessionStudentCreate, SessionStudentUpdate
 
 
@@ -54,6 +55,19 @@ def _to_read(ss: SessionStudent) -> dict:
         "created_at": ss.created_at,
     }
 
+async def _active_subscription(db: AsyncSession, student_id: int) -> Subscription | None:
+    """Действующий абонемент: не отменён, срок не истёк, есть остаток уроков.
+    Берём тот, что заканчивается раньше (сначала тратим старый)."""
+    today = date.today()
+    res = await db.execute(
+        select(Subscription).where(
+            Subscription.student_id == student_id,
+            Subscription.status != SubscriptionStatus.cancelled,
+            Subscription.end_date >= today,
+            Subscription.lessons_used < Subscription.lessons_total,
+        ).order_by(Subscription.end_date.asc())
+    )
+    return res.scalars().first()
 
 async def list_session_students(
     db: AsyncSession,
@@ -145,8 +159,35 @@ async def update_session_student(db: AsyncSession, ss_id: int, data: SessionStud
     ss = result.scalar_one_or_none()
     if ss is None:
         return None
-    for field, value in data.model_dump(exclude_unset=True).items():
+
+    fields = data.model_dump(exclude_unset=True)
+
+    # посещаемость: списываем/возвращаем урок с абонемента
+    if "attended" in fields and fields["attended"] != ss.attended:
+        if fields["attended"]:
+            # отметили «пришёл» > списать урок (если ещё не списан)
+            if ss.subscription_id is None:
+                sub = await _active_subscription(db, ss.student_id)
+                if sub is not None:
+                    sub.lessons_used += 1
+                    ss.subscription_id = sub.id
+                # действующего абонемента нет > посещение фиксируем без списания,
+                # ученик попадёт в очередь «нужно продлить»
+            ss.attended = True
+        else:
+            # сняли отметку > вернуть урок
+            if ss.subscription_id is not None:
+                sub = await db.get(Subscription, ss.subscription_id)
+                if sub is not None and sub.lessons_used > 0:
+                    sub.lessons_used -= 1
+                ss.subscription_id = None
+            ss.attended = False
+        fields.pop("attended", None)
+
+    # прочие поля (например, ручной subscription_id) - как раньше
+    for field, value in fields.items():
         setattr(ss, field, value)
+
     await db.commit()
     await db.refresh(ss)
     return _to_read(ss)
@@ -157,6 +198,10 @@ async def unenroll(db: AsyncSession, ss_id: int) -> bool:
     ss = result.scalar_one_or_none()
     if ss is None:
         return False
+    if ss.attended and ss.subscription_id is not None:
+        sub = await db.get(Subscription, ss.subscription_id)
+        if sub is not None and sub.lessons_used > 0:
+            sub.lessons_used -= 1
     await db.delete(ss)
     await db.commit()
     return True

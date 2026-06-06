@@ -85,3 +85,17 @@ async def convert_lead_to_student(
     await db.commit()
     await db.refresh(lead)
     return lead
+
+
+async def set_status(db: AsyncSession, lead_id: int, new_status: LeadStatus) -> Lead:
+    lead = await get_lead(db, lead_id)
+    if lead is None:
+        raise LeadNotFoundError(f"Лид с id={lead_id} не найден")
+    if new_status == LeadStatus.converted:
+        raise LeadServiceError("Зачисление в «Оплачено» — через конверсию в ученика")
+    if lead.is_student:
+        raise LeadServiceError("Лид уже зачислен, статус менять нельзя")
+    lead.status = new_status
+    await db.commit()
+    await db.refresh(lead)
+    return lead

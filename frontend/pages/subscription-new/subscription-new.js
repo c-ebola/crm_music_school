@@ -15,19 +15,52 @@ function money(v){ return Number(v).toLocaleString('ru-RU') + ' ₽'; }
 function fmtDate(iso){ if(!iso) return ''; return new Date(iso).toLocaleDateString('ru-RU'); }
 
 async function loadStudents() {
+    let students = [], renewal = [];
     try {
-        const r = await Auth.apiFetch('/api/leads?is_student=true');
-        const students = await r.json();
-        if (!students.length) {
-            studentSel.innerHTML = '<option value="">Нет учеников — сначала сконвертируйте лид</option>';
-            return;
-        }
-        studentSel.innerHTML = '<option value="">— выберите ученика —</option>' +
-            students.map(s => {
-                const name = s.student_full_name || s.contact_full_name;
-                return `<option value="${s.id}">${esc(name)} (№${s.id})</option>`;
-            }).join('');
-    } catch(e) { studentSel.innerHTML = '<option value="">Ошибка загрузки учеников</option>'; }
+        const [sr, rr] = await Promise.all([
+            Auth.apiFetch('/api/leads?is_student=true'),
+            Auth.apiFetch('/api/subscriptions/renewal-needed'),
+        ]);
+        students = await sr.json();
+        renewal = await rr.json();
+    } catch(e) {
+        studentSel.innerHTML = '<option value="">Ошибка загрузки учеников</option>';
+        return;
+    }
+    if (!Array.isArray(students)) students = [];
+    if (!Array.isArray(renewal)) renewal = [];
+
+    if (!students.length) {
+        studentSel.innerHTML = '<option value="">Нет учеников — сначала сконвертируйте лид</option>';
+        return;
+    }
+
+    const reasonById = {};
+    renewal.forEach(r => { reasonById[r.student_id] = r.reason; });
+
+    const need = [], rest = [];
+    students.forEach(s => {
+        const name = s.student_full_name || s.contact_full_name;
+        if (reasonById[s.id] !== undefined) need.push({ id: s.id, name, reason: reasonById[s.id] });
+        else rest.push({ id: s.id, name });
+    });
+
+    let html = '<option value="">— выберите ученика —</option>';
+    if (need.length) {
+        html += `<optgroup label="⚠ Нужно продлить (${need.length})">` +
+            need.map(s => `<option value="${s.id}">${esc(s.name)} — ${esc(s.reason)}</option>`).join('') +
+            '</optgroup>';
+    }
+    html += '<optgroup label="Остальные ученики">' +
+        rest.map(s => `<option value="${s.id}">${esc(s.name)} (№${s.id})</option>`).join('') +
+        '</optgroup>';
+    studentSel.innerHTML = html;
+
+    const banner = document.getElementById('renewal-banner');
+    if (banner) {
+        if (need.length) { banner.textContent = `Ждут продления: ${need.length}`; banner.classList.remove('hidden'); }
+        else { banner.classList.add('hidden'); }
+    }
 }
 
 async function loadPlans() {

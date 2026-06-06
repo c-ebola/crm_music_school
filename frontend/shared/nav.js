@@ -30,17 +30,18 @@
   const EXAMS = { label: 'Экзамены', href: '/exams' };
   const COMMISSIONS = { label: 'Комиссии', href: '/commissions' };
   const BRANCHES = { label: 'Филиалы', href: '/branches' };
+  const FUNNEL = { label: 'Воронка', href: '/funnel' };
 
   // Набор пунктов роли = страницы, которые роль может открыть
 
 const NAV = {
-    manager: [HOME, LEADS, CONVERT],
+    manager: [HOME, LEADS, FUNNEL, CONVERT],
     accountant: [HOME, PLANS, SUB_NEW, PAY_NEW, STUDENT_FIN],
     methodist: [HOME, SCHEDULE, LESSONS, STUDENT_SCHED, CONCERTS, EXAMS, COMMISSIONS],
     teacher: [HOME, MY_SCHED, HOMEWORKS],
-    branch_admin: [HOME, DASHBOARD, LEADS, CONVERT,
+    branch_admin: [HOME, DASHBOARD, LEADS, FUNNEL, CONVERT,
       SCHEDULE, STUDENT_SCHED, LESSONS, CONFIRM_PAY, CONCERTS, EXAMS, COMMISSIONS],
-    admin: [HOME, DASHBOARD, LEADS, CONVERT,
+    admin: [HOME, DASHBOARD, LEADS, FUNNEL, CONVERT,
       PLANS, SUB_NEW, PAY_NEW, STUDENT_FIN, CONFIRM_PAY,
       SCHEDULE, LESSONS, STUDENT_SCHED, USERS, BRANCHES, CONCERTS, EXAMS, COMMISSIONS],
   };

@@ -42,3 +42,8 @@ async def edit_subscription(sub_id: int, data: SubscriptionUpdate, db: AsyncSess
     if sub is None:
         raise HTTPException(status_code=404, detail="Абонемент не найден")
     return sub
+
+@router.get("/renewal-needed",
+            dependencies=[Depends(require_roles("accountant", "branch_admin", "admin"))])
+async def get_renewal_needed(db: AsyncSession = Depends(get_db)):
+    return await subscription_service.students_needing_renewal(db)
