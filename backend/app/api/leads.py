@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db
 from app.core.deps import require_roles, get_current_active_user, get_branch_filter
-from app.schemas.lead import ConvertLeadRequest, LeadCreate, LeadRead, LeadStatusUpdate
+from app.schemas.lead import ConvertLeadRequest, LeadCreate, LeadRead, LeadStatusUpdate, LeadUpdate, LeadCredentialsRequest
 from app.services import lead_service
 from app.models.lead import Level
 
@@ -59,6 +59,38 @@ async def convert_lead_to_student(
 async def update_lead_status(lead_id: int, data: LeadStatusUpdate, db: AsyncSession = Depends(get_db)):
     try:
         return await lead_service.set_status(db, lead_id, data.status)
+    except lead_service.LeadNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except lead_service.LeadServiceError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.patch("/{lead_id}", response_model=LeadRead,
+              dependencies=[Depends(require_roles("manager", "branch_admin", "admin"))])
+async def update_lead(lead_id: int, data: LeadUpdate, db: AsyncSession = Depends(get_db)):
+    lead = await lead_service.update_lead(db, lead_id, data)
+    if lead is None:
+        raise HTTPException(status_code=404, detail="Лид не найден")
+    return lead
+
+
+@router.post("/{lead_id}/credentials",
+             dependencies=[Depends(require_roles("branch_admin", "admin"))])
+async def issue_credentials(lead_id: int, data: LeadCredentialsRequest | None = None,
+                            db: AsyncSession = Depends(get_db)):
+    try:
+        return await lead_service.issue_credentials(db, lead_id, data.email if data else None)
+    except lead_service.LeadNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except lead_service.LeadServiceError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post("/{lead_id}/credentials/reset",
+             dependencies=[Depends(require_roles("branch_admin", "admin"))])
+async def reset_credentials(lead_id: int, db: AsyncSession = Depends(get_db)):
+    try:
+        return await lead_service.reset_credentials(db, lead_id)
     except lead_service.LeadNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except lead_service.LeadServiceError as e:

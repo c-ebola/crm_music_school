@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>МузCRM — Дашборд сети</title>
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    .content { max-width:none; }
+    .kpi-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:14px; margin-bottom:20px; }
+    .kpi-card { background:#fff; border:1px solid #e8e8ed; border-radius:12px; padding:18px 20px; }
+    .kpi-label { font-size:13px; color:#86868b; }
+    .kpi-value { font-size:30px; font-weight:700; margin:6px 0 4px; }
+    .kpi-value.risk { color:#b00020; }
+    .kpi-delta { font-size:12px; color:#6e6e73; }
+    .dash-grid { display:grid; grid-template-columns:1.4fr 1fr; gap:16px; margin-bottom:16px; }
+    @media (max-width:900px){ .dash-grid{ grid-template-columns:1fr; } }
+    .panel { background:#fff; border:1px solid #e8e8ed; border-radius:12px; padding:20px 22px; }
+    .panel h2 { font-size:16px; margin-bottom:2px; }
+    .panel .ph-sub { font-size:13px; color:#86868b; margin-bottom:16px; }
+    table.brt { width:100%; border-collapse:collapse; }
+    table.brt th { text-align:left; font-size:12px; color:#86868b; font-weight:500; padding:6px 8px; border-bottom:1px solid #e8e8ed; }
+    table.brt td { padding:12px 8px; border-bottom:1px solid #f0f0f3; font-size:14px; vertical-align:top; }
+    table.brt td.debt { color:#b00020; }
+    .b-name { font-weight:600; }
+    .b-sub { font-size:12px; color:#86868b; margin-top:2px; }
+    .chart { display:flex; align-items:flex-end; gap:10px; height:200px; padding-top:10px; }
+    .bar-col { flex:1; display:flex; flex-direction:column; align-items:center; height:100%; justify-content:flex-end; }
+    .bar-val { font-size:11px; color:#6e6e73; margin-bottom:4px; }
+    .bar { width:100%; max-width:46px; background:#c7c7cc; border-radius:6px 6px 0 0; }
+    .bar.bar-cur { background:#1d1d1f; }
+    .bar-lbl { font-size:12px; color:#86868b; margin-top:6px; }
+    .hb-row { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+    .hb-name { width:42%; font-size:13px; }
+    .hb-name .hb-sub { display:block; font-size:11px; color:#a1a1a6; }
+    .hb-track { flex:1; background:#f0f0f3; border-radius:6px; height:10px; overflow:hidden; }
+    .hb-fill { height:100%; border-radius:6px; background:#4a73e8; }
+    .hb-fill.c0{background:#b3261e;} .hb-fill.c1{background:#b76a00;} .hb-fill.c2{background:#1d7a4d;}
+    .hb-val { width:70px; text-align:right; font-size:13px; font-weight:600; }
+    .empty { color:#a1a1a6; font-size:13px; padding:6px 0; }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside id="sidebar" class="sidebar"></aside>
+    <main class="content">
+      <header class="page-header">
+        <h1 id="period">Дашборд сети</h1>
+        <div class="breadcrumb" id="subtitle">Сводные показатели</div>
+      </header>
+      <div id="dash">
+        <div class="kpi-grid" id="kpi"></div>
+        <div class="dash-grid">
+          <section class="panel">
+            <h2>Сравнение филиалов</h2>
+            <div class="ph-sub">Ключевые показатели за текущий месяц</div>
+            <table class="brt">
+              <thead><tr><th>Филиал</th><th>Ученики</th><th>Выручка</th><th>Долг</th></tr></thead>
+              <tbody id="branches-body"></tbody>
+            </table>
+          </section>
+          <section class="panel">
+            <h2>Динамика выручки</h2>
+            <div class="ph-sub">Последние 6 месяцев</div>
+            <div class="chart" id="revenue-chart"></div>
+          </section>
+        </div>
+        <div class="dash-grid">
+          <section class="panel">
+            <h2>Топ преподаватели</h2>
+            <div class="ph-sub">По числу занятий в расписании</div>
+            <div id="top-teachers"></div>
+          </section>
+          <section class="panel">
+            <h2>Дисциплины по числу учеников</h2>
+            <div class="ph-sub">Активные ученики</div>
+            <div id="disciplines"></div>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="/shared/auth.js"></script>
+  <script src="/shared/nav.js"></script>
+  <script src="/pages/dashboard/dashboard.js"></script>
+</body>
+</html>

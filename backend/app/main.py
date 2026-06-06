@@ -12,7 +12,7 @@ from app.api import (auth, leads,
 pages, roles, users, subscription_plans, subscriptions, 
 payments, disciplines, rooms, lessons, sessions, schedule,
 session_students, events,instruments, performances, performance_students,
-homeworks
+homeworks, stats
 
 )
 from app.core.config import settings
@@ -66,6 +66,7 @@ app.include_router(exams.router)
 app.include_router(exam_sessions.router)
 app.include_router(exam_sessions.students_router)
 app.include_router(branches.router)
+app.include_router(stats.router)
 
 
 @app.get("/health", tags=["system"])

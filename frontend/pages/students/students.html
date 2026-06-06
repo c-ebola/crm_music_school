@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>МузCRM — Ученики</title>
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    .st-grid { display:grid; grid-template-columns:360px 1fr; gap:20px; align-items:start; }
+    @media (max-width:900px){ .st-grid{ grid-template-columns:1fr; } }
+    .st-search { width:100%; margin-bottom:14px; }
+    .st-list { display:flex; flex-direction:column; gap:8px; max-height:70vh; overflow:auto; }
+    .st-item { border:1px solid #e8e8ed; border-radius:10px; padding:11px 13px; cursor:pointer; background:#fff; transition:border-color .15s, box-shadow .15s; }
+    .st-item:hover { box-shadow:0 2px 8px rgba(0,0,0,.06); }
+    .st-item.active { border-color:#1d1d1f; }
+    .st-name { font-weight:600; font-size:14px; }
+    .st-sub { font-size:12px; color:#86868b; margin-top:2px; }
+    .badge { display:inline-block; padding:1px 9px; border-radius:10px; font-size:11px; }
+    .b-active { background:#d1f4d1; color:#1d6e1d; }
+    .b-paused { background:#fff3d1; color:#8a6400; }
+    .b-finished { background:#e8e8ed; color:#555; }
+    .b-dropped { background:#fadcdc; color:#8c1f1f; }
+    .cred-box { margin-top:18px; border-top:1px solid #e8e8ed; padding-top:16px; }
+    .cred-title { font-size:14px; font-weight:600; margin-bottom:10px; }
+    .cred-row { display:flex; gap:10px; align-items:center; }
+    .cred-out { margin-top:12px; }
+    .cred-warn { font-size:13px; color:#8a6400; margin-bottom:6px; }
+    .cred-creds { background:#f5f5f7; border-radius:8px; padding:10px 12px; font-size:14px; line-height:1.7; }
+    .cred-creds code { background:#fff; padding:2px 6px; border-radius:5px; border:1px solid #e0e0e5; }
+    .cred-err { color:#b00020; font-size:13px; margin-top:8px; }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside id="sidebar" class="sidebar"></aside>
+    <main class="content">
+      <header class="page-header">
+        <h1>Ученики</h1>
+        <div class="breadcrumb">Карточки учеников — поиск и редактирование</div>
+      </header>
+      <div class="st-grid">
+        <section class="card">
+          <input type="text" id="st-search" class="st-search" placeholder="Поиск по имени...">
+          <div id="st-list" class="st-list"></div>
+          <div id="st-empty" class="empty hidden">Ничего не найдено</div>
+        </section>
+
+        <section class="card" id="edit-card" style="display:none;">
+          <h2 id="edit-title" style="font-size:18px; margin-bottom:16px;"></h2>
+          <form id="edit-form">
+            <div class="grid-2">
+              <div class="field"><label>ФИО ученика</label><input type="text" id="e_student_name" maxlength="200"></div>
+              <div class="field"><label>ФИО контакта *</label><input type="text" id="e_contact_name" maxlength="200" required></div>
+              <div class="field"><label>Кто обращается</label>
+                <select id="e_contact_type"><option value="parent">Родитель</option><option value="student">Сам ученик</option><option value="other">Другое</option></select>
+              </div>
+              <div class="field"><label>Статус ученика</label>
+                <select id="e_status"><option value="active">Активен</option><option value="paused">На паузе</option><option value="finished">Завершил</option><option value="dropped">Ушёл</option></select>
+              </div>
+              <div class="field"><label>Email *</label><input type="email" id="e_email" required></div>
+              <div class="field"><label>Телефон</label><input type="text" id="e_phone" maxlength="50"></div>
+              <div class="field"><label>Telegram</label><input type="text" id="e_telegram" maxlength="100"></div>
+              <div class="field"><label>Возраст</label><input type="number" id="e_age" min="3" max="99"></div>
+              <div class="field"><label>Дисциплина *</label><select id="e_discipline" required></select></div>
+              <div class="field"><label>Уровень</label>
+                <select id="e_level"><option value="">—</option><option value="beginner">Начинающий</option><option value="intermediate">Средний</option><option value="advanced">Продвинутый</option></select>
+              </div>
+              <div class="field"><label>Формат</label>
+                <select id="e_format"><option value="">—</option><option value="individual">Индивидуально</option><option value="group">Группа</option><option value="online">Онлайн</option></select>
+              </div>
+              <div class="field"><label>Филиал</label><select id="e_branch"><option value="">— не выбран —</option></select></div>
+              <div class="field"><label>Преподаватель</label><select id="e_teacher"><option value="">— не назначен —</option></select></div>
+              <div class="field full"><label>Комментарий</label><textarea id="e_comment" rows="2"></textarea></div>
+            </div>
+            <div id="edit-msg" class="message hidden"></div>
+            <div class="form-actions"><button type="submit" class="btn-primary">Сохранить</button></div>
+          </form>
+          <div id="cred-box" class="cred-box"></div>
+        </section>
+      </div>
+    </main>
+  </div>
+  <script src="/shared/auth.js"></script>
+  <script src="/shared/nav.js"></script>
+  <script src="/pages/students/students.js"></script>
+</body>
+</html>

@@ -31,20 +31,21 @@
   const COMMISSIONS = { label: 'Комиссии', href: '/commissions' };
   const BRANCHES = { label: 'Филиалы', href: '/branches' };
   const FUNNEL = { label: 'Воронка', href: '/funnel' };
+  const STUDENTS = { label: 'Ученики', href: '/students' };
 
   // Набор пунктов роли = страницы, которые роль может открыть
 
 const NAV = {
-    manager: [HOME, LEADS, FUNNEL, CONVERT],
+    manager: [HOME, LEADS, FUNNEL, STUDENTS, CONVERT],
     accountant: [HOME, PLANS, SUB_NEW, PAY_NEW, STUDENT_FIN],
     methodist: [HOME, SCHEDULE, LESSONS, STUDENT_SCHED, CONCERTS, EXAMS, COMMISSIONS],
     teacher: [HOME, MY_SCHED, HOMEWORKS],
-    branch_admin: [HOME, DASHBOARD, LEADS, FUNNEL, CONVERT,
+    branch_admin: [HOME, DASHBOARD, LEADS, FUNNEL, STUDENTS, CONVERT,
       SCHEDULE, STUDENT_SCHED, LESSONS, CONFIRM_PAY, CONCERTS, EXAMS, COMMISSIONS],
-    admin: [HOME, DASHBOARD, LEADS, FUNNEL, CONVERT,
+    admin: [HOME, DASHBOARD, LEADS, FUNNEL, STUDENTS, CONVERT,
       PLANS, SUB_NEW, PAY_NEW, STUDENT_FIN, CONFIRM_PAY,
       SCHEDULE, LESSONS, STUDENT_SCHED, USERS, BRANCHES, CONCERTS, EXAMS, COMMISSIONS],
-  };
+};
 
   function esc(s) { const d = document.createElement('div'); d.textContent = s == null ? '' : s; return d.innerHTML; }
   function norm(p) { return (p || '').replace(/\/+$/, '') || '/'; }

@@ -3,7 +3,7 @@ from datetime import date, datetime
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 from app.models.lead import (
-    ContactType, LeadChannel, LeadStatus, LessonFormat, Level, StudentStatus,
+    ContactType, LeadChannel, LeadStatus, LessonFormat, Level, StudentStatus
 )
 from app.schemas.discipline import DisciplineRead
 from app.schemas.branch import BranchRead
@@ -36,6 +36,7 @@ class LeadRead(LeadBase):
     status: LeadStatus
     is_student: bool
     teacher_id: int | None
+    user_id: int | None
     enrollment_date: date | None
     student_status: StudentStatus | None
     teacher: UserRead | None
@@ -53,5 +54,27 @@ class ConvertLeadRequest(BaseModel):
     full_name: str | None = None
     branch_id: int | None = None
 
+
 class LeadStatusUpdate(BaseModel):
     status: LeadStatus
+
+class LeadUpdate(BaseModel):
+    contact_full_name: str | None = Field(None, min_length=1, max_length=200)
+    contact_type: ContactType | None = None
+    email: EmailStr | None = None
+    telegram: str | None = Field(None, max_length=100)
+    phone: str | None = Field(None, max_length=50)
+    student_full_name: str | None = Field(None, max_length=200)
+    student_age: int | None = Field(None, ge=3, le=99)
+    discipline_id: int | None = None
+    level: Level | None = None
+    lesson_format: LessonFormat | None = None
+    branch_id: int | None = None
+    manager_comment: str | None = None
+    teacher_id: int | None = None
+    user_id: int | None
+    enrollment_date: date | None = None
+    student_status: StudentStatus | None = None
+
+class LeadCredentialsRequest(BaseModel):
+    email: EmailStr | None = None

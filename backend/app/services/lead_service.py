@@ -1,7 +1,11 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+import secrets
+from sqlalchemy.exc import IntegrityError
+from app.core.security import hash_password
 
-
+from app.models.role import Role
+from app.models.user import User
 from app.models.lead import ContactType, Lead, LeadStatus, Level, StudentStatus
 from app.schemas.lead import ConvertLeadRequest, LeadCreate
 
@@ -99,3 +103,79 @@ async def set_status(db: AsyncSession, lead_id: int, new_status: LeadStatus) -> 
     await db.commit()
     await db.refresh(lead)
     return lead
+
+async def update_lead(db: AsyncSession, lead_id: int, data) -> Lead | None:
+    lead = await get_lead(db, lead_id)
+    if lead is None:
+        return None
+    for field, value in data.model_dump(exclude_unset=True).items():
+        setattr(lead, field, value)
+    await db.commit()
+    await db.refresh(lead)
+    return lead
+
+async def _get_or_create_student_role(db: AsyncSession) -> Role:
+    res = await db.execute(select(Role).where(Role.code == "student"))
+    role = res.scalar_one_or_none()
+    if role is None:
+        role = Role(code="student", name="Ученик")
+        db.add(role)
+        await db.flush()
+    return role
+
+
+async def issue_credentials(db: AsyncSession, lead_id: int, login_email: str | None = None) -> dict:
+    lead = await get_lead(db, lead_id)
+    if lead is None:
+        raise LeadNotFoundError(f"Лид с id={lead_id} не найден")
+    if not lead.is_student:
+        raise LeadServiceError("Доступ можно выдать только зачисленному ученику")
+    if lead.user_id is not None:
+        raise LeadServiceError("Доступ этому ученику уже выдан")
+
+    email = (login_email or lead.email or "").strip()
+    if not email:
+        raise LeadServiceError("Не указан email для входа")
+
+    role = await _get_or_create_student_role(db)
+    password = secrets.token_urlsafe(8)
+
+    parts = (lead.student_full_name or lead.contact_full_name or "Ученик").split()
+    last = parts[0] if parts else "Ученик"
+    first = parts[1] if len(parts) > 1 else "—"
+    middle = " ".join(parts[2:]) or None
+
+    user = User(
+        email=email,
+        hashed_password=hash_password(password),
+        last_name=last, first_name=first, middle_name=middle,
+        role_id=role.id, is_active=True, is_superuser=False,
+        branch_id=lead.branch_id,
+    )
+    db.add(user)
+    try:
+        await db.flush()
+    except IntegrityError:
+        await db.rollback()
+        raise LeadServiceError(f"Email «{email}» уже занят другим аккаунтом")
+
+    lead.user_id = user.id
+    await db.commit()
+    return {"email": email, "password": password, "user_id": user.id}
+
+
+async def reset_credentials(db: AsyncSession, lead_id: int) -> dict:
+    lead = await get_lead(db, lead_id)
+    if lead is None:
+        raise LeadNotFoundError(f"Лид с id={lead_id} не найден")
+    if lead.user_id is None:
+        raise LeadServiceError("Доступ ещё не выдан")
+    user = await db.get(User, lead.user_id)
+    if user is None:
+        lead.user_id = None
+        await db.commit()
+        raise LeadServiceError("Аккаунт не найден, выдайте доступ заново")
+    password = secrets.token_urlsafe(8)
+    user.hashed_password = hash_password(password)
+    await db.commit()
+    return {"email": user.email, "password": password, "user_id": user.id}

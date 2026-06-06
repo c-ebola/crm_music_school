@@ -111,6 +111,9 @@ class Lead(Base):
     teacher_id: Mapped[int | None] = mapped_column(
         ForeignKey("users.id", ondelete="SET NULL")
     )
+    user_id: Mapped[int | None] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL")
+    )
     enrollment_date: Mapped[date | None] = mapped_column(Date)
     student_status: Mapped[StudentStatus | None] = mapped_column(
         Enum(StudentStatus, name="student_status")
@@ -131,6 +134,11 @@ class Lead(Base):
     def __repr__(self) -> str:
         return f"<Lead(id={self.id}, name={self.contact_full_name!r})>"
     
-    teacher: Mapped["User | None"] = relationship("User", lazy="joined")  # noqa: F821
+    teacher: Mapped["User | None"] = relationship(
+        "User", foreign_keys=[teacher_id], lazy="joined"
+    )  # noqa: F821
+    account: Mapped["User | None"] = relationship(
+        "User", foreign_keys=[user_id], lazy="joined"
+    )  # noqa: F821
     discipline: Mapped["Discipline"] = relationship("Discipline", lazy="joined")
     branch: Mapped["Branch | None"] = relationship("Branch", lazy="joined")  # noqa: F821
