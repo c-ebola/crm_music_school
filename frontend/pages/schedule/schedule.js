@@ -391,7 +391,7 @@ function openStudentsModal(session) {
     const room = session.room ? session.room.name : 'без кабинета';
     const branch = session.room && session.room.branch ? session.room.branch : '—';
     if (stTitle) stTitle.textContent = `Ученики: ${disc}`;
-    const lvl = session.lesson && session.lesson.level ? session.lesson.level : 'любой';
+    const lvl = session.lesson && session.lesson.level ? (LVL[session.lesson.level] || session.lesson.level) : 'любой';
     if (stInfo) stInfo.textContent = `Кабинет: ${room} · Филиал: ${branch} · Уровень: ${lvl} · ${teacherName(session.lesson ? session.lesson.teacher : null)}`;
     if (stOverlay) stOverlay.classList.add('show');
     refreshStudents();

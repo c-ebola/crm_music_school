@@ -193,7 +193,8 @@ function chip(item){
     const s = item.data;
     const disc = s.lesson && s.lesson.discipline ? s.lesson.discipline.name : '—';
     const room = s.room ? s.room.name : 'без кабинета';
-    const type = s.lesson && s.lesson.lesson_type ? s.lesson.lesson_type : '';
+    const FMT = { individual:'Индивидуальное', group:'Групповое', online:'Онлайн' };
+    const type = s.lesson && s.lesson.lesson_type ? (window.Labels ? Labels.lessonType(s.lesson.lesson_type) : (FMT[s.lesson.lesson_type] || s.lesson.lesson_type)) : '';
     const st = STATUS[s.status] || { label: s.status || '', cls: '' };
     return `<div class="lesson-chip ${st.cls}">
         <div class="disc">${esc(disc)}</div>

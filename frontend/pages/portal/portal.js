@@ -44,8 +44,8 @@ function renderProfile(me){
     $('profile').innerHTML =
         profileLine('Имя', me.name) +
         profileLine('Дисциплина', me.discipline) +
-        profileLine('Уровень', me.level) +
-        profileLine('Формат занятий', me.lesson_format) +
+        profileLine['Уровень', Labels.level(me.level)],
+        profileLine['Формат занятий', Labels.lessonFormat(me.lesson_format)],
         profileLine('Возраст', me.age != null ? me.age + ' лет' : null) +
         profileLine('Филиал', me.branch) +
         profileLine('Классный руководитель', me.teacher);
