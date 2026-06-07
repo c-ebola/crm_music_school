@@ -12,6 +12,8 @@ from app.models.exam import Exam
 from app.models.exam_session import ExamSession, ExamStatus
 from app.models.exam_session_student import ExamSessionStudent
 from app.models.commission_member import CommissionMember
+from app.models.session_student import SessionStudent
+from app.models.performance_student import PerformanceStudent
 from app.schemas.schedule import (
     ScheduleAddSession, ScheduleAddEvent, ScheduleAddExam, ScheduleCreate, ScheduleUpdate,
 )
@@ -57,10 +59,14 @@ async def _resolve(db: AsyncSession, sch: Schedule) -> dict:
 
 async def list_week_schedule(
     db: AsyncSession,
-    week_start: date,
+    week_start: date | None = None,
     teacher_id: int | None = None,
+    student_id: int | None = None,
 ) -> list[dict]:
-    end = week_start + timedelta(days=7)
+    date_clause = []
+    if week_start is not None:
+        end = week_start + timedelta(days=7)
+        date_clause = [Schedule.date >= week_start, Schedule.date < end]
 
     if teacher_id is not None:
         sess_ids = (
@@ -68,38 +74,41 @@ async def list_week_schedule(
             .join(Lesson, Session.lesson_id == Lesson.id)
             .where(Lesson.teacher_id == teacher_id)
         )
-        # экзамены, где преподаватель состоит в комиссии
         exam_ids = (
             select(ExamSession.id)
             .join(Exam, ExamSession.exam_id == Exam.id)
             .join(CommissionMember, CommissionMember.commission_id == Exam.commission_id)
             .where(CommissionMember.user_id == teacher_id)
         )
-        # концерты, где у преподавателя есть выступление
+        event_ids = select(Performance.event_id).where(Performance.teacher_id == teacher_id)
+        type_clause = or_(
+            and_(Schedule.entity_type == "session", Schedule.entity_id.in_(sess_ids)),
+            and_(Schedule.entity_type == "exam", Schedule.entity_id.in_(exam_ids)),
+            and_(Schedule.entity_type == "event", Schedule.entity_id.in_(event_ids)),
+        )
+    elif student_id is not None:
+        sess_ids = select(SessionStudent.session_id).where(SessionStudent.student_id == student_id)
+        exam_ids = select(ExamSessionStudent.exam_session_id).where(ExamSessionStudent.student_id == student_id)
         event_ids = (
             select(Performance.event_id)
-            .where(Performance.teacher_id == teacher_id)
+            .join(PerformanceStudent, PerformanceStudent.performance_id == Performance.id)
+            .where(PerformanceStudent.student_id == student_id)
         )
-        query = select(Schedule).where(
-            Schedule.date >= week_start,
-            Schedule.date < end,
-            or_(
-                and_(Schedule.entity_type == "session", Schedule.entity_id.in_(sess_ids)),
-                and_(Schedule.entity_type == "exam", Schedule.entity_id.in_(exam_ids)),
-                and_(Schedule.entity_type == "event", Schedule.entity_id.in_(event_ids)),
-            ),
+        type_clause = or_(
+            and_(Schedule.entity_type == "session", Schedule.entity_id.in_(sess_ids)),
+            and_(Schedule.entity_type == "exam", Schedule.entity_id.in_(exam_ids)),
+            and_(Schedule.entity_type == "event", Schedule.entity_id.in_(event_ids)),
         )
     else:
-        query = select(Schedule).where(
-            Schedule.entity_type == "session",
-            Schedule.date >= week_start,
-            Schedule.date < end,
-        )
+        type_clause = Schedule.entity_type == "session"
 
-    query = query.order_by(Schedule.date.asc(), Schedule.quant.asc())
+    query = (
+        select(Schedule)
+        .where(*date_clause, type_clause)
+        .order_by(Schedule.date.asc(), Schedule.quant.asc())
+    )
     result = await db.execute(query)
     return [await _resolve(db, r) for r in result.scalars().all()]
-
 
 async def list_schedule(
     db: AsyncSession,

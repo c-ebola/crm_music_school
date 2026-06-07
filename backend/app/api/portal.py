@@ -14,7 +14,10 @@ from app.models.schedule import Schedule
 from app.models.session import Session
 from app.models.session_student import SessionStudent
 from app.models.user import User
-from app.services import homework_service
+from datetime import date, timedelta
+from app.schemas.schedule import ScheduleRead
+from app.schemas.subscription import SubscriptionRead
+from app.services import homework_service, schedule_service, subscription_service
 
 router = APIRouter(prefix="/api/portal", tags=["portal"])
 
@@ -32,12 +35,27 @@ async def my_profile(current: User = Depends(get_current_active_user),
                      db: AsyncSession = Depends(get_db)):
     lead = await _my_lead(current, db)
     disc = await db.get(Discipline, lead.discipline_id) if lead.discipline_id else None
+
+    branch_name = None
+    if lead.branch_id:
+        from app.models.branch import Branch
+        b = await db.get(Branch, lead.branch_id)
+        branch_name = b.name if b else None
+
+    teacher_name = None
+    if lead.teacher_id:
+        t = await db.get(User, lead.teacher_id)
+        if t:
+            teacher_name = " ".join(filter(None, [t.last_name, t.first_name])) or None
+
     return {
         "student_id": lead.id,
         "name": lead.student_full_name or lead.contact_full_name,
         "discipline": disc.name if disc else None,
+        "branch": branch_name,
+        "teacher": teacher_name,
+        "level": lead.level.value if lead.level else None,
     }
-
 
 @router.get("/schedule")
 async def my_schedule(current: User = Depends(get_current_active_user),
@@ -97,3 +115,28 @@ async def my_homeworks(current: User = Depends(get_current_active_user),
                        db: AsyncSession = Depends(get_db)):
     lead = await _my_lead(current, db)
     return await homework_service.list_homeworks(db, student_id=lead.id)
+
+
+@router.get("/subscriptions", response_model=list[SubscriptionRead])
+async def my_subscriptions(current: User = Depends(get_current_active_user),
+                           db: AsyncSession = Depends(get_db)):
+    lead = await _my_lead(current, db)
+    return await subscription_service.list_subscriptions(db, student_id=lead.id)
+
+
+@router.get("/week", response_model=list[ScheduleRead])
+async def my_week(week_start: date | None = None,
+                  current: User = Depends(get_current_active_user),
+                  db: AsyncSession = Depends(get_db)):
+    lead = await _my_lead(current, db)
+    if week_start is None:
+        today = date.today()
+        week_start = today - timedelta(days=today.weekday())
+    return await schedule_service.list_week_schedule(db, week_start=week_start, student_id=lead.id)
+
+@router.get("/week", response_model=list[ScheduleRead])
+async def my_week(week_start: date | None = None,
+                  current: User = Depends(get_current_active_user),
+                  db: AsyncSession = Depends(get_db)):
+    lead = await _my_lead(current, db)
+    return await schedule_service.list_week_schedule(db, week_start=week_start, student_id=lead.id)

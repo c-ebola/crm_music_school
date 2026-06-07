@@ -102,3 +102,7 @@ async def page_funnel():
 @router.get("/journal", summary="Журнал занятий преподавателя")
 async def page_journal():
     return _html("pages/journal/journal.html")
+
+@router.get("/portal", summary="Кабинет ученика")
+async def page_portal():
+    return _html("pages/portal/portal.html")

@@ -33,6 +33,7 @@ async def get_schedule(
 async def get_week_schedule(
     week_start: date,
     teacher_id: int | None = None,
+    student_id: int | None = None,
     db: AsyncSession = Depends(get_db),
 ):
     return await schedule_service.list_week_schedule(

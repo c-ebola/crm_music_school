@@ -1,4 +1,4 @@
-Auth.requireRole(['teacher', 'admin']);
+Auth.requireRole(['teacher', 'methodist', 'branch_admin', 'admin']);
 
 const DEFAULT_QUANTS = 11;          // 9:00 … 19:45
 const DOW = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
@@ -89,6 +89,8 @@ async function init(){
 }
 
 async function maybeSetupTeacherPicker(me){
+    const isAdmin = (me.role && me.role.code === 'admin') || me.is_superuser;
+    if (!isAdmin) return;
     try {
         const r = await Auth.apiFetch('/api/users', { headers: authHeaders });
         if (!r.ok) return;

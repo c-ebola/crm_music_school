@@ -23,7 +23,6 @@
   const CONFIRM_PAY = { label: 'Подтверждение оплат', href: '/confirm-payments' };
   const SCHEDULE = { label: 'Расписание', href: '/schedule' };
   const LESSONS = { label: 'Уроки', href: '/lessons' };
-  const STUDENT_SCHED = { label: 'Расписание ученика', href: '/student-schedule' };
   const MY_SCHED = { label: 'Моё расписание', href: '/my-schedule' };
   const HOMEWORKS = { label: 'Домашние задания', href: '/homeworks' };
   const USERS = { label: 'Пользователи', href: '/users' };
@@ -41,13 +40,13 @@
 const NAV = {
     manager: [HOME, LEADS, FUNNEL, STUDENTS, CONVERT],
     accountant: [HOME, PLANS, SUB_NEW, PAY_NEW, STUDENT_FIN],
-    methodist: [HOME, SCHEDULE, LESSONS, STUDENT_SCHED, CONCERTS, EXAMS, COMMISSIONS],
+    methodist: [HOME, SCHEDULE, LESSONS, CONCERTS, EXAMS, MY_SCHED, COMMISSIONS],
     teacher: [HOME, MY_SCHED, HOMEWORKS, JOURNAL],
     branch_admin: [HOME, DASHBOARD, LEADS, FUNNEL, STUDENTS, CONVERT,
-      SCHEDULE, STUDENT_SCHED, LESSONS, CONFIRM_PAY, CONCERTS, EXAMS, COMMISSIONS, JOURNAL],
+      SCHEDULE, LESSONS, CONFIRM_PAY, CONCERTS, EXAMS, COMMISSIONS, JOURNAL, MY_SCHED],
     admin: [HOME, DASHBOARD, LEADS, FUNNEL, STUDENTS, CONVERT,
       PLANS, SUB_NEW, PAY_NEW, STUDENT_FIN, CONFIRM_PAY,
-      SCHEDULE, LESSONS, STUDENT_SCHED, USERS, BRANCHES, CONCERTS, EXAMS, COMMISSIONS, JOURNAL],
+      SCHEDULE, LESSONS, USERS, BRANCHES, CONCERTS, EXAMS, COMMISSIONS, JOURNAL],
     student: [PORTAL],
 };
 

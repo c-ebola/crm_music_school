@@ -1,56 +1,112 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>МузCRM — Мой кабинет</title>
-  <link rel="stylesheet" href="/styles.css">
-  <style>
-    .sec { margin-bottom:22px; }
-    .sec h2 { font-size:17px; margin-bottom:12px; }
-    .row-item { display:flex; align-items:center; gap:14px; border:1px solid #e8e8ed; border-radius:12px; padding:12px 16px; margin-bottom:8px; background:#fff; }
-    .ri-when { width:96px; flex-shrink:0; }
-    .ri-date { font-size:13px; color:#86868b; }
-    .ri-time { font-weight:600; font-size:14px; }
-    .ri-main { flex:1; }
-    .ri-title { font-weight:600; }
-    .ri-sub { font-size:13px; color:#86868b; margin-top:2px; }
-    .ri-status { font-size:12px; padding:3px 10px; border-radius:10px; background:#eef; }
-    .st-scheduled { background:#e6efff; color:#2456b3; }
-    .st-completed { background:#d1f4d1; color:#1d6e1d; }
-    .st-cancelled { background:#fadcdc; color:#8c1f1f; }
-    .hw-item { border:1px solid #e8e8ed; border-radius:12px; padding:14px 16px; margin-bottom:8px; background:#fff; }
-    .hw-item.done { opacity:.7; }
-    .hw-top { display:flex; gap:10px; align-items:center; margin-bottom:6px; }
-    .hw-status { font-size:12px; padding:2px 9px; border-radius:10px; }
-    .s-open { background:#fff3d1; color:#8a6400; }
-    .s-done { background:#d1f4d1; color:#1d6e1d; }
-    .hw-teacher { font-size:12px; color:#86868b; }
-    .hw-desc { font-size:14px; white-space:pre-wrap; }
-    .hw-comment { font-size:13px; color:#555; margin-top:6px; border-left:3px solid #e0e0e5; padding-left:10px; }
-    .empty { color:#a1a1a6; font-size:14px; padding:8px 0; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>МузCRM — Мой кабинет</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        .cab-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:start; max-width:1100px; }
+        @media (max-width:860px){ .cab-grid{ grid-template-columns:1fr; } }
+        .full { grid-column:1 / -1; }
+        .card2 { background:#fff; border-radius:14px; box-shadow:0 1px 3px rgba(0,0,0,.06); padding:22px 24px; }
+        .card2 h2 { font-size:13px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:#86868b; margin:0 0 14px; }
+
+        .sub-hero { background:linear-gradient(135deg,#1d1d1f,#3a3a3f); color:#fff; }
+        .sub-hero h2 { color:#b9b9c0; }
+        .sub-top { display:flex; align-items:flex-end; gap:14px; flex-wrap:wrap; }
+        .sub-remain { font-size:48px; font-weight:700; line-height:1; }
+        .sub-remain small { font-size:16px; font-weight:500; color:#c9c9cf; }
+        .sub-plan { font-size:15px; font-weight:600; margin-left:auto; text-align:right; }
+        .sub-bar { height:8px; background:rgba(255,255,255,.18); border-radius:999px; margin:18px 0 10px; overflow:hidden; }
+        .sub-bar > i { display:block; height:100%; background:#5ac46f; border-radius:999px; }
+        .sub-meta { display:flex; gap:22px; flex-wrap:wrap; font-size:13px; color:#d2d2d7; }
+        .sub-meta b { color:#fff; font-weight:600; }
+        .pill2 { display:inline-block; padding:3px 11px; border-radius:999px; font-size:12px; font-weight:600; }
+        .pill2.active { background:#e7f6ea; color:#1f7a3d; }
+        .pill2.expired, .pill2.used_up { background:#fde7e7; color:#8c1f1f; }
+        .pill2.cancelled { background:#ececef; color:#555; }
+        .sub-empty { font-size:14px; color:#d2d2d7; }
+
+        .sched-toolbar { display:flex; align-items:center; gap:10px; margin-bottom:14px; flex-wrap:wrap; }
+        .btn-nav { padding:7px 12px; border:1px solid #d2d2d7; border-radius:8px; background:#fff; cursor:pointer; font-size:13px; }
+        .btn-nav:hover { background:#f0f0f3; }
+        .sch-range { font-weight:600; font-size:14px; }
+        .day-group { margin-bottom:14px; }
+        .day-group:last-child { margin-bottom:0; }
+        .day-head { font-size:13px; font-weight:600; color:#1d1d1f; padding:6px 0; border-bottom:1px solid #e8e8ed; margin-bottom:6px; }
+        .srow { display:flex; align-items:flex-start; gap:12px; padding:9px 0; }
+        .srow .s-main { flex:1; }
+        .srow .s-time { font-size:13px; font-weight:600; color:#1d1d1f; white-space:nowrap; }
+        .kind { display:inline-block; font-size:11px; font-weight:600; padding:2px 8px; border-radius:999px; margin-right:6px; }
+        .kind.session { background:#eef3ff; color:#274690; }
+        .kind.exam { background:#eee7ff; color:#5a3fb0; }
+        .kind.event { background:#fdeecf; color:#8a5b00; }
+        .s-title { font-weight:600; font-size:14px; }
+        .s-meta { font-size:12px; color:#86868b; margin-top:3px; }
+        .tag-cancel { font-size:11px; font-weight:600; color:#8c1f1f; margin-left:6px; }
+
+        .row { padding:12px 0; border-bottom:1px solid #f0f0f3; }
+        .row:last-child { border-bottom:none; }
+        .row .t { font-weight:600; font-size:14px; }
+        .row .m { font-size:12px; color:#86868b; margin-top:3px; }
+        .badge { display:inline-block; padding:2px 9px; border-radius:999px; font-size:11px; font-weight:600; margin-top:6px; }
+        .badge.done { background:#e7f6ea; color:#1f7a3d; }
+        .badge.open { background:#fff3e0; color:#9a6400; }
+        .empty { color:#86868b; font-size:14px; padding:14px 0; }
+        .profile-line { display:flex; justify-content:space-between; gap:12px; padding:9px 0; border-bottom:1px solid #f0f0f3; font-size:14px; }
+        .profile-line:last-child { border-bottom:none; }
+        .profile-line span { color:#86868b; }
+        .profile-line b { text-align:right; }
+        .blocker { max-width:520px; }
+    </style>
 </head>
 <body>
-  <div class="layout">
-    <aside id="sidebar" class="sidebar"></aside>
-    <main class="content">
-      <header class="page-header">
-        <h1 id="hello">Мой кабинет</h1>
-        <div class="breadcrumb" id="subtitle"></div>
-      </header>
-      <section class="sec">
-        <h2>Моё расписание</h2>
-        <div id="schedule"><div class="empty">Загрузка…</div></div>
-      </section>
-      <section class="sec">
-        <h2>Домашние задания</h2>
-        <div id="homeworks"><div class="empty">Загрузка…</div></div>
-      </section>
-    </main>
-  </div>
-  <script src="/shared/auth.js"></script>
-  <script src="/shared/nav.js"></script>
-  <script src="/pages/portal/portal.js"></script>
+    <div class="layout">
+        <aside id="sidebar" class="sidebar"></aside>
+
+        <main class="content">
+            <header class="page-header">
+                <h1>Мой кабинет</h1>
+                <div class="breadcrumb" id="who">—</div>
+            </header>
+
+            <div id="blocker" class="card blocker hidden">
+                <p id="blocker-text">Этот раздел доступен только ученикам.</p>
+            </div>
+
+            <div id="cab" class="cab-grid">
+                <section class="card2 sub-hero full">
+                    <h2>Текущий абонемент</h2>
+                    <div id="sub-body"><div class="sub-empty">Загрузка…</div></div>
+                </section>
+
+                <section class="card2 full">
+                    <h2>Расписание</h2>
+                    <div class="sched-toolbar">
+                        <button class="btn-nav" id="sch-prev">← Неделя</button>
+                        <span class="sch-range" id="sch-range">—</span>
+                        <button class="btn-nav" id="sch-next">Неделя →</button>
+                        <button class="btn-nav" id="sch-today">Эта неделя</button>
+                    </div>
+                    <div id="sched"><div class="empty">Загрузка…</div></div>
+                </section>
+
+                <section class="card2">
+                    <h2>Профиль</h2>
+                    <div id="profile"></div>
+                </section>
+
+                <section class="card2">
+                    <h2>Домашние задания</h2>
+                    <div id="hw"><div class="empty">Загрузка…</div></div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script src="/shared/auth.js"></script>
+    <script src="/shared/nav.js"></script>
+    <script src="/pages/portal/portal.js"></script>
 </body>
 </html>

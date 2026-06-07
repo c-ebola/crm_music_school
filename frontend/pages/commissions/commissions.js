@@ -142,8 +142,8 @@ $('cards').addEventListener('click', async (e) => {
                 body: JSON.stringify({ user_id: uid, role }),
             });
             const data = await r.json();
-            if (r.ok){ const i = commissions.findIndex(c => c.id === cid); if (i>=0) commissions[i] = data; delete errById[cid]; }
-            else { errById[cid] = data.detail || 'Не удалось добавить'; }
+            if (r.ok){ delete errById[cid]; await loadCommissions(); return; }
+            else { const data = await r.json().catch(()=>({})); errById[cid] = data.detail || 'Не удалось добавить'; }
         } catch(err){ errById[cid] = 'Сетевая ошибка: ' + err.message; }
         render(); return;
     }
@@ -152,8 +152,8 @@ $('cards').addEventListener('click', async (e) => {
         try {
             const r = await Auth.apiFetch(`/api/commissions/${cid}/members/${mid}`, { method:'DELETE' });
             const data = await r.json();
-            if (r.ok){ const i = commissions.findIndex(c => c.id === cid); if (i>=0) commissions[i] = data; delete errById[cid]; }
-            else { errById[cid] = data.detail || 'Не удалось убрать'; }
+            if (r.ok){ delete errById[cid]; await loadCommissions(); return; }
+            else { const data = await r.json().catch(()=>({})); errById[cid] = data.detail || 'Не удалось убрать'; }
         } catch(err){ errById[cid] = 'Сетевая ошибка: ' + err.message; }
         render(); return;
     }

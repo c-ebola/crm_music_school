@@ -118,7 +118,7 @@ $('edit-form').addEventListener('submit', async (e) => {
   } catch(err){ msg('Сетевая ошибка: ' + err.message, 'error'); }
 });
 
-// ===== Доступ в систему =====
+// Доступ в систему
 function renderCred(s){
   const box = $('cred-box');
   if (!canIssue){ box.innerHTML = ''; return; }
