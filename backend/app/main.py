@@ -8,12 +8,12 @@ from sqlalchemy import text
 
 from app.api import exams, exam_sessions, commissions
 from app.api import branches
+from app.core.audit import audit_middleware
 from app.api import (auth, leads, 
 pages, roles, users, subscription_plans, subscriptions, 
 payments, disciplines, rooms, lessons, sessions, schedule,
 session_students, events,instruments, performances, performance_students,
-homeworks, stats, portal
-
+homeworks, stats, portal, audit
 )
 from app.core.config import settings
 from app.db.session import engine
@@ -40,6 +40,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.middleware("http")(audit_middleware)
 
 # API-маршруты 
 app.include_router(roles.router)
@@ -68,6 +70,7 @@ app.include_router(exam_sessions.students_router)
 app.include_router(branches.router)
 app.include_router(stats.router)
 app.include_router(portal.router)
+app.include_router(audit.router)
 
 
 @app.get("/health", tags=["system"])

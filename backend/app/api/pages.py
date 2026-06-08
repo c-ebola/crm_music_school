@@ -106,3 +106,7 @@ async def page_journal():
 @router.get("/portal", summary="Кабинет ученика")
 async def page_portal():
     return _html("pages/portal/portal.html")
+
+@router.get("/audit", summary="Журнал аудита")
+async def page_audit():
+    return _html("pages/audit/audit.html")

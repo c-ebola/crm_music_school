@@ -19,10 +19,10 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    # 1. новая колонка (пока nullable)
+    # 1 новая колонка (пока nullable)
     op.add_column('leads', sa.Column('discipline_id', sa.Integer(), nullable=True))
 
-    # 2. перенос данных: enum-код -> id дисциплины по названию
+    # 2 перенос данных: enum-код -> id дисциплины по названию
     op.execute("""
         UPDATE leads SET discipline_id = d.id
         FROM disciplines d
@@ -36,11 +36,11 @@ def upgrade() -> None:
         END
     """)
 
-    # 3. теперь делаем NOT NULL и вешаем FK
+    # 3 теперь делаем NOT NULL и вешаем FK
     op.alter_column('leads', 'discipline_id', nullable=False)
     op.create_foreign_key('leads_discipline_id_fkey', 'leads', 'disciplines', ['discipline_id'], ['id'])
 
-    # 4. убираем старую enum-колонку и неиспользуемый тип
+    # 4 убираем старую enum-колонку и неиспользуемый тип
     op.drop_column('leads', 'discipline')
     op.execute("DROP TYPE IF EXISTS discipline")
 

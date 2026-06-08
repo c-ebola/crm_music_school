@@ -1,4 +1,5 @@
-// Единый справочник русских подписей для кодов из бэкенда (уровни, статусы и т.п.) — чтобы не разбрасывать их по разным компонентам, а держать в одном месте.
+// Единый справочник «код enum → русская подпись».
+(function () {
   const LEVEL = { beginner: 'Начинающий', intermediate: 'Средний', advanced: 'Продвинутый' };
 
   // Формат/тип занятия. Значения уточните по своим enum, если отличаются.
@@ -21,6 +22,7 @@
     sessionStatus: pick(SESSION_STATUS),
     subStatus:     pick(SUB_STATUS),
     examResult:    pick(EXAM_RESULT),
+    // сырые карты — если где-то нужен сам объект (например, для <option>)
     maps: { LEVEL, LESSON_FORMAT, LESSON_TYPE, SESSION_STATUS, SUB_STATUS, EXAM_RESULT },
   };
 })();

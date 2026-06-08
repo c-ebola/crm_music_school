@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>МузCRM — Журнал аудита</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        .head-row { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; }
+        .btn-soft { padding:9px 16px; border:1px solid #d2d2d7; border-radius:9px; background:#fff; cursor:pointer; font-size:14px; }
+        .btn-soft:hover { background:#f5f5f7; }
+
+        .pills { display:flex; gap:8px; flex-wrap:wrap; margin:18px 0 14px; }
+        .pill { border:1px solid #e8e8ed; background:#fff; border-radius:999px; padding:6px 14px; font-size:13px;
+                font-weight:500; cursor:pointer; display:inline-flex; gap:6px; align-items:center; }
+        .pill:hover { background:#f5f5f7; }
+        .pill .c { color:#86868b; font-weight:600; }
+        .pill.active { background:#1d1d1f; color:#fff; border-color:#1d1d1f; }
+        .pill.active .c { color:#c9c9cf; }
+
+        .filters { display:none; gap:10px; flex-wrap:wrap; align-items:flex-end; margin-bottom:16px;
+                   padding:14px; background:#fafafc; border:1px solid #ececef; border-radius:10px; }
+        .filters.show { display:flex; }
+        .filters .f { display:flex; flex-direction:column; gap:4px; }
+        .filters label { font-size:12px; color:#86868b; }
+        .filters input, .filters select { width:auto; min-width:150px; }
+
+        .feed-title { font-size:16px; font-weight:600; margin-bottom:2px; }
+        .feed-sub { font-size:13px; color:#86868b; margin-bottom:16px; }
+
+        .op { display:grid; grid-template-columns:10px 158px 1fr; gap:14px; padding:14px 2px; border-bottom:1px solid #f0f0f3; }
+        .op:last-child { border-bottom:none; }
+        .dot { width:9px; height:9px; border-radius:50%; margin-top:5px; }
+        .op-time { font-size:13px; color:#86868b; }
+        .op-badge { display:inline-block; margin-top:6px; padding:2px 9px; border-radius:6px; font-size:11px; font-weight:600; }
+        .op-desc { font-size:14px; font-weight:500; }
+        .op-sub { font-size:12px; color:#86868b; margin-top:3px; }
+        .op-sub .path { font-family:ui-monospace,Menlo,monospace; }
+
+        .empty, .loading { color:#86868b; padding:28px 4px; text-align:center; }
+        .more-wrap { text-align:center; margin-top:14px; }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <aside id="sidebar" class="sidebar"></aside>
+        <main class="content" style="max-width:1180px;">
+            <header class="page-header head-row">
+                <div>
+                    <h1>Журнал аудита действий</h1>
+                    <div class="breadcrumb" id="who">Все важные операции с фиксацией пользователя и времени</div>
+                </div>
+                <button class="btn-soft" id="toggle-filters">Фильтры ▾</button>
+            </header>
+
+            <div class="filters" id="filters">
+                <div class="f"><label for="f-from">С даты</label><input type="date" id="f-from"></div>
+                <div class="f"><label for="f-to">По дату</label><input type="date" id="f-to"></div>
+                <div class="f"><label for="f-search">Сотрудник</label><input type="text" id="f-search" placeholder="ФИО..."></div>
+                <button type="button" class="btn-ghost" id="f-reset">Сбросить</button>
+            </div>
+
+            <div class="pills" id="pills"></div>
+
+            <section class="card">
+                <div class="feed-title">Последние операции</div>
+                <div class="feed-sub" id="feed-sub">—</div>
+                <div id="rows"></div>
+                <div id="loading" class="loading">Загрузка…</div>
+                <div id="empty" class="empty hidden">Записей нет.</div>
+                <div class="more-wrap"><button type="button" class="btn-ghost hidden" id="more">Загрузить ещё</button></div>
+            </section>
+        </main>
+    </div>
+
+    <script src="/shared/auth.js"></script>
+    <script src="/shared/nav.js"></script>
+    <script src="/pages/audit/audit.js"></script>
+</body>
+</html>

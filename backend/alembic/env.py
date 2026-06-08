@@ -21,7 +21,8 @@ from app.models import (
     subscription_plan, subscription,
     payment, discipline, room, lesson,
     session, schedule, session_student,
-    event, instrument, performance, performance_student
+    event, instrument, performance, performance_student,
+    homework, commission_member, exam, exam_session_student
     )  # noqa: F401
 # from app.models import school, ...  
 

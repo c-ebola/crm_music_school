@@ -42,4 +42,4 @@ def downgrade() -> None:
     op.drop_column('leads', 'enrollment_date')
     op.drop_column('leads', 'teacher_id')
     op.drop_column('leads', 'is_student')
-    # пересоздание таблицы students в downgrade опущено (dev)
+    # пересоздание таблицы students в downgrade опущено

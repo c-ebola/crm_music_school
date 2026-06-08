@@ -1,7 +1,7 @@
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, String, func
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import Boolean, DateTime, String, func
+from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base
 
@@ -12,11 +12,9 @@ class Instrument(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(150), nullable=False)
-    type: Mapped[str | None] = mapped_column(String(50))     # фортепиано / гитара / ...
+    type: Mapped[str | None] = mapped_column(String(50))     # фортепиано / гитара / скрипка и т.п.
+    branch: Mapped[str | None] = mapped_column(String(100))  # филиал
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
-    branch_id: Mapped[int | None] = mapped_column(
-        ForeignKey("branches.id", ondelete="SET NULL")
-    )
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
@@ -24,8 +22,6 @@ class Instrument(Base):
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
     )
-
-    branch: Mapped["Branch | None"] = relationship("Branch", lazy="joined")  # noqa: F821
 
     def __repr__(self) -> str:
         return f"<Instrument(id={self.id}, name={self.name!r})>"

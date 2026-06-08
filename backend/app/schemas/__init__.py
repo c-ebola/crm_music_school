@@ -32,6 +32,9 @@ from app.schemas.performance_student import (
     PerformanceStudentCreate, PerformanceStudentUpdate, PerformanceStudentRead,
 )
 from app.schemas.homework import HomeworkCreate, HomeworkUpdate, HomeworkRead
+from app.schemas.commission import CommissionMemberCreate, CommissionMemberRead
+from app.schemas.audit import AuditLogRead
+
 
 __all__ = [
     "RoleBase", "RoleCreate", "RoleRead",
@@ -47,8 +50,8 @@ __all__ = [
     "ScheduleCreate", "ScheduleUpdate", "ScheduleRead", "ScheduleAddSession",
     "SessionStudentCreate", "SessionStudentUpdate", "SessionStudentRead",
     "PaymentCreate", "PaymentUpdate", "PaymentRead", 
-    "Event", "EventStatus"
-    "EventBase", "EventCreate", "EventStatus","EventBase", "EventUpdate", "EventRead",
+    "Event", "EventStatus",
+    "EventBase", "EventCreate", "EventUpdate", "EventRead", "EventStatus",
     "InstrumentBase", "InstrumentCreate", "InstrumentUpdate", "InstrumentRead",
     "PerformanceCreate", "PerformanceUpdate", "PerformanceRead",
     "PerformanceStudentCreate", "PerformanceStudentUpdate", "PerformanceStudentRead",
@@ -56,4 +59,5 @@ __all__ = [
     "CommissionMemberCreate", "CommissionMemberRead",
     "ExamCreate", "ExamUpdate", "ExamRead",
     "ExamSessionUpdate", "ExamSessionStudentRead",
+    "AuditLogRead",
 ]

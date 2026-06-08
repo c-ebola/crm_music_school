@@ -19,10 +19,10 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    # 1. новая колонка в schedule
+    # 1 новая колонка в schedule
     op.add_column('schedule', sa.Column('date', sa.Date(), nullable=True))
 
-    # 2. перенос: дата слота = дата сессии
+    # 2 перенос: дата слота = дата сессии
     op.execute("""
         UPDATE schedule SET date = s.session_date::date
         FROM sessions s
@@ -31,7 +31,7 @@ def upgrade() -> None:
     # подстраховка для возможных «осиротевших» строк
     op.execute("UPDATE schedule SET date = CURRENT_DATE WHERE date IS NULL")
 
-    # 3. NOT NULL и удаление старого поля из sessions
+    # 3 NOT NULL и удаление старого поля из sessions
     op.alter_column('schedule', 'date', nullable=False)
     op.drop_column('sessions', 'session_date')
 

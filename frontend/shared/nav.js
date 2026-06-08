@@ -34,6 +34,7 @@
   const STUDENTS = { label: 'Ученики', href: '/students' };
   const PORTAL = { label: 'Мой кабинет', href: '/portal' };
   const JOURNAL = { label: 'Журнал занятий', href: '/journal' };
+  const AUDIT = { label: 'Журнал аудита', href: '/audit' };
 
   // Набор пунктов роли = страницы, которые роль может открыть
 
@@ -43,10 +44,10 @@ const NAV = {
     methodist: [HOME, SCHEDULE, LESSONS, CONCERTS, EXAMS, MY_SCHED, COMMISSIONS],
     teacher: [HOME, MY_SCHED, HOMEWORKS, JOURNAL],
     branch_admin: [HOME, DASHBOARD, LEADS, FUNNEL, STUDENTS, CONVERT,
-      SCHEDULE, LESSONS, CONFIRM_PAY, CONCERTS, EXAMS, COMMISSIONS, JOURNAL, MY_SCHED],
+      SCHEDULE, LESSONS, CONFIRM_PAY, CONCERTS, EXAMS, COMMISSIONS, JOURNAL, MY_SCHED, AUDIT],
     admin: [HOME, DASHBOARD, LEADS, FUNNEL, STUDENTS, CONVERT,
       PLANS, SUB_NEW, PAY_NEW, STUDENT_FIN, CONFIRM_PAY,
-      SCHEDULE, LESSONS, USERS, BRANCHES, CONCERTS, EXAMS, COMMISSIONS, JOURNAL],
+      SCHEDULE, LESSONS, USERS, BRANCHES, CONCERTS, EXAMS, COMMISSIONS, JOURNAL, AUDIT],
     student: [PORTAL],
 };
 
